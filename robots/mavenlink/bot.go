@@ -8,6 +8,7 @@ import (
 	"github.com/gistia/slackbot/mavenlink"
 	"github.com/gistia/slackbot/models"
 	"github.com/gistia/slackbot/robots"
+	"github.com/gistia/slackbot/utils"
 )
 
 type bot struct{}
@@ -55,6 +56,15 @@ func (r bot) DeferredAction(p *robots.Payload) {
 		return
 	}
 
+	if cmd == "stories" {
+		if len(parts) < 2 {
+			r.sendResponse(p, "Please use ! mvn stories <id|term>")
+			return
+		}
+
+		r.sendStories(p, parts[1], "")
+	}
+
 	msg := fmt.Sprintf("Running mavenlink command: %s", text)
 	r.sendResponse(p, msg)
 }
@@ -89,13 +99,125 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 		return
 	}
 
-	for _, p := range ps {
-		s += fmt.Sprintf("%s - %s\n", p.Id, p.Title)
+	r.sendResponse(payload, s+projectTable(ps))
+}
+
+func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
+	mvn := conn()
+
+	var p models.Project
+	var stories []models.Story
+	var err error
+
+	if term != "" {
+		ps, err := getProject(term)
+
+		if err != nil {
+			msg := fmt.Sprintf("Error retrieving project for \"%s\": %s\n", term, err.Error())
+			r.sendResponse(payload, msg)
+			return
+		}
+
+		if len(ps) < 1 {
+			msg := fmt.Sprintf("No projects matched \"%s\"\n", term)
+			r.sendResponse(payload, msg)
+			return
+		} else if len(ps) > 1 {
+			s := fmt.Sprintf("More than one project matched \"%s\":\n\n", term)
+			r.sendResponse(payload, s+projectTable(ps))
+			return
+		} else {
+			p = ps[0]
+		}
 	}
 
-	r.sendResponse(payload, s)
+	if parent == "" {
+		stories, err = mvn.Stories(p.Id)
+		if err != nil {
+			msg := fmt.Sprintf("Error retrieving stories for project \"%s - %s\": %s\n",
+				p.Id, p.Title, err.Error())
+			r.sendResponse(payload, msg)
+			return
+		}
+		r.sendResponse(payload, storyTable(stories))
+		return
+	}
+
+	if utils.IsNumber(parent) {
+		stories, err = mvn.ChildStories(parent)
+		if err != nil {
+			fmt.Printf("Error child stories for \"%s\": %s\n", parent, err.Error())
+			return
+		}
+		r.sendResponse(payload, storyTable(stories))
+		return
+	}
+
+	r.sendResponse(payload, "Not implemented")
+}
+
+func getProject(term string) ([]models.Project, error) {
+	mvn := conn()
+
+	if utils.IsNumber(term) {
+		p, err := mvn.Project(term)
+		if err != nil {
+			return nil, err
+		}
+
+		return []models.Project{*p}, nil
+	}
+
+	ps, err := mvn.SearchProject(term)
+	if err != nil {
+		return nil, err
+	}
+
+	return ps, nil
 }
 
 func (r bot) Description() (description string) {
 	return "Mavenlink bot\n\tUsage: ! mvn <command>\n"
+}
+
+func projectTable(ps []models.Project) string {
+	s := ""
+
+	for _, p := range ps {
+		s += fmt.Sprintf("%s - %s\n", p.Id, p.Title)
+	}
+
+	return s
+}
+
+func formatHour(h int64) string {
+	if h == 0 {
+		return ""
+	}
+
+	v := float64(h) / 60
+	return fmt.Sprintf("%.2f", v)
+}
+
+func storyTable(stories []models.Story) string {
+	r := ""
+
+	for _, s := range stories {
+		r += fmt.Sprintf("*%s* %s - %s (%s)\n",
+			strings.Title(s.StoryType), s.Id, s.Title, s.State)
+
+		if s.TimeEstimateInMinutes > 0 {
+			r += fmt.Sprintf(" Estimated hours: %s\n",
+				formatHour(s.TimeEstimateInMinutes))
+		}
+
+		if s.LoggedBillableTimeInMinutes > 0 {
+			r += fmt.Sprintf(" Logged hours: %s\n",
+				formatHour(s.LoggedBillableTimeInMinutes))
+		}
+
+		r += "\n"
+	}
+
+	return r
 }
