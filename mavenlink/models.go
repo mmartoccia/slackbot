@@ -1,4 +1,4 @@
-package models
+package mavenlink
 
 import (
 	"encoding/json"

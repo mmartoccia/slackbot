@@ -1,4 +1,4 @@
-package models
+package mavenlink
 
 type Response struct {
 	Errors   []ErrorItem        `json:"errors"`
