@@ -68,6 +68,8 @@ type Attachment struct {
 	Pretext    string            `json:"pretext,omitempty"`
 	Text       string            `json:"text,omitempty"`
 	Color      string            `json:"color,omitempty"`
+	Title      string            `json:"title,omitempty"`
+	TitleLink  string            `json:"title_link,omitempty"`
 	Fields     []AttachmentField `json:"fields,omitempty"`
 	MarkdownIn []MarkdownField   `json:"mrkdown_in,omitempty"`
 }
@@ -104,6 +106,8 @@ func (i *IncomingWebhook) Send() error {
 	if err != nil {
 		return err
 	}
+
+	log.Printf("Payload: %s", string(p))
 
 	data := url.Values{}
 	data.Set("payload", string(p))

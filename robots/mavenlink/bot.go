@@ -24,6 +24,10 @@ func (r bot) Run(p *robots.Payload) (slashCommandImmediateReturn string) {
 }
 
 func (r bot) sendResponse(p *robots.Payload, s string) {
+	r.sendWithAttachment(p, s, nil)
+}
+
+func (r bot) sendWithAttachment(p *robots.Payload, s string, atts []robots.Attachment) {
 	response := &robots.IncomingWebhook{
 		Domain:      p.TeamDomain,
 		Channel:     p.ChannelID,
@@ -32,6 +36,7 @@ func (r bot) sendResponse(p *robots.Payload, s string) {
 		IconEmoji:   ":chart_with_upwards_trend:",
 		UnfurlLinks: true,
 		Parse:       robots.ParseStyleFull,
+		Attachments: atts,
 	}
 
 	response.Send()
@@ -139,7 +144,7 @@ func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
 			r.sendResponse(payload, msg)
 			return
 		}
-		r.sendResponse(payload, storyTable(stories))
+		r.storyTable(payload, stories)
 		return
 	}
 
@@ -149,7 +154,7 @@ func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
 			fmt.Printf("Error child stories for \"%s\": %s\n", parent, err.Error())
 			return
 		}
-		r.sendResponse(payload, storyTable(stories))
+		r.storyTable(payload, stories)
 		return
 	}
 
@@ -199,25 +204,20 @@ func formatHour(h int64) string {
 	return fmt.Sprintf("%.2f", v)
 }
 
-func storyTable(stories []models.Story) string {
-	r := ""
-
+func (r bot) storyTable(payload *robots.Payload, stories []models.Story) {
 	for _, s := range stories {
-		r += fmt.Sprintf("*%s* %s - %s (%s)\n",
+		atts := []robots.Attachment{}
+		a := robots.Attachment{}
+		a.Color = "#7CD197"
+		a.Fallback = fmt.Sprintf("%s - *%s* %s (%s)\n",
 			strings.Title(s.StoryType), s.Id, s.Title, s.State)
+		a.Title = fmt.Sprintf("Task #%s - %s\n", s.Id, s.Title)
+		a.TitleLink = fmt.Sprintf(
+			"https://app.mavenlink.com/workspaces/%s/#tracker/%s",
+			s.WorkspaceId, s.Id)
+		a.Text = strings.Title(s.StoryType)
+		atts = append(atts, a)
 
-		if s.TimeEstimateInMinutes > 0 {
-			r += fmt.Sprintf(" Estimated hours: %s\n",
-				formatHour(s.TimeEstimateInMinutes))
-		}
-
-		if s.LoggedBillableTimeInMinutes > 0 {
-			r += fmt.Sprintf(" Logged hours: %s\n",
-				formatHour(s.LoggedBillableTimeInMinutes))
-		}
-
-		r += "\n"
+		r.sendWithAttachment(payload, "", atts)
 	}
-
-	return r
 }
