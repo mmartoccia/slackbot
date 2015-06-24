@@ -31,11 +31,13 @@ func hookHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Couldn't parse post request:", err)
 	}
-	if command.Text == "" || command.Token != os.Getenv(fmt.Sprintf("%s_OUT_TOKEN", strings.ToUpper(command.TeamDomain))) {
-		log.Printf("[DEBUG] Ignoring request from unidentified source: %s - %s", command.Token, r.Host)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	// if command.Text == "" || command.Token != os.Getenv(fmt.Sprintf("%s_OUT_TOKEN", strings.ToUpper(command.TeamDomain))) {
+	// 	log.Printf("[DEBUG] Ignoring request from unidentified source: %s - %s", command.Token, r.Host)
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
+	fmt.Println(command.Text)
+	fmt.Println(command.TriggerWord)
 	com := strings.TrimPrefix(command.Text, command.TriggerWord+" ")
 	c := strings.Split(com, " ")
 	command.Robot = c[0]
@@ -120,6 +122,7 @@ func startServer() {
 }
 
 func getRobots(command string) []robots.Robot {
+	fmt.Println("Robots:", robots.Robots)
 	if r, ok := robots.Robots[command]; ok {
 		return r
 	}

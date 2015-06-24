@@ -11,6 +11,7 @@ robots=(
     "github.com/gistia/slackbot/robots/wiki"
     "github.com/gistia/slackbot/robots/bot"
     "github.com/gistia/slackbot/robots/mavenlink"
+    "github.com/gistia/slackbot/robots/pivotal"
 )
 
 echo "package importer

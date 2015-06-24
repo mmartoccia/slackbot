@@ -1,14 +1,10 @@
 package mavenlink
 
 import (
-	"bytes"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"net/http"
 	"net/url"
 
-	"github.com/gistia/slackbot/models"
+	"github.com/gistia/slackbot/utils"
 )
 
 type Mavenlink struct {
@@ -25,36 +21,9 @@ func (mvn *Mavenlink) makeUrl(uri string) string {
 }
 
 func (mvn *Mavenlink) request(method string, url string, data url.Values) ([]byte, error) {
-	var dataIn io.Reader
-
-	if data == nil {
-		dataIn = nil
-	} else {
-		dataIn = bytes.NewBufferString(data.Encode())
-	}
-
-	req, err := http.NewRequest(method, url, dataIn)
-	if err != nil {
-		return nil, err
-	}
-
 	auth := fmt.Sprintf("Bearer %s", mvn.Token)
-	req.Header.Add("Authorization", auth)
 
-	resp, err := http.DefaultTransport.RoundTrip(req)
-	if err != nil {
-		return nil, err
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// fmt.Println("Body:", string(body))
-
-	return body, err
+	return utils.Request(method, url, data, map[string]string{"Authorization": auth})
 }
 
 func (mvn *Mavenlink) getBody(uri string, filters []string) ([]byte, error) {
@@ -77,7 +46,7 @@ func (mvn *Mavenlink) getBody(uri string, filters []string) ([]byte, error) {
 	return mvn.request("GET", url, nil)
 }
 
-func (mvn *Mavenlink) get(uri string, filters []string) (*models.Response, error) {
+func (mvn *Mavenlink) get(uri string, filters []string) (*Response, error) {
 	if filters == nil {
 		filters = []string{}
 	}
@@ -89,11 +58,11 @@ func (mvn *Mavenlink) get(uri string, filters []string) (*models.Response, error
 		return nil, err
 	}
 
-	resp, err := models.NewFromJson(json)
+	resp, err := NewFromJson(json)
 	return resp, err
 }
 
-func (mvn *Mavenlink) post(uri string, params map[string]string) (*models.Response, error) {
+func (mvn *Mavenlink) post(uri string, params map[string]string) (*Response, error) {
 	postParams := url.Values{}
 	for k, v := range params {
 		postParams.Add(k, v)
@@ -104,12 +73,12 @@ func (mvn *Mavenlink) post(uri string, params map[string]string) (*models.Respon
 		return nil, err
 	}
 
-	resp, err := models.NewFromJson(json)
+	resp, err := NewFromJson(json)
 	return resp, err
 }
 
-func (mvn *Mavenlink) Projects() ([]models.Project, error) {
-	var projects []models.Project
+func (mvn *Mavenlink) Projects() ([]Project, error) {
+	var projects []Project
 	resp, err := mvn.get("workspaces", nil)
 
 	if err != nil {
@@ -124,7 +93,7 @@ func (mvn *Mavenlink) Projects() ([]models.Project, error) {
 	return projects, nil
 }
 
-func (mvn *Mavenlink) Project(id string) (*models.Project, error) {
+func (mvn *Mavenlink) Project(id string) (*Project, error) {
 	req := fmt.Sprintf("workspaces/%s", id)
 	r, err := mvn.get(req, nil)
 
@@ -135,7 +104,7 @@ func (mvn *Mavenlink) Project(id string) (*models.Project, error) {
 	return &r.ProjectList()[0], err
 }
 
-func (mvn *Mavenlink) SearchProject(term string) ([]models.Project, error) {
+func (mvn *Mavenlink) SearchProject(term string) ([]Project, error) {
 	search := fmt.Sprintf("matching=%s", term)
 	r, err := mvn.get("workspaces", []string{search})
 
@@ -146,7 +115,7 @@ func (mvn *Mavenlink) SearchProject(term string) ([]models.Project, error) {
 	return r.ProjectList(), err
 }
 
-func (mvn *Mavenlink) Story(id string) (*models.Story, error) {
+func (mvn *Mavenlink) Story(id string) (*Story, error) {
 	req := fmt.Sprintf("stories/%s", id)
 	r, err := mvn.get(req, nil)
 
@@ -157,7 +126,7 @@ func (mvn *Mavenlink) Story(id string) (*models.Story, error) {
 	return &r.StoryList()[0], err
 }
 
-func (mvn *Mavenlink) Stories(projectId string) ([]models.Story, error) {
+func (mvn *Mavenlink) Stories(projectId string) ([]Story, error) {
 	filters := []string{
 		fmt.Sprintf("workspace_id=%s", projectId),
 		"parents_only=true",
@@ -171,7 +140,7 @@ func (mvn *Mavenlink) Stories(projectId string) ([]models.Story, error) {
 	return resp.StoryList(), nil
 }
 
-func (mvn *Mavenlink) ChildStories(parentId string) ([]models.Story, error) {
+func (mvn *Mavenlink) ChildStories(parentId string) ([]Story, error) {
 	filters := []string{
 		fmt.Sprintf("with_parent_id=%s", parentId),
 	}
@@ -184,7 +153,7 @@ func (mvn *Mavenlink) ChildStories(parentId string) ([]models.Story, error) {
 	return resp.StoryList(), nil
 }
 
-func (mvn *Mavenlink) CreateProject(p models.Project) (*models.Project, error) {
+func (mvn *Mavenlink) CreateProject(p Project) (*Project, error) {
 	params := map[string]string{"workspace[title]": p.Title}
 	_, err := mvn.post("workspaces", params)
 	if err != nil {
@@ -193,7 +162,7 @@ func (mvn *Mavenlink) CreateProject(p models.Project) (*models.Project, error) {
 	return nil, err
 }
 
-func (mvn *Mavenlink) CreateStory(s models.Story) (*models.Story, error) {
+func (mvn *Mavenlink) CreateStory(s Story) (*Story, error) {
 	params, err := s.ToParams()
 	if err != nil {
 		return nil, err

@@ -60,7 +60,7 @@ type MvnCommand struct {
 	Params    map[string]string
 }
 
-func NewMvnCommand(c string) MvnCommand {
+func NewCommand(c string) MvnCommand {
 	params := map[string]string{}
 	args := []string{}
 	parts := strings.Split(c, " ")

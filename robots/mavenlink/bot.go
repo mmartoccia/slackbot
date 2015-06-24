@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/gistia/slackbot/mavenlink"
-	"github.com/gistia/slackbot/models"
 	"github.com/gistia/slackbot/robots"
 	"github.com/gistia/slackbot/utils"
 )
@@ -48,7 +47,7 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	msg := fmt.Sprintf("Running mavenlink command: %s", text)
 	go r.sendResponse(p, msg)
 
-	cmd := utils.NewMvnCommand(p.Text)
+	cmd := utils.NewCommand(p.Text)
 
 	if cmd.Command == "projects" {
 		r.sendProjects(p, cmd.Arg(0))
@@ -67,7 +66,7 @@ func conn() *mavenlink.Mavenlink {
 }
 
 func (r bot) sendProjects(payload *robots.Payload, term string) {
-	var ps []models.Project
+	var ps []mavenlink.Project
 	var err error
 
 	go r.sendResponse(payload, "Retrieving mavenlink projects...\n")
@@ -96,8 +95,8 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
 	mvn := conn()
 
-	var p models.Project
-	var stories []models.Story
+	var p mavenlink.Project
+	var stories []mavenlink.Story
 	var err error
 
 	if term != "" {
@@ -147,7 +146,7 @@ func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
 	r.sendResponse(payload, "Not implemented")
 }
 
-func getProject(term string) ([]models.Project, error) {
+func getProject(term string) ([]mavenlink.Project, error) {
 	mvn := conn()
 
 	if utils.IsNumber(term) {
@@ -156,7 +155,7 @@ func getProject(term string) ([]models.Project, error) {
 			return nil, err
 		}
 
-		return []models.Project{*p}, nil
+		return []mavenlink.Project{*p}, nil
 	}
 
 	ps, err := mvn.SearchProject(term)
@@ -171,7 +170,7 @@ func (r bot) Description() (description string) {
 	return "Mavenlink bot\n\tUsage: ! mvn <command>\n"
 }
 
-func projectTable(ps []models.Project) string {
+func projectTable(ps []mavenlink.Project) string {
 	s := ""
 
 	for _, p := range ps {
@@ -190,7 +189,7 @@ func formatHour(h int64) string {
 	return fmt.Sprintf("%.2f", v)
 }
 
-func (r bot) storyTable(payload *robots.Payload, stories []models.Story) {
+func (r bot) storyTable(payload *robots.Payload, stories []mavenlink.Story) {
 	for _, s := range stories {
 		atts := []robots.Attachment{}
 		a := robots.Attachment{}
