@@ -19,7 +19,7 @@ func (r bot) Run(p *robots.Payload) (slashCommandImmediateReturn string) {
 	return ""
 }
 
-func (r bot) sendResponse(s string) {
+func (r bot) sendResponse(p *robots.Payload, s string) {
 	response := &robots.IncomingWebhook{
 		Domain:      p.TeamDomain,
 		Channel:     p.ChannelID,
@@ -36,10 +36,14 @@ func (r bot) sendResponse(s string) {
 func (r bot) DeferredAction(p *robots.Payload) {
 	text := strings.TrimSpace(p.Text)
 	if text == "" {
-		r.sendRepose("Please use ! mvn <command>")
+		r.sendResponse(p, "Please use ! mvn <command>")
 		return
 	}
 
 	msg := fmt.Sprintf("Running mavenlink command: %s", text)
-	r.sendRepose(msg)
+	r.sendResponse(p, msg)
+}
+
+func (pb bot) Description() (description string) {
+	return "Mavenlink bot\n\tUsage: ! mvn <command>\n"
 }
