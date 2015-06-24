@@ -1,12 +1,12 @@
-package mavenlink
+package robots
 
 import (
 	"fmt"
 	"os"
 	"strings"
 
-	"github.com/fcoury/mvn/mavenlink"
-	"github.com/fcoury/mvn/models"
+	"github.com/gistia/slackbot/mavenlink"
+	"github.com/gistia/slackbot/models"
 	"github.com/gistia/slackbot/robots"
 )
 

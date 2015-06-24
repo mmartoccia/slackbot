@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/robots/mavenlink/models"
+	"github.com/gistia/slackbot/models"
 )
 
 type Mavenlink struct {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/slackbot/robots/mavenlink/utils"
+	"github.com/gistia/slackbot/utils"
 )
 
 type Story struct {
