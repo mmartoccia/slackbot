@@ -1,6 +1,6 @@
 package directory
 
-import "github.com/trinchan/slackbot/robots"
+import "github.com/gistia/slackbot/robots"
 
 type bot struct{}
 

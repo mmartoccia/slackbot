@@ -2,15 +2,15 @@
 touch $1
 > $1
 robots=(
-    "github.com/trinchan/slackbot/robots/decide"
-    "github.com/trinchan/slackbot/robots/bijin"
-    "github.com/trinchan/slackbot/robots/nihongo"
-    "github.com/trinchan/slackbot/robots/ping"
-    "github.com/trinchan/slackbot/robots/roll"
-    "github.com/trinchan/slackbot/robots/store"
-    "github.com/trinchan/slackbot/robots/wiki"
-    "github.com/trinchan/slackbot/robots/bot"
-    "github.com/trinchan/slackbot/robots/mavenlink"
+    "github.com/gistia/slackbot/robots/decide"
+    "github.com/gistia/slackbot/robots/bijin"
+    "github.com/gistia/slackbot/robots/nihongo"
+    "github.com/gistia/slackbot/robots/ping"
+    "github.com/gistia/slackbot/robots/roll"
+    "github.com/gistia/slackbot/robots/store"
+    "github.com/gistia/slackbot/robots/wiki"
+    "github.com/gistia/slackbot/robots/bot"
+    "github.com/gistia/slackbot/robots/mavenlink"
 )
 
 echo "package importer

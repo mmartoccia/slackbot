@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/trinchan/slackbot/robots"
+	"github.com/gistia/slackbot/robots"
 )
 
 type bot struct {

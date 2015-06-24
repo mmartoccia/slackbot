@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/trinchan/slackbot/robots"
+	"github.com/gistia/slackbot/robots"
 )
 
 type bot struct{}

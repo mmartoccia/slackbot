@@ -3,7 +3,7 @@ package robots
 import (
 	"fmt"
 
-	"github.com/trinchan/slackbot/robots"
+	"github.com/gistia/slackbot/robots"
 )
 
 type bot struct{}
