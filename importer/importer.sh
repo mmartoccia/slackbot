@@ -10,6 +10,7 @@ robots=(
     "github.com/trinchan/slackbot/robots/store"
     "github.com/trinchan/slackbot/robots/wiki"
     "github.com/trinchan/slackbot/robots/bot"
+    "github.com/trinchan/slackbot/robots/mavenlink"
 )
 
 echo "package importer
