@@ -221,6 +221,17 @@ func (r bot) storyTable(payload *robots.Payload, stories []models.Story) {
 			"https://app.mavenlink.com/workspaces/%s/#tracker/%s",
 			s.WorkspaceId, s.Id)
 		a.Text = strings.Title(s.StoryType)
+
+		if s.TimeEstimateInMinutes > 0 {
+			a.Text += fmt.Sprintf(" Estimated hours: %s",
+				formatHour(s.TimeEstimateInMinutes))
+		}
+
+		if s.LoggedBillableTimeInMinutes > 0 {
+			a.Text += fmt.Sprintf(" Logged hours: %s",
+				formatHour(s.LoggedBillableTimeInMinutes))
+		}
+
 		atts = append(atts, a)
 
 		r.sendWithAttachment(payload, "", atts)
