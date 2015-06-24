@@ -49,6 +49,9 @@ func (r bot) DeferredAction(p *robots.Payload) {
 		return
 	}
 
+	msg := fmt.Sprintf("Running mavenlink command: %s", text)
+	go r.sendResponse(p, msg)
+
 	parts := strings.Split(p.Text, " ")
 	cmd := parts[0]
 
@@ -63,15 +66,17 @@ func (r bot) DeferredAction(p *robots.Payload) {
 
 	if cmd == "stories" {
 		if len(parts) < 2 {
-			r.sendResponse(p, "Please use ! mvn stories <id|term>")
+			r.sendResponse(p, "Please use ! mvn stories <id|term> [<parent>]")
 			return
 		}
 
-		r.sendStories(p, parts[1], "")
-	}
+		parent := ""
+		if len(parts) > 2 {
+			parent = parts[2]
+		}
 
-	msg := fmt.Sprintf("Running mavenlink command: %s", text)
-	r.sendResponse(p, msg)
+		r.sendStories(p, parts[1], parent)
+	}
 }
 
 func conn() *mavenlink.Mavenlink {
