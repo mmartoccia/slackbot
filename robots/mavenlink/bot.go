@@ -2,8 +2,11 @@ package mavenlink
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
+	"github.com/fcoury/mvn/mavenlink"
+	"github.com/fcoury/mvn/models"
 	"github.com/gistia/slackbot/robots"
 )
 
@@ -40,10 +43,55 @@ func (r bot) DeferredAction(p *robots.Payload) {
 		return
 	}
 
+	parts := strings.Split(p.Text, " ")
+	cmd := parts[0]
+
+	if cmd == "projects" {
+		term := ""
+		if len(parts) > 1 {
+			term = parts[1]
+		}
+		r.sendProjects(p, term)
+		return
+	}
+
 	msg := fmt.Sprintf("Running mavenlink command: %s", text)
 	r.sendResponse(p, msg)
 }
 
-func (pb bot) Description() (description string) {
+func conn() *mavenlink.Mavenlink {
+	token := os.Getenv("MAVENLINK_TOKEN")
+	con := mavenlink.NewMavenlink(token, false)
+	return con
+}
+
+func (r bot) sendProjects(payload *robots.Payload, term string) {
+	var ps []models.Project
+	var err error
+
+	mvn := conn()
+
+	if len(term) > 0 {
+		fmt.Printf("Retrieving projects with term \"%s\"...\n\n", term)
+		ps, err = mvn.SearchProject(term)
+	} else {
+		fmt.Println("Retrieving projects...\n")
+		ps, err = mvn.Projects()
+	}
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	s := ""
+	for _, p := range ps {
+		s += fmt.Sprintf("%s - %s\n", p.Id, p.Title)
+	}
+
+	r.sendResponse(payload, s)
+}
+
+func (r bot) Description() (description string) {
 	return "Mavenlink bot\n\tUsage: ! mvn <command>\n"
 }
