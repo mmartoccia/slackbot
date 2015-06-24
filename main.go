@@ -38,7 +38,7 @@ func hookHandler(w http.ResponseWriter, r *http.Request) {
 	// }
 	fmt.Println(command.Text)
 	fmt.Println(command.TriggerWord)
-	com := strings.TrimPrefix(command.Text, command.TriggerWord+" ")
+	com := strings.TrimPrefix(command.Text, command.TriggerWord) // +" ")
 	c := strings.Split(com, " ")
 	command.Robot = c[0]
 	command.Text = strings.Join(c[1:], " ")
