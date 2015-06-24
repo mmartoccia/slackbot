@@ -43,7 +43,8 @@ func hookHandler(w http.ResponseWriter, r *http.Request) {
 
 	robots := getRobots(command.Robot)
 	if len(robots) == 0 {
-		jsonResp(w, "No robot for that command yet :(")
+		msg := fmt.Sprintf("No robot for %s (%s)", command.Robot, command.Text)
+		jsonResp(w, msg)
 		return
 	}
 	resp := ""
