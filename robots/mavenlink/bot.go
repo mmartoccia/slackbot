@@ -44,38 +44,19 @@ func (r bot) sendWithAttachment(p *robots.Payload, s string, atts []robots.Attac
 
 func (r bot) DeferredAction(p *robots.Payload) {
 	text := strings.TrimSpace(p.Text)
-	if text == "" {
-		r.sendResponse(p, "Please use ! mvn <command>")
-		return
-	}
 
 	msg := fmt.Sprintf("Running mavenlink command: %s", text)
 	go r.sendResponse(p, msg)
 
-	parts := strings.Split(p.Text, " ")
-	cmd := parts[0]
+	cmd := utils.NewMvnCommand(p.Text)
 
-	if cmd == "projects" {
-		term := ""
-		if len(parts) > 1 {
-			term = parts[1]
-		}
-		r.sendProjects(p, term)
+	if cmd.Command == "projects" {
+		r.sendProjects(p, cmd.Arg(0))
 		return
 	}
 
-	if cmd == "stories" {
-		if len(parts) < 2 {
-			r.sendResponse(p, "Please use ! mvn stories <id|term> [<parent>]")
-			return
-		}
-
-		parent := ""
-		if len(parts) > 2 {
-			parent = parts[2]
-		}
-
-		r.sendStories(p, parts[1], parent)
+	if cmd.Command == "stories" {
+		r.sendStories(p, cmd.Arg(0), cmd.Param("parent"))
 	}
 }
 
@@ -220,15 +201,15 @@ func (r bot) storyTable(payload *robots.Payload, stories []models.Story) {
 		a.TitleLink = fmt.Sprintf(
 			"https://app.mavenlink.com/workspaces/%s/#tracker/%s",
 			s.WorkspaceId, s.Id)
-		a.Text = strings.Title(s.StoryType)
+		a.Text = strings.Title(s.State)
 
 		if s.TimeEstimateInMinutes > 0 {
-			a.Text += fmt.Sprintf(" Estimated hours: %s",
+			a.Text += fmt.Sprintf(" - Estimated hours: %s",
 				formatHour(s.TimeEstimateInMinutes))
 		}
 
 		if s.LoggedBillableTimeInMinutes > 0 {
-			a.Text += fmt.Sprintf(" Logged hours: %s",
+			a.Text += fmt.Sprintf(" - Logged hours: %s",
 				formatHour(s.LoggedBillableTimeInMinutes))
 		}
 
