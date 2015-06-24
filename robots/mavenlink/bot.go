@@ -69,12 +69,17 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 	var ps []models.Project
 	var err error
 
+	go r.sendResponse(payload, "Retrieving mavenlink projects...\n")
+
 	mvn := conn()
+	s := "Projects"
 
 	if len(term) > 0 {
 		fmt.Printf("Retrieving projects with term \"%s\"...\n\n", term)
+		s += fmt.Sprintf(" matching '%s':\n", term)
 		ps, err = mvn.SearchProject(term)
 	} else {
+		s += ":\n"
 		fmt.Println("Retrieving projects...\n")
 		ps, err = mvn.Projects()
 	}
@@ -84,7 +89,6 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 		return
 	}
 
-	s := ""
 	for _, p := range ps {
 		s += fmt.Sprintf("%s - %s\n", p.Id, p.Title)
 	}
