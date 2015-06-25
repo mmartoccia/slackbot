@@ -83,7 +83,6 @@ func (r bot) list(p *robots.Payload) {
 		r.sendError(p, err)
 		return
 	}
-	res := ""
 
 	if len(settings) < 1 {
 		s := fmt.Sprintf("No settings for @%s\n", p.UserName)
@@ -91,8 +90,9 @@ func (r bot) list(p *robots.Payload) {
 		return
 	}
 
+	res := fmt.Sprintf("Current settings for @%s:\n", p.UserName)
 	for _, s := range settings {
-		res += fmt.Sprintf("%s = %s\n", s.Name, s.Value)
+		res += fmt.Sprintf("%s\n", s.Name)
 	}
 
 	r.send(p, res)
