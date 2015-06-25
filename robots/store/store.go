@@ -110,7 +110,7 @@ func (r bot) send(p *robots.Payload, s string) {
 		Channel:     p.ChannelID,
 		Username:    "Store Bot",
 		IconEmoji:   ":floppy_disk:",
-		Text:        s,
+		Text:        fmt.Sprintf("@%s %s", p.UserName, s),
 		UnfurlLinks: true,
 		Parse:       robots.ParseStyleFull,
 	}
