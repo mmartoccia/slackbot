@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gistia/slackbot/Godeps/_workspace/src/github.com/gorilla/schema"
 	_ "github.com/gistia/slackbot/importer"
 	"github.com/gistia/slackbot/robots"
+	"github.com/gorilla/schema"
 )
 
 func main() {

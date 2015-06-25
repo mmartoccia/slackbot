@@ -2,39 +2,115 @@ package robots
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/robots"
+	"github.com/gistia/slackbot/utils"
 )
 
 type bot struct{}
 
-// Loads the config file and registers the bot with the server for command /store.
 func init() {
 	s := &bot{}
 	robots.RegisterRobot("store", s)
 }
 
-// All Robots must implement a Run command to be executed when the registered command is received.
-func (r bot) Run(p *robots.Payload) (slashCommandImmediateReturn string) {
-	// If you (optionally) want to do some asynchronous work (like sending API calls to slack)
-	// you can put it in a go routine like this
+func (r bot) Run(p *robots.Payload) (ret string) {
 	go r.DeferredAction(p)
-	// The string returned here will be shown only to the user who executed the command
-	// and will show up as a message from slackbot.
 	return ""
 }
 
 func (r bot) DeferredAction(p *robots.Payload) {
-	// Let's use the IncomingWebhook struct defined in definitions.go to form and send an
-	// IncomingWebhook message to slack that can be seen by everyone in the room. You can
-	// read the Slack API Docs (https://api.slack.com/) to know which fields are required, etc.
-	// You can also see what data is available from the command structure in definitions.go
+	cmd := utils.NewCommand(p.Text)
+	if cmd.IsDefault() {
+		r.list(p)
+		return
+	}
+
+	if cmd.Is("set") {
+		r.set(p, cmd.Arg(0))
+		return
+	}
+
+	if cmd.Is("rem", "del", "remove", "delete") {
+		r.remove(p, cmd.Arg(0))
+		return
+	}
+}
+
+func (r bot) remove(p *robots.Payload, name string) {
+	if name == "" {
+		r.send(p, "Use !store remove PARAM.\n")
+		return
+	}
+
+	ok, err := db.RemoveSetting(p.UserName, name)
+	if err != nil {
+		r.sendError(p, err)
+		return
+	}
+
+	if ok {
+		r.send(p, fmt.Sprintf("Successfully removed %s\n", name))
+		return
+	}
+
+	r.send(p, fmt.Sprintf("Setting %s not found\n", name))
+}
+
+func (r bot) set(p *robots.Payload, s string) {
+	parts := strings.Split(s, "=")
+	if len(parts) < 2 {
+		r.send(p, "Malformed setting. Use !store set PARAM=value.\n")
+		return
+	}
+
+	name := strings.TrimSpace(parts[0])
+	value := strings.TrimSpace(parts[1])
+	err := db.SetSetting(p.UserName, name, value)
+	if err != nil {
+		r.sendError(p, err)
+		return
+	}
+
+	r.send(p, fmt.Sprintf("Successfully set %s\n", name))
+}
+
+func (r bot) list(p *robots.Payload) {
+	settings, err := db.GetSettings(p.UserName)
+	if err != nil {
+		r.sendError(p, err)
+		return
+	}
+	res := ""
+
+	if len(settings) < 1 {
+		s := fmt.Sprintf("No settings for @%s\n", p.UserName)
+		r.send(p, s)
+		return
+	}
+
+	for _, s := range settings {
+		res += fmt.Sprintf("%s = %s\n", s.Name, s.Value)
+	}
+
+	r.send(p, res)
+}
+
+func (r bot) sendError(p *robots.Payload, err error) {
+	msg := fmt.Sprintf("Error running store command: %s\n", err.Error())
+	r.send(p, msg)
+}
+
+func (r bot) send(p *robots.Payload, s string) {
+	fmt.Println("response:", s)
 	response := &robots.IncomingWebhook{
 		Domain:      p.TeamDomain,
 		Channel:     p.ChannelID,
 		Username:    "Store Bot",
-		IconEmoji:   ":famima:",
-		Text:        fmt.Sprintf("@group @%s wants to go to the store", p.UserName),
+		IconEmoji:   ":floppy_disk:",
+		Text:        s,
 		UnfurlLinks: true,
 		Parse:       robots.ParseStyleFull,
 	}
@@ -42,8 +118,5 @@ func (r bot) DeferredAction(p *robots.Payload) {
 }
 
 func (r bot) Description() (description string) {
-	// In addition to a Run method, each Robot must implement a Description method which
-	// is just a simple string describing what the Robot does. This is used in the included
-	// /c command which gives users a list of commands and descriptions
 	return "This is a description for Bot which will be displayed on /c"
 }

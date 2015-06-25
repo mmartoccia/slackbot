@@ -54,13 +54,13 @@ func IsNumber(s string) bool {
 	return false
 }
 
-type MvnCommand struct {
+type Command struct {
 	Command   string
 	Arguments []string
 	Params    map[string]string
 }
 
-func NewCommand(c string) MvnCommand {
+func NewCommand(c string) Command {
 	params := map[string]string{}
 	args := []string{}
 	parts := strings.Split(c, " ")
@@ -80,10 +80,10 @@ func NewCommand(c string) MvnCommand {
 		}
 	}
 
-	return MvnCommand{Command: cmd, Arguments: args, Params: params}
+	return Command{Command: cmd, Arguments: args, Params: params}
 }
 
-func (c *MvnCommand) Arg(idx int) string {
+func (c *Command) Arg(idx int) string {
 	if len(c.Arguments) > idx {
 		return c.Arguments[idx]
 	}
@@ -91,10 +91,24 @@ func (c *MvnCommand) Arg(idx int) string {
 	return ""
 }
 
-func (c *MvnCommand) HasArgs() bool {
+func (c *Command) HasArgs() bool {
 	return len(c.Arguments) > 0
 }
 
-func (c *MvnCommand) Param(s string) string {
+func (c *Command) Param(s string) string {
 	return c.Params[s]
+}
+
+func (c *Command) IsDefault() bool {
+	return c.Command == ""
+}
+
+func (c *Command) Is(cmds ...string) bool {
+	for _, cmd := range cmds {
+		if c.Command == cmd {
+			return true
+		}
+	}
+
+	return false
 }
