@@ -1,13 +1,15 @@
 {
 	"ImportPath": "github.com/gistia/slackbot",
-	"GoVersion": "go1.4",
-	"Packages": [
-		"./..."
-	],
+	"GoVersion": "go1.4.1",
 	"Deps": [
 		{
 			"ImportPath": "github.com/gorilla/schema",
 			"Rev": "7109aabdadf822989b99f1e560b7ea619c20cbb0"
+		},
+		{
+			"ImportPath": "github.com/lib/pq",
+			"Comment": "go1.0-cutoff-51-ga8d8d01",
+			"Rev": "a8d8d01c4f91602f876bf5aa210274e8203a6b45"
 		}
 	]
 }
