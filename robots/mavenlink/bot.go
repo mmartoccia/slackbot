@@ -2,6 +2,7 @@ package robots
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"strings"
 
@@ -22,8 +23,22 @@ func (r bot) Run(p *robots.Payload) (slashCommandImmediateReturn string) {
 	return ""
 }
 
-func (r bot) sendResponse(p *robots.Payload, s string) {
+func (r bot) send(p *robots.Payload, s string) {
 	r.sendWithAttachment(p, s, nil)
+}
+
+func MvnSend(domain string, chanId string, s string) {
+	response := &robots.IncomingWebhook{
+		Domain:      domain,
+		Channel:     chanId,
+		Username:    "Mavenlink Bot",
+		Text:        s,
+		IconEmoji:   ":chart_with_upwards_trend:",
+		UnfurlLinks: true,
+		Parse:       robots.ParseStyleFull,
+	}
+
+	response.Send()
 }
 
 func (r bot) sendWithAttachment(p *robots.Payload, s string, atts []robots.Attachment) {
@@ -45,9 +60,14 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	text := strings.TrimSpace(p.Text)
 
 	msg := fmt.Sprintf("Running mavenlink command: %s", text)
-	go r.sendResponse(p, msg)
+	go r.send(p, msg)
 
 	cmd := utils.NewCommand(p.Text)
+
+	if cmd.Is("auth", "authorize", "connect") {
+		r.sendAuth(p)
+		return
+	}
 
 	if cmd.Command == "projects" {
 		r.sendProjects(p, cmd.Arg(0))
@@ -69,7 +89,7 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 	var ps []mavenlink.Project
 	var err error
 
-	go r.sendResponse(payload, "Retrieving mavenlink projects...\n")
+	go r.send(payload, "Retrieving mavenlink projects...\n")
 
 	mvn := conn()
 	s := "Projects"
@@ -89,7 +109,7 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 		return
 	}
 
-	r.sendResponse(payload, s+projectTable(ps))
+	r.send(payload, s+projectTable(ps))
 }
 
 func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
@@ -104,17 +124,17 @@ func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
 
 		if err != nil {
 			msg := fmt.Sprintf("Error retrieving project for \"%s\": %s\n", term, err.Error())
-			r.sendResponse(payload, msg)
+			r.send(payload, msg)
 			return
 		}
 
 		if len(ps) < 1 {
 			msg := fmt.Sprintf("No projects matched \"%s\"\n", term)
-			r.sendResponse(payload, msg)
+			r.send(payload, msg)
 			return
 		} else if len(ps) > 1 {
 			s := fmt.Sprintf("More than one project matched \"%s\":\n\n", term)
-			r.sendResponse(payload, s+projectTable(ps))
+			r.send(payload, s+projectTable(ps))
 			return
 		} else {
 			p = ps[0]
@@ -126,7 +146,7 @@ func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
 		if err != nil {
 			msg := fmt.Sprintf("Error retrieving stories for project \"%s - %s\": %s\n",
 				p.Id, p.Title, err.Error())
-			r.sendResponse(payload, msg)
+			r.send(payload, msg)
 			return
 		}
 		r.storyTable(payload, stories)
@@ -143,7 +163,7 @@ func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
 		return
 	}
 
-	r.sendResponse(payload, "Not implemented")
+	r.send(payload, "Not implemented")
 }
 
 func getProject(term string) ([]mavenlink.Project, error) {
@@ -187,6 +207,41 @@ func formatHour(h int64) string {
 
 	v := float64(h) / 60
 	return fmt.Sprintf("%.2f", v)
+}
+
+func (r bot) sendError(p *robots.Payload, err error) {
+	msg := fmt.Sprintf("Error running mavenlink command: %s\n", err.Error())
+	r.send(p, msg)
+}
+
+func (r bot) sendAuth(p *robots.Payload) {
+	appId := os.Getenv("MAVENLINK_APP_ID")
+	callback := os.Getenv("MAVENLINK_CALLBACK")
+
+	link, err := url.Parse("https://app.mavenlink.com/oauth/authorize")
+	if err != nil {
+		r.sendError(p, err)
+	}
+
+	params := url.Values{}
+	params.Add("response_type", "code")
+	params.Add("client_id", appId)
+	params.Add("redirect_uri",
+		fmt.Sprintf("%s?domain=%s&user=%s&channel=%s",
+			callback, p.TeamDomain, p.UserName, p.ChannelID))
+
+	link.RawQuery = params.Encode()
+
+	fmt.Println("url", link.String())
+
+	a := robots.Attachment{
+		Color:     "#7CD197",
+		Title:     "Authorize with Mavenlink",
+		TitleLink: link.String(),
+		Text:      "Authorize your mavenlink user",
+	}
+
+	r.sendWithAttachment(p, "", []robots.Attachment{a})
 }
 
 func (r bot) storyTable(payload *robots.Payload, stories []mavenlink.Story) {

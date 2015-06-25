@@ -5,17 +5,21 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 
+	"github.com/gistia/slackbot/db"
 	_ "github.com/gistia/slackbot/importer"
 	"github.com/gistia/slackbot/robots"
+	"github.com/gistia/slackbot/utils"
 	"github.com/gorilla/schema"
 )
 
 func main() {
 	http.HandleFunc("/slack", slashCommandHandler)
 	http.HandleFunc("/slack_hook", hookHandler)
+	http.HandleFunc("/callback", callbackHandler)
 	startServer()
 }
 
@@ -90,6 +94,104 @@ func slashCommandHandler(w http.ResponseWriter, r *http.Request) {
 		resp += fmt.Sprintf("\n%s", robot.Run(&command.Payload))
 	}
 	plainResp(w, strings.TrimSpace(resp))
+}
+
+type MvnAuthResponse struct {
+	AccessToken      string `json:"access_token"`
+	TokenType        string `json:"token_type"`
+	Error            string `json:"error"`
+	ErrorDescription string `json:"error_description"`
+}
+
+func mvnError(domain string, chanId string, user string, s string) {
+	msg := fmt.Sprintf(
+		"There was an error authenticating @%s with Mavenlink: %s",
+		user, s)
+	MvnSend(domain, chanId, msg)
+}
+
+func callbackHandler(w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+	domain := params.Get("domain")
+	user := params.Get("user")
+	chanId := params.Get("channel")
+
+	fmt.Println("callbackHandler", params)
+
+	if params.Get("error") != "" {
+		mvnError(domain, chanId, user, params.Get("error_description"))
+		return
+	}
+
+	// client_id is the ID assigned to your application by Mavenlink
+	// client_secret is the secret token assigned to your application by Mavenlink
+	// grant_type must be set to "authorization_code" in order to exchange a code for an access token
+	// code is the value that was returned in the code query parameter when Mavenlink redirected back to your redirect_uri
+	// redirect_uri is the exact same value that you used in the original request to /oauth/authorize
+	// 199c12d7ebc29800ec202fbad0b2585a1f84950536851527a95a024881adbb2b
+	code := params.Get("code")
+
+	callback := os.Getenv("MAVENLINK_CALLBACK")
+	callback = fmt.Sprintf("%s?domain=%s&user=%s&channel=%s",
+		callback, domain, user, chanId)
+
+	rp := url.Values{}
+	rp.Set("client_id", os.Getenv("MAVENLINK_APP_ID"))
+	rp.Set("client_secret", os.Getenv("MAVENLINK_SECRET"))
+	rp.Set("grant_type", "authorization_code")
+	rp.Set("code", code)
+	rp.Set("redirect_uri", callback)
+
+	fmt.Println("Sending", rp)
+
+	resp, err := utils.Request(
+		"POST", "https://app.mavenlink.com/oauth/token",
+		rp, map[string]string{})
+	if err != nil {
+		mvnError(domain, chanId, user, err.Error())
+		return
+	}
+
+	fmt.Println("Response from Mavenlink:", string(resp))
+
+	var b *MvnAuthResponse
+
+	err = json.Unmarshal(resp, &b)
+	if err != nil {
+		fmt.Println("Error unmarshal", err.Error())
+		mvnError(domain, chanId, user, err.Error())
+		return
+	}
+
+	if b.Error != "" {
+		mvnError(domain, chanId, user, b.ErrorDescription)
+		return
+	}
+
+	err = db.SetSetting(user, "MAVENLINK_TOKEN", b.AccessToken)
+	if err != nil {
+		mvnError(domain, chanId, user, err.Error())
+		return
+	}
+
+	msg := fmt.Sprintf("Saved Mavenlink authentication token for @%s", user)
+	MvnSend(domain, chanId, msg)
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func MvnSend(domain string, chanId string, s string) {
+	response := &robots.IncomingWebhook{
+		Domain:      domain,
+		Channel:     chanId,
+		Username:    "Mavenlink Bot",
+		Text:        s,
+		IconEmoji:   ":chart_with_upwards_trend:",
+		UnfurlLinks: true,
+		Parse:       robots.ParseStyleFull,
+	}
+
+	response.Send()
 }
 
 func jsonResp(w http.ResponseWriter, msg string) {
