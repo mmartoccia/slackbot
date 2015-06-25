@@ -13,8 +13,17 @@ type Pivotal struct {
 	Verbose bool
 }
 
+type Request struct {
+	Type   string
+	Method string
+	Uri    string
+	Data   map[string]string
+	Token  string
+}
+
 type Response struct {
 	Projects []Project `json:"projects"`
+	Stories  []Story   `json:"stories"`
 }
 
 type Project struct {
@@ -25,32 +34,45 @@ type Project struct {
 	IterationLength int    `json:"iteration_length"`
 }
 
+type Story struct {
+	Id       int64  `json:"id"`
+	Kind     string `json:"kind"`
+	Name     string `json:"name"`
+	Estimate int    `json:"estimate"`
+	State    string `json:"current_state"`
+	Url      string `json:"url"`
+}
+
 func NewPivotal(token string, verbose bool) *Pivotal {
 	return &Pivotal{Token: token, Verbose: verbose}
 }
 
-func (pvt *Pivotal) request(method string, uri string, data url.Values) ([]byte, error) {
+func (r *Request) request(method string, uri string, data url.Values) ([]byte, error) {
 	url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/%s", uri)
 
 	fmt.Println("URL:", url)
 
 	return utils.Request(method, url, data,
-		map[string]string{"X-TrackerToken": pvt.Token})
+		map[string]string{"X-TrackerToken": r.Token})
 }
 
-func (pvt *Pivotal) send(m string, uri string, data map[string]string) (*Response, error) {
+func (r *Request) Send() (*Response, error) {
 	values := url.Values{}
-	for k, v := range data {
+	for k, v := range r.Data {
 		values.Add(k, v)
 	}
 
-	json, err := pvt.request(m, uri, values)
+	uri := r.Uri
+	if uri == "" {
+		uri = r.Type
+	}
+
+	json, err := r.request(r.Method, r.Uri, values)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("Body:", string(json))
-	wrapped := fmt.Sprintf("{\"%s\":%s}", uri, string(json))
+	wrapped := fmt.Sprintf("{\"%s\":%s}", r.Type, string(json))
 	resp, err := NewFromJson([]byte(wrapped))
 	return resp, err
 }
@@ -72,10 +94,24 @@ func NewFromJson(jsonData []byte) (*Response, error) {
 }
 
 func (pvt *Pivotal) Projects() ([]Project, error) {
-	r, err := pvt.send("GET", "projects", nil)
+	req := Request{Token: pvt.Token, Type: "projects", Method: "GET"}
+
+	r, err := req.Send()
 	if err != nil {
 		return nil, err
 	}
 
 	return r.Projects, nil
+}
+
+func (pvt *Pivotal) Stories(p string) ([]Story, error) {
+	uri := fmt.Sprintf("projects/%s/stories", p)
+	req := Request{Token: pvt.Token, Type: "stories", Method: "GET", Uri: uri}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+
+	return r.Stories, nil
 }

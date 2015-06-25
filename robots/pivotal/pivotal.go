@@ -34,6 +34,10 @@ func (r bot) DeferredAction(p *robots.Payload) {
 		r.sendProjects(p, cmd.Arg(0))
 		return
 	}
+
+	if cmd.Command == "stories" {
+		r.sendStories(p, cmd.Arg(0))
+	}
 }
 
 func (r bot) sendResponse(p *robots.Payload, s string) {
@@ -81,11 +85,30 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 	}
 
 	if err != nil {
-		fmt.Println(err.Error())
+		msg := fmt.Sprintf("Error: %s", err.Error())
+		r.sendResponse(payload, msg)
 		return
 	}
 
 	r.sendResponse(payload, s+projectTable(ps))
+}
+
+func (r bot) sendStories(p *robots.Payload, project string) {
+	pvt := conn()
+	stories, err := pvt.Stories(project)
+
+	if err != nil {
+		msg := fmt.Sprintf("Error: %s", err.Error())
+		r.sendResponse(p, msg)
+		return
+	}
+
+	str := ""
+	for _, s := range stories {
+		str += fmt.Sprintf("%d - %s\n", s.Id, s.Name)
+	}
+
+	r.sendResponse(p, str)
 }
 
 func projectTable(ps []pivotal.Project) string {

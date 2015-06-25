@@ -1,0 +1,2110 @@
+[
+  {
+    "kind": "story",
+    "id": 38388137,
+    "created_at": "2012-10-24T22:21:42Z",
+    "updated_at": "2012-10-28T07:03:32Z",
+    "accepted_at": "2012-10-28T07:03:28Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Initial local environment setup",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/38388137",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 38388145,
+    "created_at": "2012-10-24T22:21:54Z",
+    "updated_at": "2012-11-01T21:51:29Z",
+    "accepted_at": "2012-11-01T21:51:29Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Initial application analysis",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/38388145",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 38834183,
+    "created_at": "2012-11-01T21:51:44Z",
+    "updated_at": "2012-11-01T21:51:51Z",
+    "accepted_at": "2012-11-01T21:51:51Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Pagination for Client area",
+    "description": "100 clients per page",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/38834183",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 38834225,
+    "created_at": "2012-11-01T21:52:20Z",
+    "updated_at": "2012-11-04T20:49:32Z",
+    "accepted_at": "2012-11-04T20:49:32Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Add shortcuts to the client resume and last note to the Client area.",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/38834225",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 38429587,
+    "created_at": "2012-10-25T15:33:51Z",
+    "updated_at": "2012-11-05T17:34:12Z",
+    "accepted_at": "2012-11-05T17:34:12Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Improve Clients database search",
+    "description": "Instead of having multiple search fields, create a search field dropdown that would share the same area for searching name, company or agent.",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/38429587",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 38935925,
+    "created_at": "2012-11-05T00:06:14Z",
+    "updated_at": "2012-11-05T17:34:15Z",
+    "accepted_at": "2012-11-05T17:34:15Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Fix sorting by columns when seeing the Client area",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/38935925",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 38936105,
+    "created_at": "2012-11-05T00:17:28Z",
+    "updated_at": "2012-11-05T17:34:54Z",
+    "accepted_at": "2012-11-05T17:34:54Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": " When you search by name and it is blank it pulls up the entire database. It should pull up nothing. ",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/38936105",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 38938115,
+    "created_at": "2012-11-05T02:04:44Z",
+    "updated_at": "2012-11-05T17:35:18Z",
+    "accepted_at": "2012-11-05T17:35:18Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Remove Agent search from salesmen search",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/38938115",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 38982707,
+    "created_at": "2012-11-05T17:41:05Z",
+    "updated_at": "2012-11-05T18:01:41Z",
+    "accepted_at": "2012-11-05T18:01:41Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Fix the project description display",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/38982707",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 39087813,
+    "created_at": "2012-11-06T22:57:18Z",
+    "updated_at": "2012-11-07T23:01:47Z",
+    "accepted_at": "2012-11-07T23:01:47Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Performance analysis and improvement",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/39087813",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 38932299,
+    "created_at": "2012-11-04T20:28:03Z",
+    "updated_at": "2012-11-08T03:41:31Z",
+    "accepted_at": "2012-11-08T03:41:31Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Add a timestamp when the user is approved",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/38932299",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 39006347,
+    "created_at": "2012-11-05T22:22:01Z",
+    "updated_at": "2012-11-08T03:41:31Z",
+    "accepted_at": "2012-11-08T03:41:31Z",
+    "story_type": "bug",
+    "name": "The resume search is showing only 10 results",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/39006347",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 38916619,
+    "created_at": "2012-11-03T17:28:55Z",
+    "updated_at": "2012-11-08T03:41:32Z",
+    "accepted_at": "2012-11-08T03:41:32Z",
+    "estimate": 3,
+    "story_type": "feature",
+    "name": "Show keyword count on Resume search results",
+    "description": "Rank button to the left of the name that says how many times the key word pops up. ",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/38916619",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 39130407,
+    "created_at": "2012-11-07T16:05:33Z",
+    "updated_at": "2012-11-08T03:41:33Z",
+    "accepted_at": "2012-11-08T03:41:33Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Search by phone number and email.",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/39130407",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 39310621,
+    "created_at": "2012-11-09T22:06:52Z",
+    "updated_at": "2012-11-11T17:51:10Z",
+    "accepted_at": "2012-11-11T17:51:10Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Transfer all assigned clients to its manager when we delete an user.\n",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/39310621",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 39097083,
+    "created_at": "2012-11-07T01:55:58Z",
+    "updated_at": "2012-11-21T16:22:49Z",
+    "accepted_at": "2012-11-21T16:22:49Z",
+    "story_type": "bug",
+    "name": "When you reset and try to change pages straight it doesn't work",
+    "description": "Steps to replicate:\n\nClick reset filters and click a page #. It won't render that page.",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/39097083",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 38916857,
+    "created_at": "2012-11-03T17:48:09Z",
+    "updated_at": "2012-11-21T23:52:02Z",
+    "accepted_at": "2012-11-21T23:52:02Z",
+    "estimate": 3,
+    "story_type": "feature",
+    "name": "I would like to be able to see the number of approved and unapproved people at the top of the screen in each persons database so we know the datyabase sizes of each individual can track growth etc. ",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/38916857",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 39178583,
+    "created_at": "2012-11-08T05:08:44Z",
+    "updated_at": "2012-11-28T01:34:23Z",
+    "accepted_at": "2012-11-28T01:34:23Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Add new fields to clients",
+    "description": "Field for \"VISA\"... Check with an HR/Legal person to see if this is Kosher. I've heard that it is not.\n\nAdd field for \"METHOD OF CONTRACT\" (ie Corp-corp or w-2); Subdirectory for Corp with options for type of corp (LLC, C-Corp, S-Corp, Other, Employer), and sub directory of corp docs we have received (ie Insurance certificate, Articles of Inc/Org, W-9, etc. and all docs should be attached to file with resume and references). \n\nEditable field for Corp name and web-site if they have one. If employee/visa sponsored, additional fields for employer contact info. \n\nUnder the general info, add a \"CURRENT STATUS\" option, with a drop down for \"EMPLOYED FULLTIME\", \"ON CONTRACT\", or \"UNEMPLOYED\".\n",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/39178583",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 40252793,
+    "created_at": "2012-11-28T01:34:57Z",
+    "updated_at": "2012-11-28T19:55:44Z",
+    "accepted_at": "2012-11-28T19:55:44Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Add client availability date",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/40252793",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 40252809,
+    "created_at": "2012-11-28T01:35:13Z",
+    "updated_at": "2012-11-28T19:55:45Z",
+    "accepted_at": "2012-11-28T19:55:44Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Color code the availability date and last contact",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/40252809",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 40252821,
+    "created_at": "2012-11-28T01:35:30Z",
+    "updated_at": "2012-11-28T19:55:45Z",
+    "accepted_at": "2012-11-28T19:55:45Z",
+    "estimate": 3,
+    "story_type": "feature",
+    "name": "Allow bulk transfer of client between agents",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/40252821",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 40308857,
+    "created_at": "2012-11-28T19:55:00Z",
+    "updated_at": "2012-12-03T22:52:48Z",
+    "accepted_at": "2012-12-03T22:52:47Z",
+    "story_type": "bug",
+    "name": "Transfer manager issue. Managers can transfer people that aren't in their database or someone on their teams database. They should only be able to transfer there people or direct reports. \n",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/40308857",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 40308939,
+    "created_at": "2012-11-28T19:56:02Z",
+    "updated_at": "2012-12-03T22:53:00Z",
+    "accepted_at": "2012-12-03T22:53:00Z",
+    "story_type": "bug",
+    "name": "Sorting doesn't work after a resume search",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/40308939",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 40779179,
+    "created_at": "2012-12-06T16:24:28Z",
+    "updated_at": "2012-12-10T21:25:38Z",
+    "accepted_at": "2012-12-10T21:25:38Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Any user should be able to see the Assigned To field when searching by resume",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/40779179",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 40057615,
+    "created_at": "2012-11-24T00:47:52Z",
+    "updated_at": "2012-12-10T21:36:49Z",
+    "accepted_at": "2012-12-10T21:36:49Z",
+    "estimate": 3,
+    "story_type": "feature",
+    "name": "Send new job entries to indeed.com",
+    "description": "http://employers.indeed.com/post-job?co=US&hl=en_US",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/40057615",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46906025,
+    "created_at": "2013-03-26T14:16:39Z",
+    "updated_at": "2013-03-26T20:27:27Z",
+    "accepted_at": "2013-03-26T20:27:12Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Make multiple word search work like old CRM",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46906025",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46858775,
+    "created_at": "2013-03-25T21:00:30Z",
+    "updated_at": "2013-03-26T20:28:57Z",
+    "accepted_at": "2013-03-26T20:28:57Z",
+    "story_type": "bug",
+    "name": "Fix resume search",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46858775",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46859111,
+    "created_at": "2013-03-25T21:03:37Z",
+    "updated_at": "2013-03-27T14:50:42Z",
+    "accepted_at": "2013-03-27T14:50:42Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Missing fields after converting Managers",
+    "description": "Company and projects should be migrated",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46859111",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46939907,
+    "created_at": "2013-03-26T20:14:23Z",
+    "updated_at": "2013-03-27T15:28:23Z",
+    "accepted_at": "2013-03-27T15:28:23Z",
+    "story_type": "bug",
+    "name": "Emails straight to spam",
+    "description": "These need to be sent from Sendgrid where we are white listed. Otherwise the emails go straight to email jail aka the spam folder. ",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46939907",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47007715,
+    "created_at": "2013-03-27T17:43:37Z",
+    "updated_at": "2013-03-27T17:48:10Z",
+    "accepted_at": "2013-03-27T17:48:10Z",
+    "story_type": "bug",
+    "name": "Managers assigned to the current user are not showing the organization",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47007715",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46859213,
+    "created_at": "2013-03-25T21:04:58Z",
+    "updated_at": "2013-03-27T20:06:53Z",
+    "accepted_at": "2013-03-27T20:06:53Z",
+    "estimate": 3,
+    "story_type": "feature",
+    "name": "Track emails sent from the system",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46859213",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47016819,
+    "created_at": "2013-03-27T19:31:56Z",
+    "updated_at": "2013-03-27T20:10:42Z",
+    "accepted_at": "2013-03-27T20:10:42Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Resize manager and consultant forms in Pending Actions to fit the screen.",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47016819",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47243703,
+    "created_at": "2013-04-01T22:23:16Z",
+    "updated_at": "2013-04-03T16:46:56Z",
+    "accepted_at": "2013-04-03T16:46:56Z",
+    "estimate": 0,
+    "story_type": "feature",
+    "name": "Add pool indicator",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47243703",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46870803,
+    "created_at": "2013-03-25T23:51:48Z",
+    "updated_at": "2013-04-03T16:46:58Z",
+    "accepted_at": "2013-04-03T16:46:58Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Import consultants from Gmail into the pool",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46870803",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47152047,
+    "created_at": "2013-03-29T21:17:19Z",
+    "updated_at": "2013-04-03T19:00:50Z",
+    "accepted_at": "2013-04-03T19:00:50Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Ability to add new users",
+    "description": "WorkBeast principles need to be able to add new users",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47152047",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47535145,
+    "created_at": "2013-04-05T15:46:16Z",
+    "updated_at": "2013-04-05T18:34:32Z",
+    "accepted_at": "2013-04-05T18:34:32Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Add signature",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47535145",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47488927,
+    "created_at": "2013-04-04T21:41:56Z",
+    "updated_at": "2013-04-05T18:34:35Z",
+    "accepted_at": "2013-04-05T18:34:35Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Error when sending Emails",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47488927",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46859423,
+    "created_at": "2013-03-25T21:07:46Z",
+    "updated_at": "2013-04-05T18:35:34Z",
+    "accepted_at": "2013-04-05T18:35:33Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Principal should see everyone in the company by default (both in Consultants and Managers).",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46859423",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46938289,
+    "created_at": "2013-03-26T19:51:10Z",
+    "updated_at": "2013-04-09T21:03:04Z",
+    "accepted_at": "2013-04-09T21:03:04Z",
+    "story_type": "bug",
+    "name": "resume search issues",
+    "description": "The whole company should have access to resume search ( sales and recruiting). Right now sales is getting terrible results. Sales and recruiters should just have access to approved people and pooled people. Managers should have access to approved people and subordinates leads and pooled people. Principles should have access to everything.",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46938289",
+    "owner_ids": [
+      819721
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 819721
+  },
+  {
+    "kind": "story",
+    "id": 47549693,
+    "created_at": "2013-04-05T18:31:48Z",
+    "updated_at": "2013-04-09T21:05:06Z",
+    "accepted_at": "2013-04-09T21:05:06Z",
+    "story_type": "bug",
+    "name": "Searching by Agent is bringing the whole DB for Principals",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47549693",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47555749,
+    "created_at": "2013-04-05T20:08:10Z",
+    "updated_at": "2013-04-09T21:05:23Z",
+    "accepted_at": "2013-04-09T21:05:23Z",
+    "story_type": "bug",
+    "name": "Sales team is only being able to see pooled consultants when searching by resume",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47555749",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46859259,
+    "created_at": "2013-03-25T21:05:29Z",
+    "updated_at": "2013-04-10T21:40:57Z",
+    "accepted_at": "2013-04-10T21:40:57Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Make everything that is grey today black",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46859259",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47644757,
+    "created_at": "2013-04-08T15:51:11Z",
+    "updated_at": "2013-04-10T21:48:04Z",
+    "accepted_at": "2013-04-10T21:48:04Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Sales people should see sales dashboard by default, recruiters should see the recruiting dashboard by default",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47644757",
+    "owner_ids": [
+      819721
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 819721
+  },
+  {
+    "kind": "story",
+    "id": 47241047,
+    "created_at": "2013-04-01T21:42:09Z",
+    "updated_at": "2013-04-10T21:48:44Z",
+    "accepted_at": "2013-04-10T21:48:43Z",
+    "estimate": 0,
+    "story_type": "feature",
+    "name": "change \"Why K's hired of is it a usual occurence?\" to \"How do you budget for consultants?\"",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47241047",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47640555,
+    "created_at": "2013-04-08T15:10:25Z",
+    "updated_at": "2013-04-10T22:07:07Z",
+    "accepted_at": "2013-04-10T22:07:07Z",
+    "story_type": "bug",
+    "name": "search must pick up partial names",
+    "description": "right now it is just picking up full names. This is for any search that is done company manager name consyultant name etc. Minimum of two letters",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47640555",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47760027,
+    "created_at": "2013-04-09T21:10:08Z",
+    "updated_at": "2013-04-10T22:17:46Z",
+    "accepted_at": "2013-04-10T22:17:46Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Bulk transfer for principals",
+    "description": "Basically select multiple consultants/managers and have a Transfer button besides the New button.",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47760027",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46859139,
+    "created_at": "2013-03-25T21:03:56Z",
+    "updated_at": "2013-04-11T00:16:25Z",
+    "accepted_at": "2013-04-11T00:16:25Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Filter Managers by Company",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46859139",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46859375,
+    "created_at": "2013-03-25T21:07:03Z",
+    "updated_at": "2013-04-11T00:17:39Z",
+    "accepted_at": "2013-04-11T00:17:39Z",
+    "estimate": 3,
+    "story_type": "feature",
+    "name": "Add User Management to admins",
+    "description": "????",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46859375",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46922019,
+    "created_at": "2013-03-26T16:37:04Z",
+    "updated_at": "2013-04-11T16:48:16Z",
+    "accepted_at": "2013-04-11T16:48:16Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "add email button for sales",
+    "description": "add email button for sales",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46922019",
+    "owner_ids": [
+
+    ],
+    "labels": [
+
+    ]
+  },
+  {
+    "kind": "story",
+    "id": 47900573,
+    "created_at": "2013-04-11T16:51:27Z",
+    "updated_at": "2013-04-11T16:51:32Z",
+    "accepted_at": "2013-04-11T16:51:32Z",
+    "story_type": "bug",
+    "name": "Users are not being able to change their passwords",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47900573",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46997353,
+    "created_at": "2013-03-27T15:50:16Z",
+    "updated_at": "2013-04-11T17:00:44Z",
+    "accepted_at": "2013-04-11T17:00:44Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "show notes when seeing the details screen",
+    "description": "They should be at the top",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46997353",
+    "owner_ids": [
+
+    ],
+    "labels": [
+
+    ]
+  },
+  {
+    "kind": "story",
+    "id": 47807377,
+    "created_at": "2013-04-10T14:36:42Z",
+    "updated_at": "2013-04-11T17:10:19Z",
+    "accepted_at": "2013-04-11T17:10:19Z",
+    "story_type": "bug",
+    "name": "reassign from pool to another person isn't working",
+    "description": "it is still saying they are in the pool",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47807377",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47993635,
+    "created_at": "2013-04-12T18:18:26Z",
+    "updated_at": "2013-04-12T19:17:43Z",
+    "accepted_at": "2013-04-12T19:17:43Z",
+    "story_type": "bug",
+    "name": "On the sales dashboard, when the manager form is open, it doesn't resize in small screens.",
+    "description": "Also reported by Erik and is a regression introduced by the addition of the notes to the manager file.",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47993635",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47997879,
+    "created_at": "2013-04-12T19:19:48Z",
+    "updated_at": "2013-04-12T19:32:42Z",
+    "accepted_at": "2013-04-12T19:32:42Z",
+    "story_type": "bug",
+    "name": "Pooled managers are showing as assigned to someone",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47997879",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47993563,
+    "created_at": "2013-04-12T18:17:30Z",
+    "updated_at": "2013-04-12T19:34:03Z",
+    "accepted_at": "2013-04-12T19:34:03Z",
+    "story_type": "bug",
+    "name": "Cannot approve manager because the popup shows behind the Job area",
+    "description": "This was reported by Erik and fixed already.",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47993563",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46859361,
+    "created_at": "2013-03-25T21:06:46Z",
+    "updated_at": "2013-04-12T19:40:49Z",
+    "accepted_at": "2013-04-12T19:40:49Z",
+    "estimate": 3,
+    "story_type": "feature",
+    "name": "Add skills \"categories\"",
+    "description": "EPIC => Train, Build or Principal Training\nSAP  => Functional, Technical or Training\n",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46859361",
+    "owner_ids": [
+      819721
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 819721
+  },
+  {
+    "kind": "story",
+    "id": 46858755,
+    "created_at": "2013-03-25T21:00:11Z",
+    "updated_at": "2013-04-12T19:41:03Z",
+    "accepted_at": "2013-04-12T19:40:59Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Add new skills",
+    "description": "EPIC\nADT (Inpatient and Outpatient Admission-Discharge-Transfer Application)\nAnesthesia (Anesthesia Information Management System (AIMS))\nASAP (Emergency Department Application)\nBeacon (Oncology Application)\nBeaker (Clinical Laboratory Application)\nBedTime (Bed Management Application)\nBridges (Interface Application)\nCadence (Scheduling Application)\nCare Everywhere (Information Exchange Application)\nCache DBA\nclinical documentation\nCogito Ergo Sum (Analytics application)\nClarity (SQL relational database extracted from the Cache database, Chronicles, for reporting purposes)\nCupid (formerly Cardiant, Cardiology Application)\nData Courier (Data Environment Propagation Utility)\nDiagnose Behandeling Combinatie (Dutch Billing Module)\nEligibility (Real Time Verification of Access and Billing Information)\nEpicCare Ambulatory (Ambulatory Medical Record Application)\nEpicCare Home Health (Specialized Home Health Application for use in Patient Homes)\nEpicCare Hospice (Specialized Hospice Application)\nEpicCare Inpatient (Universal Hospital System)\nEpicCare Link (Web-based Application for Community Users)\nEpicWeb (Web-based Clinical Application)\nHaiku (Device Mobility Clinical Application)\nHIM (Chart Tracking, Chart Deficiency Tracking, Release of Information Application, Coding & Abstracting)\nHospital Billing\nHB Claims\nIdentity (Master Patient Index [MPI] Application)\nKaleidoscope (Ophthalmology Application)\nMyChart (Patient Chart Access)\nOrders\nOrder transmittal\nOpTime (Surgical Application)\nPhoenix (Application designed for the Management and Tracking for Solid Organ Transplants)\nPrelude (Inpatient and Outpatient Registration Application)\nProfessional Billing\nRadiant (Radiology Application)\nReporting Workbench (Operational Reporting Application)\nResolute (Billing Application)\nStork (OB/Gyn Application)\nTapestry (Managed Care Application)\nWillow Ambulatory (Outpatient Pharmacy Application)\nWillow Inpatient (Hospital Pharmacy Application)\nOther\n\nSAP\nFICO\nMM\nPP\nSD\nHCM/HR\nPayroll\nWM\nPM\nSCM\nEAM\nCRM\nAPO\nSRM\nBasis\nQM\nPS\nEWM\nBW/BI\nBusiness Objects\nBusiness Objects Data Services\nXcelcius\nCrystal Reports\nWebi\nBusiness Objects Admin\nABAP\nWeb Dynpro\nSolution Manager\nPI/XI\nPLM\nEHS\nMDM\nVC\nLE\nCS/MRO\nGPD\nMii\nME/Visiprise\nDWM\n\nRegular Affairs\nCMC\n505B\n483\n510K\nPMA Approvals\nIND\nNDA\nToxicology \nGNP\nMedical Devices\nBiologics Small Molecule\nBiologics Large Molecule\npharmaceuticals\nin vitro diagnostics\nnutritional products\ncosmetics\nveterinary product\n\nOracle\nPeoplesoft\nCisco\nJD Edwards\nLawson\nMckesson",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46858755",
+    "owner_ids": [
+      819721
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 819721
+  },
+  {
+    "kind": "story",
+    "id": 48011441,
+    "created_at": "2013-04-12T23:19:07Z",
+    "updated_at": "2013-04-15T16:37:40Z",
+    "accepted_at": "2013-04-15T16:37:36Z",
+    "story_type": "bug",
+    "name": "Bug when deleting a skill used in a consultant or in a manager. ",
+    "description": "Removing a skill causes an error when retrieving the consultant/manager. Make it so when the skill is deleted, the system removes the skill form the affected consultants/managers.",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/48011441",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47998405,
+    "created_at": "2013-04-12T19:28:07Z",
+    "updated_at": "2013-04-15T16:40:03Z",
+    "accepted_at": "2013-04-15T16:40:00Z",
+    "story_type": "bug",
+    "name": "When pooling managers and consultants, the status change to pooled but they remain assigned to the agent they were.",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47998405",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47099727,
+    "created_at": "2013-03-28T21:21:11Z",
+    "updated_at": "2013-04-17T18:23:38Z",
+    "accepted_at": "2013-04-17T18:23:33Z",
+    "story_type": "bug",
+    "name": "BUG!!! Availability for consultants can't be upgraded from the notes tab. ",
+    "description": "Availability can only be updated from the information tab, we should be able to update consultant's availability from the notes section too. ",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47099727",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47899111,
+    "created_at": "2013-04-11T16:41:08Z",
+    "updated_at": "2013-04-17T22:46:18Z",
+    "accepted_at": "2013-04-17T19:14:50Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Sales people are seeing whole recruiter db by default when they go to recruiting",
+    "description": "They should see no one unless they do a search.",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47899111",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47852953,
+    "created_at": "2013-04-11T00:19:19Z",
+    "updated_at": "2013-04-18T21:49:42Z",
+    "accepted_at": "2013-04-18T21:49:36Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Add Jobs from managers",
+    "description": "There should be a new button to add a job assigned to a given manager. When the form first shows, it should include a line at the top saying \"Job for Manager Name Here\"",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47852953",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  },
+  {
+    "kind": "story",
+    "id": 47245277,
+    "created_at": "2013-04-01T22:54:06Z",
+    "updated_at": "2013-04-22T19:46:37Z",
+    "accepted_at": "2013-04-22T19:46:27Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Approvals should have the request timestamp",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47245277",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47138575,
+    "created_at": "2013-03-29T17:20:29Z",
+    "updated_at": "2013-04-22T19:46:39Z",
+    "accepted_at": "2013-04-22T19:46:29Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Manager Approvals need to have the company name",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47138575",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46859041,
+    "created_at": "2013-03-25T21:02:19Z",
+    "updated_at": "2013-04-22T20:23:18Z",
+    "accepted_at": "2013-04-22T20:23:08Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Rearrange Consultant fields",
+    "description": "In the detail screen Travel / location should be the second main field after contact information.\n\nA new field ( I think) Assignment Preference (perm or Contract) should be in the contact information area at the top.\n\nVisa Status\nAlong with visa status => Contract or Perm\nLocation (Permanent Residence)\nWilling to travel to (City/State)",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46859041",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 48186773,
+    "created_at": "2013-04-16T17:36:25Z",
+    "updated_at": "2013-04-23T21:14:53Z",
+    "accepted_at": "2013-04-23T21:14:41Z",
+    "story_type": "bug",
+    "name": "These field are not saving on managers detail screen",
+    "description": "What was the last K you hired doing for you?\n\nWhat was their title while assigment for you?",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/48186773",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  },
+  {
+    "kind": "story",
+    "id": 46858959,
+    "created_at": "2013-03-25T21:01:17Z",
+    "updated_at": "2013-04-23T21:16:17Z",
+    "accepted_at": "2013-04-23T21:16:05Z",
+    "story_type": "bug",
+    "name": "Fix timestamps time zones",
+    "description": "Today they are showing as UTC, not GMT-4 (Miami DST).",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46858959",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  },
+  {
+    "kind": "story",
+    "id": 48599717,
+    "created_at": "2013-04-23T17:10:10Z",
+    "updated_at": "2013-04-25T14:48:42Z",
+    "accepted_at": "2013-04-25T14:48:41Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Filter by state in crawler",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/48599717",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 48259311,
+    "created_at": "2013-04-17T16:36:19Z",
+    "updated_at": "2013-04-25T18:49:52Z",
+    "accepted_at": "2013-04-25T18:49:52Z",
+    "story_type": "bug",
+    "name": "Error when viewing jobs on WorkBeast",
+    "description": "It says \"By referring this job you can make #{number_to_currency opening.estimated_referral_bonus}\"\n\nIt should say \"By referring this job you can make $1000\" and the referral bonus on the bottom right side of the page needs to say $1000.",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/48259311",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 48202121,
+    "created_at": "2013-04-16T20:40:28Z",
+    "updated_at": "2013-05-01T14:07:20Z",
+    "accepted_at": "2013-05-01T14:07:14Z",
+    "story_type": "bug",
+    "name": "In manager detail when do you expect to hire next is not saving from detail, screen",
+    "description": "Also need to be able to add date of next hire to notes.  Is not showing up still and is nowhere to be found on notes tab,. ",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/48202121",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 49033195,
+    "created_at": "2013-04-30T23:05:20Z",
+    "updated_at": "2013-05-01T14:21:11Z",
+    "accepted_at": "2013-05-01T14:21:04Z",
+    "story_type": "bug",
+    "name": "Jobs are not being saved",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/49033195",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 49033119,
+    "created_at": "2013-04-30T23:03:27Z",
+    "updated_at": "2013-05-01T14:23:42Z",
+    "accepted_at": "2013-05-01T14:23:36Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Make Jobs read only for recruiters",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/49033119",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 48746457,
+    "created_at": "2013-04-25T15:58:10Z",
+    "updated_at": "2013-05-07T02:40:37Z",
+    "accepted_at": "2013-05-06T20:58:22Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "need names to pop when scolling over each button",
+    "description": "both on sales side and recruiting. Half the buttons don't have the titles pop over them (left message, send job, etc,. )",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/48746457",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 49032905,
+    "created_at": "2013-04-30T22:58:48Z",
+    "updated_at": "2013-05-07T19:35:23Z",
+    "accepted_at": "2013-05-06T21:02:59Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Remove fade in, fade out on popups",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/49032905",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 49330669,
+    "created_at": "2013-05-06T20:29:54Z",
+    "updated_at": "2013-05-07T02:40:38Z",
+    "accepted_at": "2013-05-06T21:03:15Z",
+    "story_type": "bug",
+    "name": "Manager area shows \"Approve Consultant\"",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/49330669",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 49627125,
+    "created_at": "2013-05-09T21:57:11Z",
+    "updated_at": "2013-05-10T16:06:23Z",
+    "accepted_at": "2013-05-10T16:06:21Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Increase session timeout",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/49627125",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 47130337,
+    "created_at": "2013-03-29T14:52:19Z",
+    "updated_at": "2013-05-10T16:21:24Z",
+    "accepted_at": "2013-05-10T16:21:23Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "pagation to 100",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/47130337",
+    "owner_ids": [
+      819721
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 819721
+  },
+  {
+    "kind": "story",
+    "id": 49088391,
+    "created_at": "2013-05-01T20:55:05Z",
+    "updated_at": "2013-05-22T18:31:26Z",
+    "accepted_at": "2013-05-22T18:31:13Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "remove edit button from add manager name search",
+    "description": "sales people and recruiters should not be able to view other peoples files.",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/49088391",
+    "owner_ids": [
+      819721
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 819721
+  },
+  {
+    "kind": "story",
+    "id": 49672763,
+    "created_at": "2013-05-10T16:34:50Z",
+    "updated_at": "2013-05-28T22:54:57Z",
+    "accepted_at": "2013-05-28T17:25:10Z",
+    "story_type": "bug",
+    "name": "add linkedin button",
+    "description": "These are missing from the files when you scroll over someone",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/49672763",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 46860187,
+    "created_at": "2013-03-25T21:17:38Z",
+    "updated_at": "2013-05-28T17:25:36Z",
+    "accepted_at": "2013-05-28T17:25:15Z",
+    "estimate": 3,
+    "story_type": "feature",
+    "name": "Make Managers and Consultants a table",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/46860187",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 49682013,
+    "created_at": "2013-05-10T18:42:36Z",
+    "updated_at": "2013-05-28T17:25:41Z",
+    "accepted_at": "2013-05-28T17:25:21Z",
+    "story_type": "bug",
+    "name": "counter not showing on resume search",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/49682013",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 49032911,
+    "created_at": "2013-04-30T22:58:59Z",
+    "updated_at": "2013-05-28T17:34:09Z",
+    "accepted_at": "2013-05-28T17:33:49Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Sort managers by next opening date",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/49032911",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 48595655,
+    "created_at": "2013-04-23T16:19:59Z",
+    "updated_at": "2013-05-28T22:54:57Z",
+    "accepted_at": "2013-05-28T20:46:28Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Need to be able to add date of next hire to notes. ",
+    "description": "Also make sure it is saving from the notes screen",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/48595655",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 50652163,
+    "created_at": "2013-05-28T13:45:53Z",
+    "updated_at": "2013-05-28T20:51:56Z",
+    "accepted_at": "2013-05-28T20:51:35Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Cannot sort managers by company",
+    "description": "[CRM Bliss] Production ArgumentError: organization cannot be used for ordering because it is a multiple-value field",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/50652163",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 50700309,
+    "created_at": "2013-05-28T22:11:26Z",
+    "updated_at": "2013-05-29T21:18:31Z",
+    "accepted_at": "2013-05-29T21:18:09Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Partial name search",
+    "description": "Partial names need to work. This goes for company and peoples names with at least three letters.",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/50700309",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 50387743,
+    "created_at": "2013-05-22T18:32:11Z",
+    "updated_at": "2013-05-29T21:20:30Z",
+    "accepted_at": "2013-05-29T21:20:08Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Can't open details screen if read only for Managers and Consultants.",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/50387743",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 50674511,
+    "created_at": "2013-05-28T17:41:36Z",
+    "updated_at": "2013-06-25T22:03:59Z",
+    "accepted_at": "2013-06-25T22:04:02Z",
+    "story_type": "bug",
+    "name": "Fix opening resumes (sometimes it times out)",
+    "description": "Also make it open in a separate window",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/50674511",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  },
+  {
+    "kind": "story",
+    "id": 49456319,
+    "created_at": "2013-05-07T22:11:28Z",
+    "updated_at": "2013-06-26T16:50:07Z",
+    "accepted_at": "2013-06-26T16:50:06Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Leads should be able to be pooled without managerial approval",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/49456319",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  },
+  {
+    "kind": "story",
+    "id": 50672671,
+    "created_at": "2013-05-28T17:32:36Z",
+    "updated_at": "2013-06-26T16:50:31Z",
+    "accepted_at": "2013-06-26T16:50:31Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Sort by skill sorts by the first skill in consultants",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/50672671",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  },
+  {
+    "kind": "story",
+    "id": 49672437,
+    "created_at": "2013-05-10T16:29:29Z",
+    "updated_at": "2013-06-26T17:06:26Z",
+    "accepted_at": "2013-06-26T17:06:25Z",
+    "story_type": "bug",
+    "name": "Sort not working",
+    "description": "1. Name sort is working correctly. \n2. Skills isn't sorting\n3. Location is not sorting ( break this down into city and state)\n4. Next last and available are not sorting correctly\n5. Rate should just be a number\n",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/49672437",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  },
+  {
+    "kind": "story",
+    "id": 52490145,
+    "created_at": "2013-06-27T18:39:34Z",
+    "updated_at": "2013-07-12T18:11:40Z",
+    "accepted_at": "2013-07-12T17:14:26Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "add a note on the details screen",
+    "description": "Ability to add new notes and contact",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/52490145",
+    "owner_ids": [
+      819721
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 819721
+  },
+  {
+    "kind": "story",
+    "id": 53177369,
+    "created_at": "2013-07-10T19:03:51Z",
+    "updated_at": "2013-07-17T15:28:56Z",
+    "accepted_at": "2013-07-17T15:28:51Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Add attachments to emails",
+    "description": "Need to be able to add attachments to emails.. This is for both sales and recruiting. Recruiters should also have a send resume button. That automatically lets them send a resume. to any WB employee. ",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/53177369",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  },
+  {
+    "kind": "story",
+    "id": 53597557,
+    "created_at": "2013-07-18T00:55:03Z",
+    "updated_at": "2013-07-18T19:54:16Z",
+    "accepted_at": "2013-07-18T19:54:16Z",
+    "story_type": "bug",
+    "name": "Error when sending emails with no attachments",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/53597557",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 53587387,
+    "created_at": "2013-07-17T21:42:00Z",
+    "updated_at": "2013-07-18T20:29:18Z",
+    "accepted_at": "2013-07-18T20:29:18Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Recruiters need to have a forward resume button",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/53587387",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  },
+  {
+    "kind": "story",
+    "id": 53661101,
+    "created_at": "2013-07-18T20:30:28Z",
+    "updated_at": "2013-07-19T20:24:36Z",
+    "accepted_at": "2013-07-19T20:24:35Z",
+    "estimate": 1,
+    "story_type": "feature",
+    "name": "Send resume needs a note function",
+    "description": "Need to be able to send a note with the resume. Should have a select all feature if there are multiple files.",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/53661101",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  },
+  {
+    "kind": "story",
+    "id": 53500987,
+    "created_at": "2013-07-16T19:45:13Z",
+    "updated_at": "2013-07-23T14:37:50Z",
+    "accepted_at": "2013-07-23T14:37:45Z",
+    "story_type": "bug",
+    "name": "Skills not showing up in approval screen (both for managers and consultants)",
+    "current_state": "accepted",
+    "requested_by_id": 17996,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/53500987",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  },
+  {
+    "kind": "story",
+    "id": 53884133,
+    "created_at": "2013-07-23T14:43:16Z",
+    "updated_at": "2013-07-23T18:40:24Z",
+    "accepted_at": "2013-07-23T18:40:19Z",
+    "story_type": "bug",
+    "name": "Can't save new information on consultant file",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/53884133",
+    "owner_ids": [
+      17996
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 17996
+  },
+  {
+    "kind": "story",
+    "id": 53643021,
+    "created_at": "2013-07-18T16:36:20Z",
+    "updated_at": "2013-07-25T16:36:11Z",
+    "accepted_at": "2013-07-25T16:36:04Z",
+    "story_type": "bug",
+    "name": "Updates to the notes via the i box",
+    "description": "When updating notes inside the i box, all changes made to the information in the ibox are not recorded.\nSteps:\n1. Click on i\n2. Change Visa Status\n3. write in note in note box\n4. submit note\n5. click done\nResult:\nNote is saved but the change in the visa status is not recorded. ",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/53643021",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  },
+  {
+    "kind": "story",
+    "id": 49067819,
+    "created_at": "2013-05-01T16:03:21Z",
+    "updated_at": "2013-07-25T20:40:02Z",
+    "accepted_at": "2013-07-25T20:40:02Z",
+    "estimate": 2,
+    "story_type": "feature",
+    "name": "Route file for deletion",
+    "description": "People can route a file for deletion to their manager",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/49067819",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  },
+  {
+    "kind": "story",
+    "id": 49068065,
+    "created_at": "2013-05-01T16:07:06Z",
+    "updated_at": "2013-07-25T21:40:12Z",
+    "accepted_at": "2013-07-25T21:40:12Z",
+    "estimate": 3,
+    "story_type": "feature",
+    "name": "Route job for a approval",
+    "description": "should work the same as database adds. Jobs should not show up on everyone's screen until approved. Once approved all recruiters and principles should be able to see. The sales rep and sales reps managers should be able to see as well. \n\nTask description:\n\nRoute job for a approval\nhttps://www.pivotaltracker.com/story/show/49068065\n\nAfter adding a new job, you should have the ability to route it for approval. So we'll probably need the flag and the actions for approving a job.\n\nPlease not that the job can have the following status:\n\nNew -> Approved -> On Hold -> Closed\n\nIn this user story, we're just going to handle the New to Approved transition. So when you add a new job, its status should default to New.\n\nOnly the salesman that created the job and its managers can see the job with status of New.\n\nNow, when you are a salesman or a sales manager, you can view the flag and, if the job is New, you can select Submit for Approval. Then the approval goes to the manager screen. Once it's approved, the job status should become Approved and then it's visible by anyone.\n\nSo in this task you should:\n\n1. add the job status\n2. only show approved jobs for everybody\n3. only show jobs in status New if the owner is the salesman or its manager\n4. add the flag to the job view with the \"Route for Approval\" link\n5. add jobs to manager approvals screen",
+    "current_state": "accepted",
+    "requested_by_id": 819721,
+    "project_id": 674413,
+    "url": "https://www.pivotaltracker.com/story/show/49068065",
+    "owner_ids": [
+      605115
+    ],
+    "labels": [
+
+    ],
+    "owned_by_id": 605115
+  }
+]
