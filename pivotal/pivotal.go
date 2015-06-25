@@ -41,6 +41,7 @@ type Story struct {
 	Estimate int    `json:"estimate"`
 	State    string `json:"current_state"`
 	Url      string `json:"url"`
+	Type     string `json:"story_type"`
 }
 
 func NewPivotal(token string, verbose bool) *Pivotal {
@@ -63,14 +64,17 @@ func (r *Request) Send() (*Response, error) {
 	}
 
 	uri := r.Uri
+	// fmt.Printf("Type: %s Uri: %s\n", r.Type, r.Uri)
 	if uri == "" {
 		uri = r.Type
 	}
 
-	json, err := r.request(r.Method, r.Uri, values)
+	json, err := r.request(r.Method, uri, values)
 	if err != nil {
 		return nil, err
 	}
+
+	// fmt.Printf("Type: %s Uri: %s\n", r.Type, uri)
 
 	wrapped := fmt.Sprintf("{\"%s\":%s}", r.Type, string(json))
 	resp, err := NewFromJson([]byte(wrapped))
