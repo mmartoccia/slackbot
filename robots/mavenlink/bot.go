@@ -45,11 +45,6 @@ func (r bot) sendWithAttachment(p *robots.Payload, s string, atts []robots.Attac
 }
 
 func (r bot) DeferredAction(p *robots.Payload) {
-	text := strings.TrimSpace(p.Text)
-
-	msg := fmt.Sprintf("Running mavenlink command: %s", text)
-	go r.send(p, msg)
-
 	cmd := utils.NewCommand(p.Text)
 
 	if cmd.Is("auth", "authorize", "connect") {
@@ -82,8 +77,6 @@ func conn(user string) (*mavenlink.Mavenlink, error) {
 func (r bot) sendProjects(payload *robots.Payload, term string) {
 	var ps []mavenlink.Project
 	var err error
-
-	go r.send(payload, "Retrieving mavenlink projects...\n")
 
 	mvn, err := conn(payload.UserName)
 	if err != nil {

@@ -3,7 +3,6 @@ package robots
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/pivotal"
@@ -24,11 +23,6 @@ func (r bot) Run(p *robots.Payload) (slashCommandImmediateReturn string) {
 }
 
 func (r bot) DeferredAction(p *robots.Payload) {
-	text := strings.TrimSpace(p.Text)
-
-	msg := fmt.Sprintf("Running pivotal command: %s", text)
-	go r.sendResponse(p, msg)
-
 	cmd := utils.NewCommand(p.Text)
 
 	if cmd.Command == "projects" {
@@ -102,8 +96,6 @@ func conn(user string) (*pivotal.Pivotal, error) {
 func (r bot) sendProjects(payload *robots.Payload, term string) {
 	var ps []pivotal.Project
 	var err error
-
-	go r.sendResponse(payload, "Retrieving pivotal projects...\n")
 
 	pvt, err := conn(payload.UserName)
 	if err != nil {
