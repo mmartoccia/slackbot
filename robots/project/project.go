@@ -12,10 +12,13 @@ import (
 	"github.com/gistia/slackbot/utils"
 )
 
-type bot struct{}
+type bot struct {
+	handler utils.SlackHandler
+}
 
 func init() {
-	s := &bot{}
+	handler := utils.NewSlackHandler("Project", ":books:")
+	s := &bot{handler: handler}
 	robots.RegisterRobot("project", s)
 	robots.RegisterRobot("pr", s)
 }
@@ -29,30 +32,31 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	cmd := utils.NewCommand(p.Text)
 
 	if cmd.Is("link") {
-		// link abcmouse mvn:123 pvt:345
 		name := cmd.Arg(0)
 		if name == "" {
-			r.send(p, "Missing project name. Usage: !project link name mvn:id pvt:id")
+			r.handler.Send(p, "Missing project name. Usage: !project link name mvn:id pvt:id")
 			return
 		}
 		mvn := cmd.Param("mvn")
 		if mvn == "" {
-			r.send(p, "Missing mavenlink project. Usage: !project link name mvn:id pvt:id")
+			r.handler.Send(p, "Missing mavenlink project. Usage: !project link name mvn:id pvt:id")
 			return
 		}
 		pvt := cmd.Param("pvt")
 		if pvt == "" {
-			r.send(p, "Missing pivotal project. Usage: !project link name mvn:id pvt:id")
+			r.handler.Send(p, "Missing pivotal project. Usage: !project link name mvn:id pvt:id")
 			return
 		}
 
 		err := r.link(p, name, mvn, pvt)
 		if err != nil {
-			r.sendError(p, err)
+			r.handler.SendError(p, err)
 			return
 		}
 		return
 	}
+
+	r.handler.Send(p, "Invalid command *"+cmd.Command+"*")
 }
 
 func (r bot) link(p *robots.Payload, name string, mvnId string, pvtId string) error {
@@ -62,7 +66,7 @@ func (r bot) link(p *robots.Payload, name string, mvnId string, pvtId string) er
 	}
 
 	if prj != nil {
-		r.send(p, fmt.Sprintf("Project with name %s already exists.", name))
+		r.handler.Send(p, fmt.Sprintf("Project with name %s already exists.", name))
 		return nil
 	}
 
@@ -103,7 +107,7 @@ func (r bot) link(p *robots.Payload, name string, mvnId string, pvtId string) er
 		return err
 	}
 
-	r.send(p, fmt.Sprintf("Project %s linked %s - %s and %d - %s", name,
+	r.handler.Send(p, fmt.Sprintf("Project %s linked %s - %s and %d - %s", name,
 		mvnProject.Id, mvnProject.Title,
 		pvtProject.Id, pvtProject.Name))
 
@@ -112,27 +116,7 @@ func (r bot) link(p *robots.Payload, name string, mvnId string, pvtId string) er
 
 func (r bot) sendError(p *robots.Payload, err error) {
 	msg := fmt.Sprintf("Error running project command: %s\n", err.Error())
-	r.send(p, msg)
-}
-
-func (r bot) send(p *robots.Payload, s string) {
-	fmt.Println(s)
-	r.sendWithAttachment(p, s, nil)
-}
-
-func (r bot) sendWithAttachment(p *robots.Payload, s string, atts []robots.Attachment) {
-	response := &robots.IncomingWebhook{
-		Domain:      p.TeamDomain,
-		Channel:     p.ChannelID,
-		Username:    "Mavenlink Bot",
-		Text:        fmt.Sprintf("@%s: %s", p.UserName, s),
-		IconEmoji:   ":chart_with_upwards_trend:",
-		UnfurlLinks: true,
-		Parse:       robots.ParseStyleFull,
-		Attachments: atts,
-	}
-
-	response.Send()
+	r.handler.Send(p, msg)
 }
 
 func (r bot) Description() (description string) {
