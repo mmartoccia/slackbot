@@ -3,7 +3,6 @@ package robots
 import (
 	"errors"
 	"fmt"
-	"strconv"
 
 	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/pivotal"
@@ -40,13 +39,13 @@ func (r bot) DeferredAction(p *robots.Payload) {
 		return
 	}
 
-	if cmd.Is("start") {
-		r.startStory(p, cmd.Arg(0))
+	if cmd.Is("start", "finish", "deliver") {
+		r.setStoryState(p, cmd.Command, cmd.Arg(0))
 		return
 	}
 }
 
-func (r bot) startStory(p *robots.Payload, id string) {
+func (r bot) setStoryState(p *robots.Payload, state string, id string) {
 	pvt, err := conn(p.UserName)
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
@@ -54,22 +53,16 @@ func (r bot) startStory(p *robots.Payload, id string) {
 		return
 	}
 
-	nid, err := strconv.ParseInt(id, 10, 64)
+	state = fmt.Sprintf("%sed", state)
+	story, err := pvt.SetStoryState(id, state)
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
 		r.sendResponse(p, msg)
 		return
 	}
 
-	story := pivotal.Story{Id: nid, State: "started"}
-	story, err = pvt.UpdateStory(story)
-	if err != nil {
-		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.sendResponse(p, msg)
-		return
-	}
-
-	r.sendResponse(p, fmt.Sprintf("Story %s - %s started successfully", id, story.Name))
+	r.sendResponse(p, fmt.Sprintf("Story %s - %s %s successfully",
+		id, story.Name, state))
 }
 
 func (r bot) sendAuth(p *robots.Payload) {

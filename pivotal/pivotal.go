@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strconv"
 
 	"github.com/gistia/slackbot/utils"
 )
@@ -148,7 +149,17 @@ func (pvt *Pivotal) Stories(p string) ([]Story, error) {
 	return r.Stories, nil
 }
 
-func (pvt *Pivotal) UpdateStory(story Story) (Story, error) {
+func (pvt *Pivotal) SetStoryState(id string, state string) (*Story, error) {
+	nid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	story := Story{Id: nid, State: state}
+	return pvt.UpdateStory(story)
+}
+
+func (pvt *Pivotal) UpdateStory(story Story) (*Story, error) {
 	req := Request{
 		Token:  pvt.Token,
 		Type:   "story",
@@ -158,5 +169,5 @@ func (pvt *Pivotal) UpdateStory(story Story) (Story, error) {
 	}
 
 	r, err := req.Send()
-	return r.Story, err
+	return &r.Story, err
 }
