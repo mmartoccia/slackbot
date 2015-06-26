@@ -30,6 +30,7 @@ func (sh SlackHandler) SendError(p *robots.Payload, err error) {
 }
 
 func (sh SlackHandler) SendWithAttachments(p *robots.Payload, s string, atts []robots.Attachment) {
+	fmt.Println(" ->", s)
 	response := &robots.IncomingWebhook{
 		Parse:       robots.ParseStyleFull,
 		Domain:      p.TeamDomain,
