@@ -47,6 +47,18 @@ func (r bot) DeferredAction(p *robots.Payload) {
 }
 
 func (r bot) sendAuth(p *robots.Payload) {
+	s, err := db.GetSetting(p.UserName, "PIVOTAL_TOKEN")
+	if err != nil {
+		msg := fmt.Sprintf("Error: %s", err.Error())
+		r.sendResponse(p, msg)
+		return
+	}
+
+	if s != nil {
+		r.sendResponse(p, "You are already connected with Pivotal.")
+		return
+	}
+
 	msg := `**Authenticating Pivotal Tracker**
 1. Visit your profile here https://www.pivotaltracker.com/profile
 2. Copy your API token at the bottom of the page
