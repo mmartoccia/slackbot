@@ -29,37 +29,36 @@ func (r bot) Run(p *robots.Payload) string {
 }
 
 func (r bot) DeferredAction(p *robots.Payload) {
-	cmd := utils.NewCommand(p.Text)
+	ch := utils.NewCmdHandler(p, r.handler, "project")
+	ch.Handle("link", r.link)
+	ch.Process(p.Text)
+}
 
-	if cmd.Is("link") {
-		name := cmd.Arg(0)
-		if name == "" {
-			r.handler.Send(p, "Missing project name. Usage: !project link name mvn:id pvt:id")
-			return
-		}
-		mvn := cmd.Param("mvn")
-		if mvn == "" {
-			r.handler.Send(p, "Missing mavenlink project. Usage: !project link name mvn:id pvt:id")
-			return
-		}
-		pvt := cmd.Param("pvt")
-		if pvt == "" {
-			r.handler.Send(p, "Missing pivotal project. Usage: !project link name mvn:id pvt:id")
-			return
-		}
-
-		err := r.link(p, name, mvn, pvt)
-		if err != nil {
-			r.handler.SendError(p, err)
-			return
-		}
+func (r bot) link(p *robots.Payload, cmd utils.Command) {
+	name := cmd.Arg(0)
+	if name == "" {
+		r.handler.Send(p, "Missing project name. Usage: !project link name mvn:id pvt:id")
+		return
+	}
+	mvn := cmd.Param("mvn")
+	if mvn == "" {
+		r.handler.Send(p, "Missing mavenlink project. Usage: !project link name mvn:id pvt:id")
+		return
+	}
+	pvt := cmd.Param("pvt")
+	if pvt == "" {
+		r.handler.Send(p, "Missing pivotal project. Usage: !project link name mvn:id pvt:id")
 		return
 	}
 
-	r.handler.Send(p, "Invalid command *"+cmd.Command+"*")
+	err := r.makeLink(p, name, mvn, pvt)
+	if err != nil {
+		r.handler.SendError(p, err)
+		return
+	}
 }
 
-func (r bot) link(p *robots.Payload, name string, mvnId string, pvtId string) error {
+func (r bot) makeLink(p *robots.Payload, name string, mvnId string, pvtId string) error {
 	prj, err := db.GetProjectByName(name)
 	if err != nil {
 		return err
