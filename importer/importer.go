@@ -3,6 +3,7 @@ package importer
 import (
 	_ "github.com/gistia/slackbot/robots/mavenlink"
 	_ "github.com/gistia/slackbot/robots/pivotal"
+	_ "github.com/gistia/slackbot/robots/project"
 	_ "github.com/gistia/slackbot/robots/store"
 )
 
