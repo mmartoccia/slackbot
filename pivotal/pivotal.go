@@ -71,13 +71,7 @@ func (r *Request) Send() (*Response, error) {
 	var payload []byte
 	var err error
 
-	if len(r.Data) > 0 {
-		values := url.Values{}
-		for k, v := range r.Data {
-			values.Add(k, v)
-		}
-		payload, err = r.request(r.Method, uri, values)
-	} else if r.Story != nil {
+	if r.Story != nil {
 		data, err := json.Marshal(r.Story)
 		if err != nil {
 			return nil, err
@@ -87,8 +81,16 @@ func (r *Request) Send() (*Response, error) {
 			"X-TrackerToken": r.Token,
 			"Content-Type":   "application/json",
 		}
+		fmt.Println("Request:", url)
+		fmt.Println("Request payload:", string(data))
 		payload, err = utils.RequestRaw(
 			r.Method, url, bytes.NewBuffer(data), headers)
+	} else {
+		values := url.Values{}
+		for k, v := range r.Data {
+			values.Add(k, v)
+		}
+		payload, err = r.request(r.Method, uri, values)
 	}
 
 	if err != nil {
@@ -97,7 +99,12 @@ func (r *Request) Send() (*Response, error) {
 
 	// fmt.Printf("Type: %s Uri: %s\n", r.Type, uri)
 
-	wrapped := fmt.Sprintf("{\"%s\":%s}", r.Type, string(payload))
+	fmt.Println("Payload:", string(payload))
+	wrapped := string(payload)
+	if wrapped != "" {
+		wrapped = fmt.Sprintf("{\"%s\":%s}", r.Type, wrapped)
+	}
+	fmt.Println("Wrapped:", string(wrapped))
 	resp, err := NewFromJson([]byte(wrapped))
 	return resp, err
 }
@@ -141,15 +148,15 @@ func (pvt *Pivotal) Stories(p string) ([]Story, error) {
 	return r.Stories, nil
 }
 
-func (pvt *Pivotal) UpdateStory(story Story) error {
+func (pvt *Pivotal) UpdateStory(story Story) (Story, error) {
 	req := Request{
 		Token:  pvt.Token,
 		Type:   "story",
 		Method: "PUT",
-		Uri:    fmt.Sprintf("stories/%d", story.ProjectId, story.Id),
+		Uri:    fmt.Sprintf("stories/%d", story.Id),
 		Story:  &story,
 	}
 
-	_, err := req.Send()
-	return err
+	r, err := req.Send()
+	return r.Story, err
 }

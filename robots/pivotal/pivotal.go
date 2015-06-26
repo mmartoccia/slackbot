@@ -62,14 +62,14 @@ func (r bot) startStory(p *robots.Payload, id string) {
 	}
 
 	story := pivotal.Story{Id: nid, State: "started"}
-	err = pvt.UpdateStory(story)
+	story, err = pvt.UpdateStory(story)
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
 		r.sendResponse(p, msg)
 		return
 	}
 
-	r.sendResponse(p, fmt.Sprintf("Story %s started successfully", id))
+	r.sendResponse(p, fmt.Sprintf("Story %s - %s started successfully", id, story.Name))
 }
 
 func (r bot) sendAuth(p *robots.Payload) {
