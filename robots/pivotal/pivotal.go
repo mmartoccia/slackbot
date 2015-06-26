@@ -26,7 +26,7 @@ func (r bot) Run(p *robots.Payload) string {
 }
 
 func (r bot) DeferredAction(p *robots.Payload) {
-	ch := utils.NewCmdHandler(p, r.handler)
+	ch := utils.NewCmdHandler(p, r.handler, "project")
 	ch.Handle("projects", r.sendProjects)
 	ch.Handle("stories", r.sendStories)
 	ch.Handle("auth", r.sendAuth)
