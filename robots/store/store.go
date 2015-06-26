@@ -41,7 +41,7 @@ func (r bot) DeferredAction(p *robots.Payload) {
 
 func (r bot) remove(p *robots.Payload, name string) {
 	if name == "" {
-		r.send(p, "Use !store remove PARAM.\n")
+		r.send(p, "Use /store remove PARAM.\n")
 		return
 	}
 
@@ -62,7 +62,7 @@ func (r bot) remove(p *robots.Payload, name string) {
 func (r bot) set(p *robots.Payload, s string) {
 	parts := strings.Split(s, "=")
 	if len(parts) < 2 {
-		r.send(p, "Malformed setting. Use !store set PARAM=value.\n")
+		r.send(p, "Malformed setting. Use /store set PARAM=value.\n")
 		return
 	}
 
@@ -90,7 +90,7 @@ func (r bot) list(p *robots.Payload) {
 		return
 	}
 
-	res := fmt.Sprintf("Current settings for @%s:\n", p.UserName)
+	res := "You have the following settings configured:\n"
 	for _, s := range settings {
 		res += fmt.Sprintf("%s\n", s.Name)
 	}
