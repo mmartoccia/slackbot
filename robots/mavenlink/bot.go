@@ -208,7 +208,7 @@ func (r bot) sendAuth(p *robots.Payload, cmd utils.Command) {
 		Color:     "#7CD197",
 		Title:     "Authorize with Mavenlink",
 		TitleLink: link.String(),
-		Text:      "Authorize your mavenlink user",
+		Text:      "Follow the link above and click Accept to authorize this bot to access your Mavenlink account",
 	}
 
 	r.handler.SendWithAttachments(p, "", []robots.Attachment{a})
