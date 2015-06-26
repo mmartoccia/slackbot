@@ -29,24 +29,11 @@ func (r bot) Run(p *robots.Payload) (slashCommandImmediateReturn string) {
 }
 
 func (r bot) DeferredAction(p *robots.Payload) {
-	cmd := utils.NewCommand(p.Text)
-
-	if cmd.Is("auth", "authorize", "connect") {
-		r.sendAuth(p)
-		return
-	}
-
-	if cmd.Is("projects") {
-		r.sendProjects(p, cmd.Arg(0))
-		return
-	}
-
-	if cmd.Is("stories") {
-		r.sendStories(p, cmd.Arg(0), cmd.Param("parent"))
-		return
-	}
-
-	r.handler.Send(p, "Invalid command *"+cmd.Command+"*")
+	ch := utils.NewCmdHandler(p, r.handler, "mvn")
+	ch.Handle("projects", r.sendProjects)
+	ch.Handle("stories", r.sendStories)
+	ch.HandleMany([]string{"auth", "authorize", "connect"}, r.sendAuth)
+	ch.Process(p.Text)
 }
 
 func conn(user string) (*mavenlink.Mavenlink, error) {
@@ -61,9 +48,11 @@ func conn(user string) (*mavenlink.Mavenlink, error) {
 	return con, nil
 }
 
-func (r bot) sendProjects(payload *robots.Payload, term string) {
+func (r bot) sendProjects(payload *robots.Payload, cmd utils.Command) {
 	var ps []mavenlink.Project
 	var err error
+
+	term := cmd.Arg(0)
 
 	mvn, err := conn(payload.UserName)
 	if err != nil {
@@ -90,7 +79,9 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 	r.handler.Send(payload, s+projectTable(ps))
 }
 
-func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
+func (r bot) sendStories(payload *robots.Payload, cmd utils.Command) {
+	term := cmd.Arg(0)
+	parent := cmd.Param("parent")
 	mvn, err := conn(payload.UserName)
 	if err != nil {
 		r.handler.SendError(payload, err)
@@ -193,7 +184,7 @@ func formatHour(h int64) string {
 	return fmt.Sprintf("%.2f", v)
 }
 
-func (r bot) sendAuth(p *robots.Payload) {
+func (r bot) sendAuth(p *robots.Payload, cmd utils.Command) {
 	appId := os.Getenv("MAVENLINK_APP_ID")
 	callback := os.Getenv("MAVENLINK_CALLBACK")
 
