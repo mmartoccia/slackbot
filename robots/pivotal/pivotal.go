@@ -10,14 +10,17 @@ import (
 	"github.com/gistia/slackbot/utils"
 )
 
-type bot struct{}
+type bot struct {
+	handler utils.SlackHandler
+}
 
 func init() {
-	s := &bot{}
+	handler := utils.NewSlackHandler("Pivotal", ":triangular_ruler:")
+	s := &bot{handler: handler}
 	robots.RegisterRobot("pvt", s)
 }
 
-func (r bot) Run(p *robots.Payload) (slashCommandImmediateReturn string) {
+func (r bot) Run(p *robots.Payload) string {
 	go r.DeferredAction(p)
 	return ""
 }
@@ -25,13 +28,14 @@ func (r bot) Run(p *robots.Payload) (slashCommandImmediateReturn string) {
 func (r bot) DeferredAction(p *robots.Payload) {
 	cmd := utils.NewCommand(p.Text)
 
-	if cmd.Command == "projects" {
+	if cmd.Is("projects") {
 		r.sendProjects(p, cmd.Arg(0))
 		return
 	}
 
-	if cmd.Command == "stories" {
+	if cmd.Is("stories") {
 		r.sendStories(p, cmd.Arg(0))
+		return
 	}
 
 	if cmd.Is("auth", "authorize", "connect") {
@@ -39,17 +43,19 @@ func (r bot) DeferredAction(p *robots.Payload) {
 		return
 	}
 
-	if cmd.Is("start", "finish", "deliver") {
+	if cmd.Is("start", "unstart", "finish", "accept", "reject", "deliver") {
 		r.setStoryState(p, cmd.Command, cmd.Arg(0))
 		return
 	}
+
+	r.handler.Send(p, "Invalid command *"+cmd.Command+"*")
 }
 
 func (r bot) setStoryState(p *robots.Payload, state string, id string) {
 	pvt, err := conn(p.UserName)
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.sendResponse(p, msg)
+		r.handler.Send(p, msg)
 		return
 	}
 
@@ -57,11 +63,11 @@ func (r bot) setStoryState(p *robots.Payload, state string, id string) {
 	story, err := pvt.SetStoryState(id, state)
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.sendResponse(p, msg)
+		r.handler.Send(p, msg)
 		return
 	}
 
-	r.sendResponse(p, fmt.Sprintf("Story %s - %s %s successfully",
+	r.handler.Send(p, fmt.Sprintf("Story %s - %s %s successfully",
 		id, story.Name, state))
 }
 
@@ -69,41 +75,21 @@ func (r bot) sendAuth(p *robots.Payload) {
 	s, err := db.GetSetting(p.UserName, "PIVOTAL_TOKEN")
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.sendResponse(p, msg)
+		r.handler.Send(p, msg)
 		return
 	}
 
 	if s != nil {
-		r.sendResponse(p, "You are already connected with Pivotal.")
+		r.handler.Send(p, "You are already connected with Pivotal.")
 		return
 	}
 
-	msg := `**Authenticating Pivotal Tracker**
-1. Visit your profile here https://www.pivotaltracker.com/profile
+	msg := `*Authenticating with Pivotal Tracker*
+1. Visit your profile here <https://www.pivotaltracker.com/profile>
 2. Copy your API token at the bottom of the page
 3. Run the command:
-   **/store set PIVOTAL_TOKEN=<token>**
-`
-	r.sendResponse(p, msg)
-}
-
-func (r bot) sendResponse(p *robots.Payload, s string) {
-	r.sendWithAttachment(p, s, nil)
-}
-
-func (r bot) sendWithAttachment(p *robots.Payload, s string, atts []robots.Attachment) {
-	response := &robots.IncomingWebhook{
-		Domain:      p.TeamDomain,
-		Channel:     p.ChannelID,
-		Username:    "Pivotal Bot",
-		Text:        fmt.Sprintf("@%s: %s", p.UserName, s),
-		IconEmoji:   ":triangular_ruler:",
-		UnfurlLinks: true,
-		Parse:       robots.ParseStyleFull,
-		Attachments: atts,
-	}
-
-	response.Send()
+   ` + "`/store set PIVOTAL_TOKEN=<token>`"
+	r.handler.Send(p, msg)
 }
 
 func conn(user string) (*pivotal.Pivotal, error) {
@@ -125,7 +111,7 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 	pvt, err := conn(payload.UserName)
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.sendResponse(payload, msg)
+		r.handler.Send(payload, msg)
 		return
 	}
 	s := "Projects"
@@ -142,25 +128,25 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.sendResponse(payload, msg)
+		r.handler.Send(payload, msg)
 		return
 	}
 
-	r.sendResponse(payload, s+projectTable(ps))
+	r.handler.Send(payload, s+projectTable(ps))
 }
 
 func (r bot) sendStories(p *robots.Payload, project string) {
 	pvt, err := conn(p.UserName)
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.sendResponse(p, msg)
+		r.handler.Send(p, msg)
 		return
 	}
 
 	stories, err := pvt.Stories(project)
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.sendResponse(p, msg)
+		r.handler.Send(p, msg)
 		return
 	}
 
@@ -169,7 +155,7 @@ func (r bot) sendStories(p *robots.Payload, project string) {
 		str += fmt.Sprintf("%d - %s\n", s.Id, s.Name)
 	}
 
-	r.sendResponse(p, str)
+	r.handler.Send(p, str)
 }
 
 func projectTable(ps []pivotal.Project) string {
@@ -183,5 +169,5 @@ func projectTable(ps []pivotal.Project) string {
 }
 
 func (r bot) Description() (description string) {
-	return "Pivotal bot\n\tUsage: ! pvt <command>\n"
+	return "Pivotal bot\n\tUsage: !pvt <command>\n"
 }
