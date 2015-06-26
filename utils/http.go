@@ -17,6 +17,10 @@ func Request(method string, url string, data url.Values, headers map[string]stri
 		dataIn = bytes.NewBufferString(data.Encode())
 	}
 
+	return RequestRaw(method, url, dataIn, headers)
+}
+
+func RequestRaw(method string, url string, dataIn io.Reader, headers map[string]string) ([]byte, error) {
 	req, err := http.NewRequest(method, url, dataIn)
 	if err != nil {
 		return nil, err

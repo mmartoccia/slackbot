@@ -1,6 +1,7 @@
 package pivotal
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -19,11 +20,13 @@ type Request struct {
 	Uri    string
 	Data   map[string]string
 	Token  string
+	Story  *Story
 }
 
 type Response struct {
 	Projects []Project `json:"projects"`
 	Stories  []Story   `json:"stories"`
+	Story    Story     `json:"story"`
 }
 
 type Project struct {
@@ -35,13 +38,14 @@ type Project struct {
 }
 
 type Story struct {
-	Id       int64  `json:"id"`
-	Kind     string `json:"kind"`
-	Name     string `json:"name"`
-	Estimate int    `json:"estimate"`
-	State    string `json:"current_state"`
-	Url      string `json:"url"`
-	Type     string `json:"story_type"`
+	Id        int64  `json:"id,omitempty"`
+	Kind      string `json:"kind,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Estimate  int    `json:"estimate,omitempty"`
+	State     string `json:"current_state,omitempty"`
+	Url       string `json:"url,omitempty"`
+	Type      string `json:"story_type,omitempty"`
+	ProjectId int64  `json:"project_id,omitempty"`
 }
 
 func NewPivotal(token string, verbose bool) *Pivotal {
@@ -58,25 +62,42 @@ func (r *Request) request(method string, uri string, data url.Values) ([]byte, e
 }
 
 func (r *Request) Send() (*Response, error) {
-	values := url.Values{}
-	for k, v := range r.Data {
-		values.Add(k, v)
-	}
-
 	uri := r.Uri
 	// fmt.Printf("Type: %s Uri: %s\n", r.Type, r.Uri)
 	if uri == "" {
 		uri = r.Type
 	}
 
-	json, err := r.request(r.Method, uri, values)
+	var payload []byte
+	var err error
+
+	if len(r.Data) > 0 {
+		values := url.Values{}
+		for k, v := range r.Data {
+			values.Add(k, v)
+		}
+		payload, err = r.request(r.Method, uri, values)
+	} else if r.Story != nil {
+		data, err := json.Marshal(r.Story)
+		if err != nil {
+			return nil, err
+		}
+		url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/%s", uri)
+		headers := map[string]string{
+			"X-TrackerToken": r.Token,
+			"Content-Type":   "application/json",
+		}
+		payload, err = utils.RequestRaw(
+			r.Method, url, bytes.NewBuffer(data), headers)
+	}
+
 	if err != nil {
 		return nil, err
 	}
 
 	// fmt.Printf("Type: %s Uri: %s\n", r.Type, uri)
 
-	wrapped := fmt.Sprintf("{\"%s\":%s}", r.Type, string(json))
+	wrapped := fmt.Sprintf("{\"%s\":%s}", r.Type, string(payload))
 	resp, err := NewFromJson([]byte(wrapped))
 	return resp, err
 }
@@ -118,4 +139,17 @@ func (pvt *Pivotal) Stories(p string) ([]Story, error) {
 	}
 
 	return r.Stories, nil
+}
+
+func (pvt *Pivotal) UpdateStory(story Story) error {
+	req := Request{
+		Token:  pvt.Token,
+		Type:   "story",
+		Method: "PUT",
+		Uri:    fmt.Sprintf("stories/%d", story.ProjectId, story.Id),
+		Story:  &story,
+	}
+
+	_, err := req.Send()
+	return err
 }

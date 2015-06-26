@@ -1,0 +1,20 @@
+{
+  "kind": "story",
+  "id": 97865868,
+  "created_at": "2015-06-08T00:00:00Z",
+  "updated_at": "2015-06-26T01:37:20Z",
+  "accepted_at": "2015-06-09T00:00:00Z",
+  "story_type": "chore",
+  "name": "Setup development environment",
+  "description": "We need 2 machines set up",
+  "current_state": "accepted",
+  "requested_by_id": 17996,
+  "project_id": 1375522,
+  "url": "https://www.pivotaltracker.com/story/show/97865868",
+  "owner_ids": [
+
+  ],
+  "labels": [
+
+  ]
+}

@@ -3,6 +3,7 @@ package robots
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/pivotal"
@@ -38,6 +39,37 @@ func (r bot) DeferredAction(p *robots.Payload) {
 		r.sendAuth(p)
 		return
 	}
+
+	if cmd.Is("start") {
+		r.startStory(p, cmd.Arg(0))
+		return
+	}
+}
+
+func (r bot) startStory(p *robots.Payload, id string) {
+	pvt, err := conn(p.UserName)
+	if err != nil {
+		msg := fmt.Sprintf("Error: %s", err.Error())
+		r.sendResponse(p, msg)
+		return
+	}
+
+	nid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		msg := fmt.Sprintf("Error: %s", err.Error())
+		r.sendResponse(p, msg)
+		return
+	}
+
+	story := pivotal.Story{Id: nid, State: "started"}
+	err = pvt.UpdateStory(story)
+	if err != nil {
+		msg := fmt.Sprintf("Error: %s", err.Error())
+		r.sendResponse(p, msg)
+		return
+	}
+
+	r.sendResponse(p, fmt.Sprintf("Story %s started successfully", id))
 }
 
 func (r bot) sendAuth(p *robots.Payload) {
