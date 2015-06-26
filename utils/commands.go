@@ -71,6 +71,10 @@ func (c *CmdHandler) sendHelp() {
 	if len(c.handlers) > 0 {
 		cmds := ""
 		for k := range c.handlers {
+			if k == "_default" {
+				continue
+			}
+
 			if cmds != "" {
 				cmds += ", "
 			}
