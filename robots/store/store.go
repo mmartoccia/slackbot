@@ -25,27 +25,16 @@ func (r bot) Run(p *robots.Payload) (ret string) {
 }
 
 func (r bot) DeferredAction(p *robots.Payload) {
-	cmd := utils.NewCommand(p.Text)
-
-	if cmd.IsDefault() {
-		r.list(p)
-		return
-	}
-
-	if cmd.Is("set") {
-		r.set(p, cmd.Arg(0))
-		return
-	}
-
-	if cmd.Is("rem", "del", "remove", "delete") {
-		r.remove(p, cmd.Arg(0))
-		return
-	}
-
-	r.handler.Send(p, "Invalid command *"+cmd.Command+"*")
+	ch := utils.NewCmdHandler(p, r.handler, "store")
+	ch.HandleDefault(r.list)
+	ch.Handle("list", r.list)
+	ch.Handle("set", r.set)
+	ch.HandleMany([]string{"rem", "del", "remove", "delete"}, r.remove)
+	ch.Process(p.Text)
 }
 
-func (r bot) remove(p *robots.Payload, name string) {
+func (r bot) remove(p *robots.Payload, cmd utils.Command) {
+	name := cmd.Arg(0)
 	if name == "" {
 		r.handler.Send(p, "Use /store remove PARAM.\n")
 		return
@@ -65,7 +54,8 @@ func (r bot) remove(p *robots.Payload, name string) {
 	r.handler.Send(p, fmt.Sprintf("Setting %s not found\n", name))
 }
 
-func (r bot) set(p *robots.Payload, s string) {
+func (r bot) set(p *robots.Payload, cmd utils.Command) {
+	s := cmd.Arg(0)
 	parts := strings.Split(s, "=")
 	if len(parts) < 2 {
 		r.handler.Send(p, "Malformed setting. Use /store set PARAM=value.\n")
@@ -83,7 +73,7 @@ func (r bot) set(p *robots.Payload, s string) {
 	r.handler.Send(p, fmt.Sprintf("Successfully set %s\n", name))
 }
 
-func (r bot) list(p *robots.Payload) {
+func (r bot) list(p *robots.Payload, cmd utils.Command) {
 	settings, err := db.GetSettings(p.UserName)
 	if err != nil {
 		r.handler.SendError(p, err)
