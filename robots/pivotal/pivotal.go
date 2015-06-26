@@ -38,6 +38,21 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	if cmd.Command == "stories" {
 		r.sendStories(p, cmd.Arg(0))
 	}
+
+	if cmd.Is("auth", "authorize", "connect") {
+		r.sendAuth(p)
+		return
+	}
+}
+
+func (r bot) sendAuth(p *robots.Payload) {
+	msg := `**Authenticating Pivotal Tracker**
+1. Visit your profile here https://www.pivotaltracker.com/profile
+2. Copy your API token at the bottom of the page
+3. Run the command:
+   **/store set PIVOTAL_TOKEN=<token>**
+`
+	r.sendResponse(p, msg)
 }
 
 func (r bot) sendResponse(p *robots.Payload, s string) {
