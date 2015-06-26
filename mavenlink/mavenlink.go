@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/utils"
 )
 
@@ -14,6 +15,14 @@ type Mavenlink struct {
 
 func NewMavenlink(token string, verbose bool) *Mavenlink {
 	return &Mavenlink{Token: token, Verbose: verbose}
+}
+
+func NewFor(user string) (*Mavenlink, error) {
+	token, err := db.GetSetting(user, "MAVENLINK_TOKEN")
+	if err != nil {
+		return nil, err
+	}
+	return NewMavenlink(token.Value, false), nil
 }
 
 func (mvn *Mavenlink) makeUrl(uri string) string {
@@ -93,7 +102,7 @@ func (mvn *Mavenlink) Projects() ([]Project, error) {
 	return projects, nil
 }
 
-func (mvn *Mavenlink) Project(id string) (*Project, error) {
+func (mvn *Mavenlink) GetProject(id string) (*Project, error) {
 	req := fmt.Sprintf("workspaces/%s", id)
 	r, err := mvn.get(req, nil)
 

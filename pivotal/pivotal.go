@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/utils"
 )
 
@@ -27,6 +28,7 @@ type Request struct {
 type Response struct {
 	Projects []Project `json:"projects"`
 	Stories  []Story   `json:"stories"`
+	Project  Project   `json:"project"`
 	Story    Story     `json:"story"`
 }
 
@@ -51,6 +53,14 @@ type Story struct {
 
 func NewPivotal(token string, verbose bool) *Pivotal {
 	return &Pivotal{Token: token, Verbose: verbose}
+}
+
+func NewFor(user string) (*Pivotal, error) {
+	token, err := db.GetSetting(user, "PIVOTAL_TOKEN")
+	if err != nil {
+		return nil, err
+	}
+	return NewPivotal(token.Value, false), nil
 }
 
 func (r *Request) request(method string, uri string, data url.Values) ([]byte, error) {
@@ -135,6 +145,23 @@ func (pvt *Pivotal) Projects() ([]Project, error) {
 	}
 
 	return r.Projects, nil
+}
+
+func (pvt *Pivotal) GetProject(id string) (*Project, error) {
+	uri := fmt.Sprintf("projects/%s", id)
+	req := Request{
+		Token:  pvt.Token,
+		Type:   "project",
+		Method: "GET",
+		Uri:    uri,
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+
+	return &r.Project, nil
 }
 
 func (pvt *Pivotal) Stories(p string) ([]Story, error) {

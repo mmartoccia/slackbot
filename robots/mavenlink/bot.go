@@ -167,7 +167,7 @@ func (r bot) getProject(payload *robots.Payload, term string) ([]mavenlink.Proje
 	}
 
 	if utils.IsNumber(term) {
-		p, err := mvn.Project(term)
+		p, err := mvn.GetProject(term)
 		if err != nil {
 			return nil, err
 		}

@@ -1,10 +1,13 @@
 package robots
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
 	"github.com/gistia/slackbot/db"
+	"github.com/gistia/slackbot/mavenlink"
+	"github.com/gistia/slackbot/pivotal"
 	"github.com/gistia/slackbot/robots"
 	"github.com/gistia/slackbot/utils"
 )
@@ -52,23 +55,52 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	}
 }
 
-func (r bot) link(p *robots.Payload, name string, mvn string, pvt string) error {
-	mvnId, err := strconv.ParseInt(mvn, 10, 64)
-	if err != nil {
-		return err
-	}
-	pvtId, err := strconv.ParseInt(mvn, 10, 64)
+func (r bot) link(p *robots.Payload, name string, mvnId string, pvtId string) error {
+	prj, err := db.GetProjectByName(name)
 	if err != nil {
 		return err
 	}
 
-	project := db.Project{Name: name, MavenlinkId: mvnId, PivotalId: pvtId}
+	if prj != nil {
+		r.send(p, fmt.Sprintf("Project with name %s already exists.", name))
+		return nil
+	}
+
+	mvn, err := mavenlink.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+	mvnProject, err := mvn.GetProject(mvnId)
+	if err != nil {
+		msg := fmt.Sprintf("Error loading mavenlink project %s: %s", mvnId, err.Error())
+		return errors.New(msg)
+	}
+
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		msg := fmt.Sprintf("Error loading pivotal project %s: %s", mvnId, err.Error())
+		return errors.New(msg)
+	}
+	pvtProject, err := pvt.GetProject(pvtId)
+	if err != nil {
+		return err
+	}
+
+	mvnInt, err := strconv.ParseInt(mvnProject.Id, 10, 64)
+	if err != nil {
+		return err
+	}
+	pvtInt := pvtProject.Id
+
+	project := db.Project{Name: name, MavenlinkId: mvnInt, PivotalId: pvtInt}
 	err = db.CreateProject(project)
 	if err != nil {
 		return err
 	}
 
-	r.send(p, fmt.Sprintln("Project %s has been tracked", name))
+	r.send(p, fmt.Sprintf("Project %s linked %s - %s and %d - %s", name,
+		mvnProject.Id, mvnProject.Title,
+		pvtProject.Id, pvtProject.Name))
 
 	return err
 }
@@ -79,6 +111,7 @@ func (r bot) sendError(p *robots.Payload, err error) {
 }
 
 func (r bot) send(p *robots.Payload, s string) {
+	fmt.Println(s)
 	r.sendWithAttachment(p, s, nil)
 }
 

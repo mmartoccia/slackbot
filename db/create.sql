@@ -13,5 +13,6 @@ CREATE TABLE "projects" (
   "pivotal_id" int NOT NULL,
   "mavenlink_id" int NOT NULL,
   "created_at" timestamp default NULL,
-  CONSTRAINT projects_pkey PRIMARY KEY (id)
+  CONSTRAINT projects_pkey PRIMARY KEY (id),
+  CONSTRAINT projects_name UNIQUE ("name")
 ) WITH (OIDS=FALSE);
