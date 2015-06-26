@@ -1,10 +1,13 @@
 package db
 
+import "database/sql"
+
 type Project struct {
 	Id          int
 	Name        string
 	PivotalId   int64
 	MavenlinkId int64
+	CreatedBy   string
 }
 
 func CreateProject(p Project) error {
@@ -15,9 +18,19 @@ func CreateProject(p Project) error {
 	defer con.Close()
 
 	_, err = con.Query(`
-    INSERT INTO projects (name, pivotal_id, mavenlink_id)
-    VALUES ($1, $2, $3)`, p.Name, p.PivotalId, p.MavenlinkId)
+    INSERT INTO projects (name, pivotal_id, mavenlink_id, created_by)
+    VALUES ($1, $2, $3, $4)`, p.Name, p.PivotalId, p.MavenlinkId, p.CreatedBy)
 	return err
+}
+
+func setProject(rows *sql.Rows) (*Project, error) {
+	p := Project{}
+	err := rows.Scan(&p.Id, &p.Name, &p.PivotalId, &p.MavenlinkId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &p, nil
 }
 
 func GetProjectByName(name string) (*Project, error) {
@@ -28,7 +41,7 @@ func GetProjectByName(name string) (*Project, error) {
 	defer con.Close()
 
 	rows, err := con.Query(`
-    SELECT "id", "name", "pivotal_id", "mavenlink_id"
+    SELECT "id", "name", "pivotal_id", "mavenlink_id", "created_by"
     FROM projects
     WHERE "name" = $1`, name)
 	if err != nil {
@@ -40,13 +53,7 @@ func GetProjectByName(name string) (*Project, error) {
 		return nil, nil
 	}
 
-	p := Project{}
-	err = rows.Scan(&p.Id, &p.Name, &p.PivotalId, &p.MavenlinkId)
-	if err != nil {
-		return nil, err
-	}
-
-	return &p, nil
+	return setProject(rows)
 }
 
 func GetProject(id int64) (*Project, error) {
@@ -69,11 +76,5 @@ func GetProject(id int64) (*Project, error) {
 		return nil, nil
 	}
 
-	p := Project{}
-	err = rows.Scan(&p.Id, &p.Name, &p.PivotalId, &p.MavenlinkId)
-	if err != nil {
-		return nil, err
-	}
-
-	return &p, nil
+	return setProject(rows)
 }

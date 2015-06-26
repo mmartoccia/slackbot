@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS "settings";
 CREATE TABLE "settings" (
   "id" bigserial NOT NULL,
   "user" varchar(255) NOT NULL,
@@ -7,11 +8,13 @@ CREATE TABLE "settings" (
   CONSTRAINT settings_pkey PRIMARY KEY (id)
 ) WITH (OIDS=FALSE);
 
+DROP TABLE IF EXISTS "projects";
 CREATE TABLE "projects" (
   "id" bigserial NOT NULL,
   "name" varchar(255) NOT NULL,
   "pivotal_id" int NOT NULL,
   "mavenlink_id" int NOT NULL,
+  "created_by" varchar(255) NOT NULL,
   "created_at" timestamp default NULL,
   CONSTRAINT projects_pkey PRIMARY KEY (id),
   CONSTRAINT projects_name UNIQUE ("name")

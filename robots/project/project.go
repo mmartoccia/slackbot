@@ -92,7 +92,12 @@ func (r bot) link(p *robots.Payload, name string, mvnId string, pvtId string) er
 	}
 	pvtInt := pvtProject.Id
 
-	project := db.Project{Name: name, MavenlinkId: mvnInt, PivotalId: pvtInt}
+	project := db.Project{
+		Name:        name,
+		MavenlinkId: mvnInt,
+		PivotalId:   pvtInt,
+		CreatedBy:   p.UserName,
+	}
 	err = db.CreateProject(project)
 	if err != nil {
 		return err
