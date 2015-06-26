@@ -1,10 +1,11 @@
 package robots
 
 import (
+	"errors"
 	"fmt"
-	"os"
 	"strings"
 
+	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/pivotal"
 	"github.com/gistia/slackbot/robots"
 	"github.com/gistia/slackbot/utils"
@@ -74,10 +75,16 @@ func (r bot) sendWithAttachment(p *robots.Payload, s string, atts []robots.Attac
 	response.Send()
 }
 
-func conn() *pivotal.Pivotal {
-	token := os.Getenv("PIVOTAL_TOKEN")
-	con := pivotal.NewPivotal(token, false)
-	return con
+func conn(user string) (*pivotal.Pivotal, error) {
+	token, err := db.GetSetting(user, "PIVOTAL_TOKEN")
+	if err != nil {
+		return nil, err
+	}
+	if token == nil {
+		return nil, errors.New("No PIVOTAL_TOKEN set for @" + user)
+	}
+	con := pivotal.NewPivotal(token.Value, false)
+	return con, nil
 }
 
 func (r bot) sendProjects(payload *robots.Payload, term string) {
@@ -86,7 +93,12 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 
 	go r.sendResponse(payload, "Retrieving pivotal projects...\n")
 
-	pvt := conn()
+	pvt, err := conn(payload.UserName)
+	if err != nil {
+		msg := fmt.Sprintf("Error: %s", err.Error())
+		r.sendResponse(payload, msg)
+		return
+	}
 	s := "Projects"
 
 	if len(term) > 0 {
@@ -109,9 +121,14 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 }
 
 func (r bot) sendStories(p *robots.Payload, project string) {
-	pvt := conn()
-	stories, err := pvt.Stories(project)
+	pvt, err := conn(p.UserName)
+	if err != nil {
+		msg := fmt.Sprintf("Error: %s", err.Error())
+		r.sendResponse(p, msg)
+		return
+	}
 
+	stories, err := pvt.Stories(project)
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
 		r.sendResponse(p, msg)
