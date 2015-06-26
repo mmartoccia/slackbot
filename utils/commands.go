@@ -32,8 +32,23 @@ func (c *CmdHandler) HandleMany(cmds []string, handler func(*robots.Payload, Com
 	}
 }
 
+func (c *CmdHandler) HandleDefault(handler func(*robots.Payload, Command)) {
+	c.handlers["_default"] = handler
+}
+
 func (c *CmdHandler) Process(s string) {
 	cmd := NewCommand(s)
+
+	if cmd.IsDefault() {
+		if h := c.handlers["_default"]; h != nil {
+			h(c.payload, cmd)
+			return
+		}
+
+		c.msgr.Send(c.payload, "You must enter a command.\n")
+		c.sendHelp()
+		return
+	}
 
 	if cmd.Is("help") {
 		c.sendHelp()
