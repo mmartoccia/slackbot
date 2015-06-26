@@ -13,35 +13,19 @@ import (
 	"github.com/gistia/slackbot/utils"
 )
 
-type bot struct{}
+type bot struct {
+	handler utils.SlackHandler
+}
 
 func init() {
-	s := &bot{}
+	handler := utils.NewSlackHandler("Mavenlink", ":chart_with_upwards_trend:")
+	s := &bot{handler: handler}
 	robots.RegisterRobot("mvn", s)
 }
 
 func (r bot) Run(p *robots.Payload) (slashCommandImmediateReturn string) {
 	go r.DeferredAction(p)
 	return ""
-}
-
-func (r bot) send(p *robots.Payload, s string) {
-	r.sendWithAttachment(p, s, nil)
-}
-
-func (r bot) sendWithAttachment(p *robots.Payload, s string, atts []robots.Attachment) {
-	response := &robots.IncomingWebhook{
-		Domain:      p.TeamDomain,
-		Channel:     p.ChannelID,
-		Username:    "Mavenlink Bot",
-		Text:        fmt.Sprintf("@%s: %s", p.UserName, s),
-		IconEmoji:   ":chart_with_upwards_trend:",
-		UnfurlLinks: true,
-		Parse:       robots.ParseStyleFull,
-		Attachments: atts,
-	}
-
-	response.Send()
 }
 
 func (r bot) DeferredAction(p *robots.Payload) {
@@ -80,7 +64,7 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 
 	mvn, err := conn(payload.UserName)
 	if err != nil {
-		r.sendError(payload, err)
+		r.handler.SendError(payload, err)
 		return
 	}
 	s := "Projects"
@@ -100,13 +84,13 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 		return
 	}
 
-	r.send(payload, s+projectTable(ps))
+	r.handler.Send(payload, s+projectTable(ps))
 }
 
 func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
 	mvn, err := conn(payload.UserName)
 	if err != nil {
-		r.sendError(payload, err)
+		r.handler.SendError(payload, err)
 		return
 	}
 
@@ -118,17 +102,17 @@ func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
 
 		if err != nil {
 			msg := fmt.Sprintf("Error retrieving project for \"%s\": %s\n", term, err.Error())
-			r.send(payload, msg)
+			r.handler.Send(payload, msg)
 			return
 		}
 
 		if len(ps) < 1 {
 			msg := fmt.Sprintf("No projects matched \"%s\"\n", term)
-			r.send(payload, msg)
+			r.handler.Send(payload, msg)
 			return
 		} else if len(ps) > 1 {
 			s := fmt.Sprintf("More than one project matched \"%s\":\n\n", term)
-			r.send(payload, s+projectTable(ps))
+			r.handler.Send(payload, s+projectTable(ps))
 			return
 		} else {
 			p = ps[0]
@@ -140,7 +124,7 @@ func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
 		if err != nil {
 			msg := fmt.Sprintf("Error retrieving stories for project \"%s - %s\": %s\n",
 				p.Id, p.Title, err.Error())
-			r.send(payload, msg)
+			r.handler.Send(payload, msg)
 			return
 		}
 		r.storyTable(payload, stories)
@@ -157,7 +141,7 @@ func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
 		return
 	}
 
-	r.send(payload, "Not implemented")
+	r.handler.Send(payload, "Not implemented")
 }
 
 func (r bot) getProject(payload *robots.Payload, term string) ([]mavenlink.Project, error) {
@@ -206,18 +190,13 @@ func formatHour(h int64) string {
 	return fmt.Sprintf("%.2f", v)
 }
 
-func (r bot) sendError(p *robots.Payload, err error) {
-	msg := fmt.Sprintf("Error running mavenlink command: %s\n", err.Error())
-	r.send(p, msg)
-}
-
 func (r bot) sendAuth(p *robots.Payload) {
 	appId := os.Getenv("MAVENLINK_APP_ID")
 	callback := os.Getenv("MAVENLINK_CALLBACK")
 
 	link, err := url.Parse("https://app.mavenlink.com/oauth/authorize")
 	if err != nil {
-		r.sendError(p, err)
+		r.handler.SendError(p, err)
 	}
 
 	params := url.Values{}
@@ -238,7 +217,7 @@ func (r bot) sendAuth(p *robots.Payload) {
 		Text:      "Authorize your mavenlink user",
 	}
 
-	r.sendWithAttachment(p, "", []robots.Attachment{a})
+	r.handler.SendWithAttachments(p, "", []robots.Attachment{a})
 }
 
 func (r bot) storyTable(payload *robots.Payload, stories []mavenlink.Story) {
@@ -266,6 +245,6 @@ func (r bot) storyTable(payload *robots.Payload, stories []mavenlink.Story) {
 
 		atts = append(atts, a)
 
-		r.sendWithAttachment(payload, "", atts)
+		r.handler.SendWithAttachments(payload, "", atts)
 	}
 }
