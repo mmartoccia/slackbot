@@ -36,14 +36,17 @@ func (r bot) DeferredAction(p *robots.Payload) {
 		return
 	}
 
-	if cmd.Command == "projects" {
+	if cmd.Is("projects") {
 		r.sendProjects(p, cmd.Arg(0))
 		return
 	}
 
-	if cmd.Command == "stories" {
+	if cmd.Is("stories") {
 		r.sendStories(p, cmd.Arg(0), cmd.Param("parent"))
+		return
 	}
+
+	r.handler.Send(p, "Invalid command *"+cmd.Command+"*")
 }
 
 func conn(user string) (*mavenlink.Mavenlink, error) {
