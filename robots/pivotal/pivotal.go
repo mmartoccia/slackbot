@@ -26,32 +26,77 @@ func (r bot) Run(p *robots.Payload) string {
 }
 
 func (r bot) DeferredAction(p *robots.Payload) {
-	cmd := utils.NewCommand(p.Text)
+	ch := utils.NewCmdHandler(p, r.handler)
+	ch.Handle("projects", r.sendProjects)
+	ch.Handle("stories", r.sendStories)
+	ch.Handle("auth", r.sendAuth)
 
-	if cmd.Is("projects") {
-		r.sendProjects(p, cmd.Arg(0))
-		return
-	}
+	cmds := []string{"start", "unstart", "finish", "accept", "reject", "deliver"}
+	ch.HandleMany(cmds, r.setStoryState)
 
-	if cmd.Is("stories") {
-		r.sendStories(p, cmd.Arg(0))
-		return
-	}
-
-	if cmd.Is("auth", "authorize", "connect") {
-		r.sendAuth(p)
-		return
-	}
-
-	if cmd.Is("start", "unstart", "finish", "accept", "reject", "deliver") {
-		r.setStoryState(p, cmd.Command, cmd.Arg(0))
-		return
-	}
-
-	r.handler.Send(p, "Invalid command *"+cmd.Command+"*")
+	ch.Process(p.Text)
 }
 
-func (r bot) setStoryState(p *robots.Payload, state string, id string) {
+func (r bot) sendProjects(payload *robots.Payload, cmd utils.Command) {
+	var ps []pivotal.Project
+	var err error
+
+	term := cmd.Arg(0)
+
+	pvt, err := conn(payload.UserName)
+	if err != nil {
+		msg := fmt.Sprintf("Error: %s", err.Error())
+		r.handler.Send(payload, msg)
+		return
+	}
+	s := "Projects"
+
+	if len(term) > 0 {
+		fmt.Printf("Retrieving projects with term \"%s\"...\n\n", term)
+		s += fmt.Sprintf(" matching '%s':\n", term)
+		// ps, err = pvt.SearchProject(term)
+	} else {
+		s += ":\n"
+		fmt.Println("Retrieving projects...\n")
+		ps, err = pvt.Projects()
+	}
+
+	if err != nil {
+		msg := fmt.Sprintf("Error: %s", err.Error())
+		r.handler.Send(payload, msg)
+		return
+	}
+
+	r.handler.Send(payload, s+projectTable(ps))
+}
+
+func (r bot) sendStories(p *robots.Payload, cmd utils.Command) {
+	project := cmd.Arg(0)
+	pvt, err := conn(p.UserName)
+	if err != nil {
+		msg := fmt.Sprintf("Error: %s", err.Error())
+		r.handler.Send(p, msg)
+		return
+	}
+
+	stories, err := pvt.Stories(project)
+	if err != nil {
+		msg := fmt.Sprintf("Error: %s", err.Error())
+		r.handler.Send(p, msg)
+		return
+	}
+
+	str := ""
+	for _, s := range stories {
+		str += fmt.Sprintf("%d - %s\n", s.Id, s.Name)
+	}
+
+	r.handler.Send(p, str)
+}
+
+func (r bot) setStoryState(p *robots.Payload, cmd utils.Command) {
+	state := cmd.Command
+	id := cmd.Arg(0)
 	pvt, err := conn(p.UserName)
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
@@ -71,7 +116,7 @@ func (r bot) setStoryState(p *robots.Payload, state string, id string) {
 		id, story.Name, state))
 }
 
-func (r bot) sendAuth(p *robots.Payload) {
+func (r bot) sendAuth(p *robots.Payload, cmd utils.Command) {
 	s, err := db.GetSetting(p.UserName, "PIVOTAL_TOKEN")
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
@@ -102,60 +147,6 @@ func conn(user string) (*pivotal.Pivotal, error) {
 	}
 	con := pivotal.NewPivotal(token.Value, false)
 	return con, nil
-}
-
-func (r bot) sendProjects(payload *robots.Payload, term string) {
-	var ps []pivotal.Project
-	var err error
-
-	pvt, err := conn(payload.UserName)
-	if err != nil {
-		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.handler.Send(payload, msg)
-		return
-	}
-	s := "Projects"
-
-	if len(term) > 0 {
-		fmt.Printf("Retrieving projects with term \"%s\"...\n\n", term)
-		s += fmt.Sprintf(" matching '%s':\n", term)
-		// ps, err = pvt.SearchProject(term)
-	} else {
-		s += ":\n"
-		fmt.Println("Retrieving projects...\n")
-		ps, err = pvt.Projects()
-	}
-
-	if err != nil {
-		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.handler.Send(payload, msg)
-		return
-	}
-
-	r.handler.Send(payload, s+projectTable(ps))
-}
-
-func (r bot) sendStories(p *robots.Payload, project string) {
-	pvt, err := conn(p.UserName)
-	if err != nil {
-		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.handler.Send(p, msg)
-		return
-	}
-
-	stories, err := pvt.Stories(project)
-	if err != nil {
-		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.handler.Send(p, msg)
-		return
-	}
-
-	str := ""
-	for _, s := range stories {
-		str += fmt.Sprintf("%d - %s\n", s.Id, s.Name)
-	}
-
-	r.handler.Send(p, str)
 }
 
 func projectTable(ps []pivotal.Project) string {
