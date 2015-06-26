@@ -1,11 +1,13 @@
 package robots
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
 	"strings"
 
+	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/mavenlink"
 	"github.com/gistia/slackbot/robots"
 	"github.com/gistia/slackbot/utils"
@@ -25,20 +27,6 @@ func (r bot) Run(p *robots.Payload) (slashCommandImmediateReturn string) {
 
 func (r bot) send(p *robots.Payload, s string) {
 	r.sendWithAttachment(p, s, nil)
-}
-
-func MvnSend(domain string, chanId string, s string) {
-	response := &robots.IncomingWebhook{
-		Domain:      domain,
-		Channel:     chanId,
-		Username:    "Mavenlink Bot",
-		Text:        s,
-		IconEmoji:   ":chart_with_upwards_trend:",
-		UnfurlLinks: true,
-		Parse:       robots.ParseStyleFull,
-	}
-
-	response.Send()
 }
 
 func (r bot) sendWithAttachment(p *robots.Payload, s string, atts []robots.Attachment) {
@@ -79,10 +67,16 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	}
 }
 
-func conn() *mavenlink.Mavenlink {
-	token := os.Getenv("MAVENLINK_TOKEN")
-	con := mavenlink.NewMavenlink(token, false)
-	return con
+func conn(user string) (*mavenlink.Mavenlink, error) {
+	token, err := db.GetSetting(user, "MAVENLINK_TOKEN")
+	if err != nil {
+		return nil, err
+	}
+	if token == nil {
+		return nil, errors.New("No MAVENLINK_TOKEN set for @" + user)
+	}
+	con := mavenlink.NewMavenlink(token.Value, false)
+	return con, nil
 }
 
 func (r bot) sendProjects(payload *robots.Payload, term string) {
@@ -91,7 +85,11 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 
 	go r.send(payload, "Retrieving mavenlink projects...\n")
 
-	mvn := conn()
+	mvn, err := conn(payload.UserName)
+	if err != nil {
+		r.sendError(payload, err)
+		return
+	}
 	s := "Projects"
 
 	if len(term) > 0 {
@@ -113,14 +111,17 @@ func (r bot) sendProjects(payload *robots.Payload, term string) {
 }
 
 func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
-	mvn := conn()
+	mvn, err := conn(payload.UserName)
+	if err != nil {
+		r.sendError(payload, err)
+		return
+	}
 
 	var p mavenlink.Project
 	var stories []mavenlink.Story
-	var err error
 
 	if term != "" {
-		ps, err := getProject(term)
+		ps, err := r.getProject(payload, term)
 
 		if err != nil {
 			msg := fmt.Sprintf("Error retrieving project for \"%s\": %s\n", term, err.Error())
@@ -166,8 +167,11 @@ func (r bot) sendStories(payload *robots.Payload, term string, parent string) {
 	r.send(payload, "Not implemented")
 }
 
-func getProject(term string) ([]mavenlink.Project, error) {
-	mvn := conn()
+func (r bot) getProject(payload *robots.Payload, term string) ([]mavenlink.Project, error) {
+	mvn, err := conn(payload.UserName)
+	if err != nil {
+		return nil, err
+	}
 
 	if utils.IsNumber(term) {
 		p, err := mvn.Project(term)
