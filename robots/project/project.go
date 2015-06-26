@@ -31,7 +31,43 @@ func (r bot) Run(p *robots.Payload) string {
 func (r bot) DeferredAction(p *robots.Payload) {
 	ch := utils.NewCmdHandler(p, r.handler, "project")
 	ch.Handle("link", r.link)
+	ch.Handle("list", r.list)
+	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) list(p *robots.Payload, cmd utils.Command) {
+	ps, err := db.GetProjects()
+	if err != nil {
+		r.handler.SendError(p, err)
+		return
+	}
+
+	if ps == nil || len(ps) < 1 {
+		r.handler.Send(p, "There are no linked projects currently. Use `link` command to add one.")
+		return
+	}
+
+	s := "Linked Projects:\n"
+
+	for _, pr := range ps {
+		pvt, err := r.getPvtProject(p, strconv.FormatInt(pr.PivotalId, 10))
+		if err != nil {
+			r.handler.SendError(p, err)
+			return
+		}
+		mvn, err := r.getMvnProject(p, strconv.FormatInt(pr.MavenlinkId, 10))
+		if err != nil {
+			r.handler.SendError(p, err)
+			return
+		}
+
+		s += fmt.Sprintf(
+			"*%s* From Pivotal %d - %s to Mavenlink %s - %s\n",
+			pr.Name, pvt.Id, pvt.Name, mvn.Id, mvn.Title)
+	}
+
+	r.handler.Send(p, s)
 }
 
 func (r bot) link(p *robots.Payload, cmd utils.Command) {
@@ -58,6 +94,22 @@ func (r bot) link(p *robots.Payload, cmd utils.Command) {
 	}
 }
 
+func (r bot) getMvnProject(p *robots.Payload, id string) (*mavenlink.Project, error) {
+	mvn, err := mavenlink.NewFor(p.UserName)
+	if err != nil {
+		return nil, err
+	}
+	return mvn.GetProject(id)
+}
+
+func (r bot) getPvtProject(p *robots.Payload, id string) (*pivotal.Project, error) {
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		return nil, err
+	}
+	return pvt.GetProject(id)
+}
+
 func (r bot) makeLink(p *robots.Payload, name string, mvnId string, pvtId string) error {
 	prj, err := db.GetProjectByName(name)
 	if err != nil {
@@ -69,24 +121,16 @@ func (r bot) makeLink(p *robots.Payload, name string, mvnId string, pvtId string
 		return nil
 	}
 
-	mvn, err := mavenlink.NewFor(p.UserName)
-	if err != nil {
-		return err
-	}
-	mvnProject, err := mvn.GetProject(mvnId)
+	mvnProject, err := r.getMvnProject(p, mvnId)
 	if err != nil {
 		msg := fmt.Sprintf("Error loading mavenlink project %s: %s", mvnId, err.Error())
 		return errors.New(msg)
 	}
 
-	pvt, err := pivotal.NewFor(p.UserName)
+	pvtProject, err := r.getPvtProject(p, pvtId)
 	if err != nil {
-		msg := fmt.Sprintf("Error loading pivotal project %s: %s", mvnId, err.Error())
+		msg := fmt.Sprintf("Error loading pivotal project %s: %s", pvtId, err.Error())
 		return errors.New(msg)
-	}
-	pvtProject, err := pvt.GetProject(pvtId)
-	if err != nil {
-		return err
 	}
 
 	mvnInt, err := strconv.ParseInt(mvnProject.Id, 10, 64)

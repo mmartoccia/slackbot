@@ -23,14 +23,32 @@ func CreateProject(p Project) error {
 	return err
 }
 
-func setProject(rows *sql.Rows) (*Project, error) {
-	p := Project{}
-	err := rows.Scan(&p.Id, &p.Name, &p.PivotalId, &p.MavenlinkId)
+func GetProjects() ([]Project, error) {
+	con, err := connect()
 	if err != nil {
 		return nil, err
 	}
+	defer con.Close()
 
-	return &p, nil
+	rows, err := con.Query(`
+    SELECT "id", "name", "pivotal_id", "mavenlink_id", "created_by"
+    FROM projects`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	ps := []Project{}
+	for rows.Next() {
+		pr, err := setProject(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		ps = append(ps, *pr)
+	}
+
+	return ps, nil
 }
 
 func GetProjectByName(name string) (*Project, error) {
@@ -64,7 +82,7 @@ func GetProject(id int64) (*Project, error) {
 	defer con.Close()
 
 	rows, err := con.Query(`
-    SELECT "id", "name", "pivotal_id", "mavenlink_id"
+    SELECT "id", "name", "pivotal_id", "mavenlink_id", "created_by"
     FROM projects
     WHERE "id" = $1`, id)
 	if err != nil {
@@ -77,4 +95,14 @@ func GetProject(id int64) (*Project, error) {
 	}
 
 	return setProject(rows)
+}
+
+func setProject(rows *sql.Rows) (*Project, error) {
+	p := Project{}
+	err := rows.Scan(&p.Id, &p.Name, &p.PivotalId, &p.MavenlinkId, &p.CreatedBy)
+	if err != nil {
+		return nil, err
+	}
+
+	return &p, nil
 }
