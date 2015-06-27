@@ -3,9 +3,11 @@ package pivotal
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/utils"
@@ -31,6 +33,7 @@ type Response struct {
 	ProjectMemberships []ProjectMembership `json:"project_memberships"`
 	Project            Project             `json:"project"`
 	Story              Story               `json:"story"`
+	Error              Error               `json:"error"`
 }
 
 type Project struct {
@@ -69,6 +72,13 @@ type Person struct {
 	Email    string `json:"email"`
 	Initials string `json:"initials"`
 	Username string `json:"username"`
+}
+
+type Error struct {
+	Code        string `json:"code"`
+	Kind        string `json:"kind"`
+	Error       string `json:"error"`
+	PossibleFix string `json:"possible_fix"`
 }
 
 func NewPivotal(token string, verbose bool) *Pivotal {
@@ -128,10 +138,21 @@ func (r *Request) Send() (*Response, error) {
 		return nil, err
 	}
 
-	// fmt.Printf("Type: %s Uri: %s\n", r.Type, uri)
-
 	fmt.Println("Payload:", string(payload))
 	wrapped := string(payload)
+
+	if strings.Contains(wrapped, "\"kind\":\"error\"") {
+		wrapped = fmt.Sprintf("{\"error\":%s}", wrapped)
+		resp, err := NewFromJson([]byte(wrapped))
+		if err != nil {
+			return nil, err
+		}
+		pvtError := resp.Error
+		msg := fmt.Sprintf("%s - %s\nPossible fix: %s\n",
+			pvtError.Code, pvtError.Error, pvtError.PossibleFix)
+		return nil, errors.New(msg)
+	}
+
 	if wrapped != "" {
 		wrapped = fmt.Sprintf("{\"%s\":%s}", r.Type, wrapped)
 	}
