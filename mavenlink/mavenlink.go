@@ -124,7 +124,7 @@ func (mvn *Mavenlink) SearchProject(term string) ([]Project, error) {
 	return r.ProjectList(), err
 }
 
-func (mvn *Mavenlink) Story(id string) (*Story, error) {
+func (mvn *Mavenlink) GetStory(id string) (*Story, error) {
 	req := fmt.Sprintf("stories/%s", id)
 	r, err := mvn.get(req, nil)
 

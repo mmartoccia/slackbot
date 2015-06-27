@@ -32,20 +32,63 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch := utils.NewCmdHandler(p, r.handler, "project")
 	ch.Handle("link", r.link)
 	ch.Handle("list", r.list)
+	ch.Handle("setsprint", r.setSprint)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
 }
 
-func (r bot) list(p *robots.Payload, cmd utils.Command) {
+func (r bot) setSprint(p *robots.Payload, cmd utils.Command) error {
+	name := cmd.Arg(0)
+	if name == "" {
+		r.handler.Send(p, "Missing project name")
+		return nil
+	}
+
+	id := cmd.Arg(1)
+	if id == "" {
+		r.handler.Send(p, "Missing mavenlink story id to assign as current sprint")
+		return nil
+	}
+
+	ps, err := db.GetProjectByName(name)
+	if err != nil {
+		return err
+	}
+
+	mvn, err := mavenlink.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	mvnStory, err := mvn.GetStory(id)
+	if err != nil {
+		return err
+	}
+
+	if mvnStory == nil {
+		r.handler.Send(p, "Story with id "+id+" wasn't found")
+		return nil
+	}
+
+	fmt.Println("Got story", mvnStory.Id)
+	ps.MvnSprintStoryId = mvnStory.Id
+	if err := db.UpdateProject(*ps); err != nil {
+		return err
+	}
+
+	r.handler.Send(p, "Project *"+name+"* updated.")
+	return nil
+}
+
+func (r bot) list(p *robots.Payload, cmd utils.Command) error {
 	ps, err := db.GetProjects()
 	if err != nil {
-		r.handler.SendError(p, err)
-		return
+		return err
 	}
 
 	if ps == nil || len(ps) < 1 {
 		r.handler.Send(p, "There are no linked projects currently. Use `link` command to add one.")
-		return
+		return nil
 	}
 
 	s := "Linked Projects:\n"
@@ -53,13 +96,11 @@ func (r bot) list(p *robots.Payload, cmd utils.Command) {
 	for _, pr := range ps {
 		pvt, err := r.getPvtProject(p, strconv.FormatInt(pr.PivotalId, 10))
 		if err != nil {
-			r.handler.SendError(p, err)
-			return
+			return err
 		}
 		mvn, err := r.getMvnProject(p, strconv.FormatInt(pr.MavenlinkId, 10))
 		if err != nil {
-			r.handler.SendError(p, err)
-			return
+			return err
 		}
 
 		s += fmt.Sprintf(
@@ -68,30 +109,32 @@ func (r bot) list(p *robots.Payload, cmd utils.Command) {
 	}
 
 	r.handler.Send(p, s)
+	return nil
 }
 
-func (r bot) link(p *robots.Payload, cmd utils.Command) {
+func (r bot) link(p *robots.Payload, cmd utils.Command) error {
 	name := cmd.Arg(0)
 	if name == "" {
 		r.handler.Send(p, "Missing project name. Usage: !project link name mvn:id pvt:id")
-		return
+		return nil
 	}
 	mvn := cmd.Param("mvn")
 	if mvn == "" {
 		r.handler.Send(p, "Missing mavenlink project. Usage: !project link name mvn:id pvt:id")
-		return
+		return nil
 	}
 	pvt := cmd.Param("pvt")
 	if pvt == "" {
 		r.handler.Send(p, "Missing pivotal project. Usage: !project link name mvn:id pvt:id")
-		return
+		return nil
 	}
 
 	err := r.makeLink(p, name, mvn, pvt)
 	if err != nil {
-		r.handler.SendError(p, err)
-		return
+		return err
 	}
+
+	return nil
 }
 
 func (r bot) getMvnProject(p *robots.Payload, id string) (*mavenlink.Project, error) {

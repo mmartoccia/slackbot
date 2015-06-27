@@ -3,11 +3,12 @@ package db
 import "database/sql"
 
 type Project struct {
-	Id          int
-	Name        string
-	PivotalId   int64
-	MavenlinkId int64
-	CreatedBy   string
+	Id               int
+	Name             string
+	PivotalId        int64
+	MavenlinkId      int64
+	MvnSprintStoryId string
+	CreatedBy        string
 }
 
 func CreateProject(p Project) error {
@@ -18,8 +19,10 @@ func CreateProject(p Project) error {
 	defer con.Close()
 
 	_, err = con.Query(`
-    INSERT INTO projects (name, pivotal_id, mavenlink_id, created_by)
-    VALUES ($1, $2, $3, $4)`, p.Name, p.PivotalId, p.MavenlinkId, p.CreatedBy)
+    INSERT INTO projects
+    (name, pivotal_id, mavenlink_id, created_by, mvn_sprint_story_id)
+    VALUES ($1, $2, $3, $4, $5)`,
+		p.Name, p.PivotalId, p.MavenlinkId, p.CreatedBy, p.MvnSprintStoryId)
 	return err
 }
 
@@ -31,7 +34,9 @@ func GetProjects() ([]Project, error) {
 	defer con.Close()
 
 	rows, err := con.Query(`
-    SELECT "id", "name", "pivotal_id", "mavenlink_id", "created_by"
+    SELECT
+      "id", "name", "pivotal_id", "mavenlink_id", "created_by",
+      "mvn_sprint_story_id"
     FROM projects`)
 	if err != nil {
 		return nil, err
@@ -59,7 +64,9 @@ func GetProjectByName(name string) (*Project, error) {
 	defer con.Close()
 
 	rows, err := con.Query(`
-    SELECT "id", "name", "pivotal_id", "mavenlink_id", "created_by"
+    SELECT
+      "id", "name", "pivotal_id", "mavenlink_id", "created_by",
+      "mvn_sprint_story_id"
     FROM projects
     WHERE "name" = $1`, name)
 	if err != nil {
@@ -82,7 +89,9 @@ func GetProject(id int64) (*Project, error) {
 	defer con.Close()
 
 	rows, err := con.Query(`
-    SELECT "id", "name", "pivotal_id", "mavenlink_id", "created_by"
+    SELECT
+      "id", "name", "pivotal_id", "mavenlink_id", "created_by",
+      "mvn_sprint_story_id"
     FROM projects
     WHERE "id" = $1`, id)
 	if err != nil {
@@ -97,11 +106,41 @@ func GetProject(id int64) (*Project, error) {
 	return setProject(rows)
 }
 
+func UpdateProject(p Project) error {
+	con, err := connect()
+	if err != nil {
+		return err
+	}
+	defer con.Close()
+
+	_, err = con.Query(`
+    UPDATE
+      projects
+    SET
+      "name" = $1,
+      "pivotal_id" = $2,
+      "mavenlink_id" = $3,
+      "created_by" = $4,
+      "mvn_sprint_story_id" = $5
+    WHERE
+      "id" = $6`,
+		p.Name, p.PivotalId, p.MavenlinkId,
+		p.CreatedBy, p.MvnSprintStoryId, p.Id)
+	return err
+}
+
 func setProject(rows *sql.Rows) (*Project, error) {
 	p := Project{}
-	err := rows.Scan(&p.Id, &p.Name, &p.PivotalId, &p.MavenlinkId, &p.CreatedBy)
+	var mvnSprintStoryId sql.NullString
+	err := rows.Scan(
+		&p.Id, &p.Name, &p.PivotalId, &p.MavenlinkId, &p.CreatedBy,
+		&mvnSprintStoryId)
 	if err != nil {
 		return nil, err
+	}
+
+	if mvnSprintStoryId.Valid {
+		p.MvnSprintStoryId = mvnSprintStoryId.String
 	}
 
 	return &p, nil

@@ -19,3 +19,5 @@ CREATE TABLE "projects" (
   CONSTRAINT projects_pkey PRIMARY KEY (id),
   CONSTRAINT projects_name UNIQUE ("name")
 ) WITH (OIDS=FALSE);
+
+ALTER TABLE "projects" ADD "mvn_sprint_story_id" varchar(255);
