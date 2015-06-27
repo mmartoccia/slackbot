@@ -21,3 +21,4 @@ CREATE TABLE "projects" (
 ) WITH (OIDS=FALSE);
 
 ALTER TABLE "projects" ADD "mvn_sprint_story_id" varchar(255);
+ALTER TABLE "projects" ADD "channel" varchar(255);

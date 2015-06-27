@@ -34,8 +34,30 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("link", r.link)
 	ch.Handle("stories", r.stories)
 	ch.Handle("setsprint", r.setSprint)
+	ch.Handle("setchannel", r.setChannel)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) setChannel(p *robots.Payload, cmd utils.Command) error {
+	name := cmd.Arg(0)
+	if name == "" {
+		r.handler.Send(p, "Missing project name")
+		return nil
+	}
+
+	ps, err := db.GetProjectByName(name)
+	if err != nil {
+		return err
+	}
+
+	ps.Channel = p.ChannelName
+	if err := db.UpdateProject(*ps); err != nil {
+		return err
+	}
+
+	r.handler.Send(p, "Project *"+name+"* assigned to *"+ps.Channel+"* channel.")
+	return nil
 }
 
 func (r bot) stories(p *robots.Payload, cmd utils.Command) error {
