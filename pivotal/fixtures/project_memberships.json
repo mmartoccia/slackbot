@@ -1,0 +1,74 @@
+[
+  {
+    "kind": "project_membership",
+    "id": 5638284,
+    "person": {
+      "kind": "person",
+      "id": 17996,
+      "name": "Felipe Coury",
+      "email": "felipe.coury@gmail.com",
+      "initials": "FC",
+      "username": "fcoury"
+    },
+    "project_id": 1373472,
+    "role": "owner",
+    "project_color": "ac3f65",
+    "last_viewed_at": "2015-06-23T18:19:01Z",
+    "wants_comment_notification_emails": true,
+    "will_receive_mention_notifications_or_emails": true
+  },
+  {
+    "kind": "project_membership",
+    "id": 5638296,
+    "person": {
+      "kind": "person",
+      "id": 1636720,
+      "name": "Diego Oliveira",
+      "email": "diego@gistia.com",
+      "initials": "DO",
+      "username": "diegooliveira2"
+    },
+    "project_id": 1373472,
+    "role": "member",
+    "project_color": "00a3d6",
+    "last_viewed_at": "2015-06-26T12:34:47Z",
+    "wants_comment_notification_emails": true,
+    "will_receive_mention_notifications_or_emails": true
+  },
+  {
+    "kind": "project_membership",
+    "id": 5638304,
+    "person": {
+      "kind": "person",
+      "id": 1560388,
+      "name": "Douglas Alexandre",
+      "email": "douglas@gistia.com",
+      "initials": "DA",
+      "username": "douglasalexandre1"
+    },
+    "project_id": 1373472,
+    "role": "member",
+    "project_color": "008c8d",
+    "last_viewed_at": "2015-06-23T18:21:51Z",
+    "wants_comment_notification_emails": true,
+    "will_receive_mention_notifications_or_emails": true
+  },
+  {
+    "kind": "project_membership",
+    "id": 5638314,
+    "person": {
+      "kind": "person",
+      "id": 1190200,
+      "name": "Felipe Iketani",
+      "email": "felipe.iketani@gistia.com",
+      "initials": "IKE",
+      "username": "felipeiketani"
+    },
+    "project_id": 1373472,
+    "role": "member",
+    "project_color": "cccccc",
+    "last_viewed_at": "2015-06-25T20:43:49Z",
+    "wants_comment_notification_emails": true,
+    "will_receive_mention_notifications_or_emails": true
+  }
+]

@@ -30,11 +30,48 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("projects", r.sendProjects)
 	ch.Handle("stories", r.sendStories)
 	ch.Handle("auth", r.sendAuth)
+	ch.Handle("users", r.users)
 
 	cmds := []string{"start", "unstart", "finish", "accept", "reject", "deliver"}
 	ch.HandleMany(cmds, r.setStoryState)
 
 	ch.Process(p.Text)
+}
+
+func (r bot) users(p *robots.Payload, cmd utils.Command) error {
+	projectId := cmd.Arg(0)
+	if projectId == "" {
+		r.handler.Send(p, "Missing project id. Use !pvt users <project-id>")
+		return nil
+	}
+
+	pvt, err := conn(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	project, err := pvt.GetProject(projectId)
+	if err != nil {
+		return err
+	}
+	if project == nil {
+		r.handler.Send(p, "Project with id "+projectId+" doesn't exist.")
+		return nil
+	}
+
+	memberships, err := pvt.GetProjectMemberships(projectId)
+	if err != nil {
+		return err
+	}
+
+	s := "Current users for project *" + project.Name + "*:\n"
+	for _, m := range memberships {
+		pp := m.Person
+		s += fmt.Sprintf("%d - %s (%s)\n", pp.Id, pp.Name, pp.Email)
+	}
+
+	r.handler.Send(p, s)
+	return nil
 }
 
 func (r bot) sendProjects(payload *robots.Payload, cmd utils.Command) error {
@@ -45,9 +82,7 @@ func (r bot) sendProjects(payload *robots.Payload, cmd utils.Command) error {
 
 	pvt, err := conn(payload.UserName)
 	if err != nil {
-		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.handler.Send(payload, msg)
-		return nil
+		return err
 	}
 	s := "Projects"
 

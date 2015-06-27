@@ -26,10 +26,11 @@ type Request struct {
 }
 
 type Response struct {
-	Projects []Project `json:"projects"`
-	Stories  []Story   `json:"stories"`
-	Project  Project   `json:"project"`
-	Story    Story     `json:"story"`
+	Projects           []Project           `json:"projects"`
+	Stories            []Story             `json:"stories"`
+	ProjectMemberships []ProjectMembership `json:"project_memberships"`
+	Project            Project             `json:"project"`
+	Story              Story               `json:"story"`
 }
 
 type Project struct {
@@ -49,6 +50,25 @@ type Story struct {
 	Url       string `json:"url,omitempty"`
 	Type      string `json:"story_type,omitempty"`
 	ProjectId int64  `json:"project_id,omitempty"`
+}
+
+type ProjectMembership struct {
+	Id           int64  `json:"id,omitempty"`
+	Kind         string `json:"kind,omitempty"`
+	Person       Person `json:"person"`
+	ProjectId    int64  `json:"project_id"`
+	Role         string `json:"role"`
+	ProjectColor string `json:"project_color"`
+	LastViewedAt string `json:"last_viewed_at"`
+}
+
+type Person struct {
+	Id       int64  `json:"id,omitempty"`
+	Kind     string `json:"kind,omitempty"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Initials string `json:"initials"`
+	Username string `json:"username"`
 }
 
 func NewPivotal(token string, verbose bool) *Pivotal {
@@ -197,4 +217,21 @@ func (pvt *Pivotal) UpdateStory(story Story) (*Story, error) {
 
 	r, err := req.Send()
 	return &r.Story, err
+}
+
+func (pvt *Pivotal) GetProjectMemberships(projectId string) ([]ProjectMembership, error) {
+	uri := fmt.Sprintf("projects/%s/memberships", projectId)
+	req := Request{
+		Token:  pvt.Token,
+		Type:   "project_memberships",
+		Method: "GET",
+		Uri:    uri,
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+
+	return r.ProjectMemberships, nil
 }
