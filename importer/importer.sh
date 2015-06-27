@@ -7,6 +7,7 @@ robots=(
     "github.com/gistia/slackbot/robots/mavenlink"
     "github.com/gistia/slackbot/robots/pivotal"
     "github.com/gistia/slackbot/robots/project"
+    "github.com/gistia/slackbot/robots/user"
 )
 
 echo "package importer

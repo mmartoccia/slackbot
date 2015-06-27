@@ -22,3 +22,20 @@ CREATE TABLE "projects" (
 
 ALTER TABLE "projects" ADD "mvn_sprint_story_id" varchar(255);
 ALTER TABLE "projects" ADD "channel" varchar(255);
+
+DROP TABLE IF EXISTS "users";
+CREATE TABLE "users" (
+  "id" bigserial NOT NULL,
+  "name" varchar(255) NOT NULL,
+  "pivotal_id" int NULL,
+  "mavenlink_id" int NULL,
+  "created_at" timestamp default CURRENT_TIMESTAMP,
+  CONSTRAINT users_pkey PRIMARY KEY (id),
+  CONSTRAINT users_name UNIQUE ("name")
+) WITH (OIDS=FALSE);
+
+ALTER TABLE ONLY "settings" ALTER COLUMN "created_at"
+  SET DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE ONLY "projects" ALTER COLUMN "created_at"
+  SET DEFAULT CURRENT_TIMESTAMP;
+

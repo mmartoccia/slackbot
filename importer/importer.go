@@ -5,6 +5,7 @@ import (
 	_ "github.com/gistia/slackbot/robots/pivotal"
 	_ "github.com/gistia/slackbot/robots/project"
 	_ "github.com/gistia/slackbot/robots/store"
+	_ "github.com/gistia/slackbot/robots/user"
 )
 
 //go:generate ./importer.sh init.go
