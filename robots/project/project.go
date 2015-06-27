@@ -62,14 +62,26 @@ func (r bot) setChannel(p *robots.Payload, cmd utils.Command) error {
 
 func (r bot) stories(p *robots.Payload, cmd utils.Command) error {
 	name := cmd.Arg(0)
-	if name == "" {
-		r.handler.Send(p, "Missing project name")
-		return nil
+
+	var ps *db.Project
+	if name != "" {
+		ps, err := db.GetProjectByName(name)
+		if err != nil {
+			return err
+		}
+		if ps == nil {
+			r.handler.Send(p, "Project *"+name+"* not found")
+			return nil
+		}
 	}
 
-	ps, err := db.GetProjectByName(name)
+	ps, err := db.GetProjectByChannel(p.ChannelName)
 	if err != nil {
 		return err
+	}
+	if ps == nil {
+		r.handler.Send(p, "Missing project name")
+		return nil
 	}
 
 	mvn, err := mavenlink.NewFor(p.UserName)
@@ -82,7 +94,7 @@ func (r bot) stories(p *robots.Payload, cmd utils.Command) error {
 		return err
 	}
 
-	r.handler.Send(p, "Mavenlink stories:")
+	r.handler.Send(p, "Mavenlink stories for *"+ps.Name+"*:")
 	atts := mavenlink.FormatStories(stories)
 	for _, a := range atts {
 		r.handler.SendWithAttachments(p, "", []robots.Attachment{a})

@@ -60,6 +60,14 @@ func GetProjects() ([]Project, error) {
 }
 
 func GetProjectByName(name string) (*Project, error) {
+	return GetProjectBy("name", name)
+}
+
+func GetProjectByChannel(channel string) (*Project, error) {
+	return GetProjectBy("channel", channel)
+}
+
+func GetProjectBy(field string, s string) (*Project, error) {
 	con, err := connect()
 	if err != nil {
 		return nil, err
@@ -71,7 +79,7 @@ func GetProjectByName(name string) (*Project, error) {
       "id", "name", "pivotal_id", "mavenlink_id", "created_by",
       "mvn_sprint_story_id", "channel"
     FROM projects
-    WHERE "name" = $1`, name)
+    WHERE "`+field+`" = $1`, s)
 	if err != nil {
 		return nil, err
 	}
