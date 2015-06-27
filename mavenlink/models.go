@@ -16,6 +16,15 @@ type ErrorItem struct {
 	Message string `json:"message"`
 }
 
+type User struct {
+	Id        string `json:"id"`
+	Name      string `json:"full_name"`
+	PhotoUrl  string `json:"photo_path"`
+	Email     string `json:"email_address"`
+	Headline  string `json:"headline"`
+	AccountId int    `json:"account_id"`
+}
+
 func NewFromJson(jsonData []byte) (*Response, error) {
 	var b *Response
 

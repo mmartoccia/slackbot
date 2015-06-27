@@ -32,20 +32,29 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch := utils.NewCmdHandler(p, r.handler, "mvn")
 	ch.Handle("projects", r.sendProjects)
 	ch.Handle("stories", r.sendStories)
+	ch.Handle("users", r.users)
 	ch.HandleMany([]string{"auth", "authorize", "connect"}, r.sendAuth)
 	ch.Process(p.Text)
 }
 
-func conn(user string) (*mavenlink.Mavenlink, error) {
-	token, err := db.GetSetting(user, "MAVENLINK_TOKEN")
+func (r bot) users(p *robots.Payload, cmd utils.Command) error {
+	mvn, err := conn(p.UserName)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	if token == nil {
-		return nil, errors.New("No MAVENLINK_TOKEN set for @" + user)
+
+	users, err := mvn.GetUsers()
+	if err != nil {
+		return err
 	}
-	con := mavenlink.NewMavenlink(token.Value, false)
-	return con, nil
+
+	s := "Current mavenlink users:\n"
+	for _, u := range users {
+		s += fmt.Sprintf("%s - %s (%s)\n", u.Id, u.Name, u.Email)
+	}
+
+	r.handler.Send(p, s)
+	return nil
 }
 
 func (r bot) sendProjects(payload *robots.Payload, cmd utils.Command) error {
@@ -232,4 +241,16 @@ func (r bot) storyTable(payload *robots.Payload, stories []mavenlink.Story) {
 
 		r.handler.SendWithAttachments(payload, "", atts)
 	}
+}
+
+func conn(user string) (*mavenlink.Mavenlink, error) {
+	token, err := db.GetSetting(user, "MAVENLINK_TOKEN")
+	if err != nil {
+		return nil, err
+	}
+	if token == nil {
+		return nil, errors.New("No MAVENLINK_TOKEN set for @" + user)
+	}
+	con := mavenlink.NewMavenlink(token.Value, false)
+	return con, nil
 }

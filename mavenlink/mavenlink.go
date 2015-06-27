@@ -3,6 +3,7 @@ package mavenlink
 import (
 	"fmt"
 	"net/url"
+	"sort"
 
 	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/utils"
@@ -188,4 +189,33 @@ func (mvn *Mavenlink) CreateStory(s Story) (*Story, error) {
 	}
 
 	return nil, nil
+}
+
+type UsersByName []User
+
+func (u UsersByName) Len() int {
+	return len(u)
+}
+func (u UsersByName) Swap(i, j int) {
+	u[i], u[j] = u[j], u[i]
+}
+func (u UsersByName) Less(i, j int) bool {
+	return u[i].Name < u[j].Name
+}
+
+func (mvn *Mavenlink) GetUsers() ([]User, error) {
+	var users []User
+	resp, err := mvn.get("users", nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, _ := range resp.Users {
+		p := resp.Users[k]
+		users = append(users, p)
+	}
+	sort.Sort(UsersByName(users))
+
+	return users, nil
 }

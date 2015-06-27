@@ -5,6 +5,7 @@ type Response struct {
 	Count    int64              `json:"count"`
 	Projects map[string]Project `json:"workspaces"`
 	Stories  map[string]Story   `json:"stories"`
+	Users    map[string]User    `json:"users"`
 }
 
 func (r *Response) StoryList() []Story {
