@@ -149,7 +149,7 @@ func (mvn *Mavenlink) Stories(projectId string) ([]Story, error) {
 	return resp.StoryList(), nil
 }
 
-func (mvn *Mavenlink) ChildStories(parentId string) ([]Story, error) {
+func (mvn *Mavenlink) GetChildStories(parentId string) ([]Story, error) {
 	filters := []string{
 		fmt.Sprintf("with_parent_id=%s", parentId),
 	}

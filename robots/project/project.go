@@ -30,11 +30,43 @@ func (r bot) Run(p *robots.Payload) string {
 
 func (r bot) DeferredAction(p *robots.Payload) {
 	ch := utils.NewCmdHandler(p, r.handler, "project")
-	ch.Handle("link", r.link)
 	ch.Handle("list", r.list)
+	ch.Handle("link", r.link)
+	ch.Handle("stories", r.stories)
 	ch.Handle("setsprint", r.setSprint)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) stories(p *robots.Payload, cmd utils.Command) error {
+	name := cmd.Arg(0)
+	if name == "" {
+		r.handler.Send(p, "Missing project name")
+		return nil
+	}
+
+	ps, err := db.GetProjectByName(name)
+	if err != nil {
+		return err
+	}
+
+	mvn, err := mavenlink.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	stories, err := mvn.GetChildStories(ps.MvnSprintStoryId)
+	if err != nil {
+		return err
+	}
+
+	r.handler.Send(p, "Mavenlink stories:")
+	atts := mavenlink.FormatStories(stories)
+	for _, a := range atts {
+		r.handler.SendWithAttachments(p, "", []robots.Attachment{a})
+	}
+
+	return nil
 }
 
 func (r bot) setSprint(p *robots.Payload, cmd utils.Command) error {
@@ -91,7 +123,7 @@ func (r bot) list(p *robots.Payload, cmd utils.Command) error {
 		return nil
 	}
 
-	s := "Linked Projects:\n"
+	s := ""
 
 	for _, pr := range ps {
 		pvtPr, err := r.getPvtProject(p, strconv.FormatInt(pr.PivotalId, 10))

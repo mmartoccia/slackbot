@@ -124,7 +124,7 @@ func (r bot) sendStories(payload *robots.Payload, cmd utils.Command) error {
 	}
 
 	if utils.IsNumber(parent) {
-		stories, err = mvn.ChildStories(parent)
+		stories, err = mvn.GetChildStories(parent)
 		if err != nil {
 			fmt.Printf("Error child stories for \"%s\": %s\n", parent, err.Error())
 			return nil
@@ -174,15 +174,6 @@ func projectTable(ps []mavenlink.Project) string {
 	return s
 }
 
-func formatHour(h int64) string {
-	if h == 0 {
-		return ""
-	}
-
-	v := float64(h) / 60
-	return fmt.Sprintf("%.2f", v)
-}
-
 func (r bot) sendAuth(p *robots.Payload, cmd utils.Command) error {
 	appId := os.Getenv("MAVENLINK_APP_ID")
 	callback := os.Getenv("MAVENLINK_CALLBACK")
@@ -229,12 +220,12 @@ func (r bot) storyTable(payload *robots.Payload, stories []mavenlink.Story) {
 
 		if s.TimeEstimateInMinutes > 0 {
 			a.Text += fmt.Sprintf(" - Estimated hours: %s",
-				formatHour(s.TimeEstimateInMinutes))
+				utils.FormatHour(s.TimeEstimateInMinutes))
 		}
 
 		if s.LoggedBillableTimeInMinutes > 0 {
 			a.Text += fmt.Sprintf(" - Logged hours: %s",
-				formatHour(s.LoggedBillableTimeInMinutes))
+				utils.FormatHour(s.LoggedBillableTimeInMinutes))
 		}
 
 		atts = append(atts, a)

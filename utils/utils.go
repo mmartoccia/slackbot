@@ -53,3 +53,12 @@ func IsNumber(s string) bool {
 
 	return false
 }
+
+func FormatHour(h int64) string {
+	if h == 0 {
+		return ""
+	}
+
+	v := float64(h) / 60
+	return fmt.Sprintf("%.2f", v)
+}
