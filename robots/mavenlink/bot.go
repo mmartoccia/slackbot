@@ -48,7 +48,7 @@ func conn(user string) (*mavenlink.Mavenlink, error) {
 	return con, nil
 }
 
-func (r bot) sendProjects(payload *robots.Payload, cmd utils.Command) {
+func (r bot) sendProjects(payload *robots.Payload, cmd utils.Command) error {
 	var ps []mavenlink.Project
 	var err error
 
@@ -56,8 +56,7 @@ func (r bot) sendProjects(payload *robots.Payload, cmd utils.Command) {
 
 	mvn, err := conn(payload.UserName)
 	if err != nil {
-		r.handler.SendError(payload, err)
-		return
+		return err
 	}
 	s := "Projects"
 
@@ -72,20 +71,19 @@ func (r bot) sendProjects(payload *robots.Payload, cmd utils.Command) {
 	}
 
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return err
 	}
 
 	r.handler.Send(payload, s+projectTable(ps))
+	return nil
 }
 
-func (r bot) sendStories(payload *robots.Payload, cmd utils.Command) {
+func (r bot) sendStories(payload *robots.Payload, cmd utils.Command) error {
 	term := cmd.Arg(0)
 	parent := cmd.Param("parent")
 	mvn, err := conn(payload.UserName)
 	if err != nil {
-		r.handler.SendError(payload, err)
-		return
+		return err
 	}
 
 	var p mavenlink.Project
@@ -97,17 +95,17 @@ func (r bot) sendStories(payload *robots.Payload, cmd utils.Command) {
 		if err != nil {
 			msg := fmt.Sprintf("Error retrieving project for \"%s\": %s\n", term, err.Error())
 			r.handler.Send(payload, msg)
-			return
+			return nil
 		}
 
 		if len(ps) < 1 {
 			msg := fmt.Sprintf("No projects matched \"%s\"\n", term)
 			r.handler.Send(payload, msg)
-			return
+			return nil
 		} else if len(ps) > 1 {
 			s := fmt.Sprintf("More than one project matched \"%s\":\n\n", term)
 			r.handler.Send(payload, s+projectTable(ps))
-			return
+			return nil
 		} else {
 			p = ps[0]
 		}
@@ -119,23 +117,24 @@ func (r bot) sendStories(payload *robots.Payload, cmd utils.Command) {
 			msg := fmt.Sprintf("Error retrieving stories for project \"%s - %s\": %s\n",
 				p.Id, p.Title, err.Error())
 			r.handler.Send(payload, msg)
-			return
+			return nil
 		}
 		r.storyTable(payload, stories)
-		return
+		return nil
 	}
 
 	if utils.IsNumber(parent) {
 		stories, err = mvn.ChildStories(parent)
 		if err != nil {
 			fmt.Printf("Error child stories for \"%s\": %s\n", parent, err.Error())
-			return
+			return nil
 		}
 		r.storyTable(payload, stories)
-		return
+		return nil
 	}
 
 	r.handler.Send(payload, "Not implemented")
+	return nil
 }
 
 func (r bot) getProject(payload *robots.Payload, term string) ([]mavenlink.Project, error) {
@@ -184,13 +183,13 @@ func formatHour(h int64) string {
 	return fmt.Sprintf("%.2f", v)
 }
 
-func (r bot) sendAuth(p *robots.Payload, cmd utils.Command) {
+func (r bot) sendAuth(p *robots.Payload, cmd utils.Command) error {
 	appId := os.Getenv("MAVENLINK_APP_ID")
 	callback := os.Getenv("MAVENLINK_CALLBACK")
 
 	link, err := url.Parse("https://app.mavenlink.com/oauth/authorize")
 	if err != nil {
-		r.handler.SendError(p, err)
+		return err
 	}
 
 	params := url.Values{}
@@ -212,6 +211,7 @@ func (r bot) sendAuth(p *robots.Payload, cmd utils.Command) {
 	}
 
 	r.handler.SendWithAttachments(p, "", []robots.Attachment{a})
+	return nil
 }
 
 func (r bot) storyTable(payload *robots.Payload, stories []mavenlink.Story) {

@@ -37,7 +37,7 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Process(p.Text)
 }
 
-func (r bot) sendProjects(payload *robots.Payload, cmd utils.Command) {
+func (r bot) sendProjects(payload *robots.Payload, cmd utils.Command) error {
 	var ps []pivotal.Project
 	var err error
 
@@ -47,7 +47,7 @@ func (r bot) sendProjects(payload *robots.Payload, cmd utils.Command) {
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
 		r.handler.Send(payload, msg)
-		return
+		return nil
 	}
 	s := "Projects"
 
@@ -64,26 +64,23 @@ func (r bot) sendProjects(payload *robots.Payload, cmd utils.Command) {
 	if err != nil {
 		msg := fmt.Sprintf("Error: %s", err.Error())
 		r.handler.Send(payload, msg)
-		return
+		return nil
 	}
 
 	r.handler.Send(payload, s+projectTable(ps))
+	return nil
 }
 
-func (r bot) sendStories(p *robots.Payload, cmd utils.Command) {
+func (r bot) sendStories(p *robots.Payload, cmd utils.Command) error {
 	project := cmd.Arg(0)
 	pvt, err := conn(p.UserName)
 	if err != nil {
-		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.handler.Send(p, msg)
-		return
+		return err
 	}
 
 	stories, err := pvt.Stories(project)
 	if err != nil {
-		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.handler.Send(p, msg)
-		return
+		return err
 	}
 
 	str := ""
@@ -92,41 +89,37 @@ func (r bot) sendStories(p *robots.Payload, cmd utils.Command) {
 	}
 
 	r.handler.Send(p, str)
+	return nil
 }
 
-func (r bot) setStoryState(p *robots.Payload, cmd utils.Command) {
+func (r bot) setStoryState(p *robots.Payload, cmd utils.Command) error {
 	state := cmd.Command
 	id := cmd.Arg(0)
 	pvt, err := conn(p.UserName)
 	if err != nil {
-		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.handler.Send(p, msg)
-		return
+		return err
 	}
 
 	state = fmt.Sprintf("%sed", state)
 	story, err := pvt.SetStoryState(id, state)
 	if err != nil {
-		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.handler.Send(p, msg)
-		return
+		return err
 	}
 
 	r.handler.Send(p, fmt.Sprintf("Story %s - %s %s successfully",
 		id, story.Name, state))
+	return nil
 }
 
-func (r bot) sendAuth(p *robots.Payload, cmd utils.Command) {
+func (r bot) sendAuth(p *robots.Payload, cmd utils.Command) error {
 	s, err := db.GetSetting(p.UserName, "PIVOTAL_TOKEN")
 	if err != nil {
-		msg := fmt.Sprintf("Error: %s", err.Error())
-		r.handler.Send(p, msg)
-		return
+		return err
 	}
 
 	if s != nil {
 		r.handler.Send(p, "You are already connected with Pivotal.")
-		return
+		return nil
 	}
 
 	msg := `*Authenticating with Pivotal Tracker*
@@ -135,6 +128,7 @@ func (r bot) sendAuth(p *robots.Payload, cmd utils.Command) {
 3. Run the command:
    ` + "`/store set PIVOTAL_TOKEN=<token>`"
 	r.handler.Send(p, msg)
+	return nil
 }
 
 func conn(user string) (*pivotal.Pivotal, error) {

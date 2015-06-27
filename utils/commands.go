@@ -6,10 +6,12 @@ import (
 	"github.com/gistia/slackbot/robots"
 )
 
+type HandlerFunc func(*robots.Payload, Command) error
+
 type CmdHandler struct {
 	name     string
 	payload  *robots.Payload
-	handlers map[string]func(*robots.Payload, Command)
+	handlers map[string]HandlerFunc
 	msgr     SlackHandler
 }
 
@@ -17,22 +19,22 @@ func NewCmdHandler(p *robots.Payload, h SlackHandler, name string) CmdHandler {
 	return CmdHandler{
 		name:     name,
 		payload:  p,
-		handlers: map[string]func(*robots.Payload, Command){},
+		handlers: map[string]HandlerFunc{},
 		msgr:     h,
 	}
 }
 
-func (c *CmdHandler) Handle(cmd string, handler func(*robots.Payload, Command)) {
+func (c *CmdHandler) Handle(cmd string, handler HandlerFunc) {
 	c.handlers[cmd] = handler
 }
 
-func (c *CmdHandler) HandleMany(cmds []string, handler func(*robots.Payload, Command)) {
+func (c *CmdHandler) HandleMany(cmds []string, handler HandlerFunc) {
 	for _, cmd := range cmds {
 		c.handlers[cmd] = handler
 	}
 }
 
-func (c *CmdHandler) HandleDefault(handler func(*robots.Payload, Command)) {
+func (c *CmdHandler) HandleDefault(handler HandlerFunc) {
 	c.handlers["_default"] = handler
 }
 
@@ -57,7 +59,10 @@ func (c *CmdHandler) Process(s string) {
 
 	for k := range c.handlers {
 		if cmd.Is(k) {
-			c.handlers[k](c.payload, cmd)
+			err := c.handlers[k](c.payload, cmd)
+			if err != nil {
+				c.msgr.SendError(c.payload, err)
+			}
 			return
 		}
 	}

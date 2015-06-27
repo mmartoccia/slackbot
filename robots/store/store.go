@@ -33,57 +33,56 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Process(p.Text)
 }
 
-func (r bot) remove(p *robots.Payload, cmd utils.Command) {
+func (r bot) remove(p *robots.Payload, cmd utils.Command) error {
 	name := cmd.Arg(0)
 	if name == "" {
 		r.handler.Send(p, "Use /store remove PARAM.\n")
-		return
+		return nil
 	}
 
 	ok, err := db.RemoveSetting(p.UserName, name)
 	if err != nil {
-		r.handler.SendError(p, err)
-		return
+		return err
 	}
 
 	if ok {
 		r.handler.Send(p, fmt.Sprintf("Successfully removed %s\n", name))
-		return
+		return nil
 	}
 
 	r.handler.Send(p, fmt.Sprintf("Setting %s not found\n", name))
+	return nil
 }
 
-func (r bot) set(p *robots.Payload, cmd utils.Command) {
+func (r bot) set(p *robots.Payload, cmd utils.Command) error {
 	s := cmd.Arg(0)
 	parts := strings.Split(s, "=")
 	if len(parts) < 2 {
 		r.handler.Send(p, "Malformed setting. Use /store set PARAM=value.\n")
-		return
+		return nil
 	}
 
 	name := strings.TrimSpace(parts[0])
 	value := strings.TrimSpace(parts[1])
 	err := db.SetSetting(p.UserName, name, value)
 	if err != nil {
-		r.handler.SendError(p, err)
-		return
+		return err
 	}
 
 	r.handler.Send(p, fmt.Sprintf("Successfully set %s\n", name))
+	return nil
 }
 
-func (r bot) list(p *robots.Payload, cmd utils.Command) {
+func (r bot) list(p *robots.Payload, cmd utils.Command) error {
 	settings, err := db.GetSettings(p.UserName)
 	if err != nil {
-		r.handler.SendError(p, err)
-		return
+		return err
 	}
 
 	if len(settings) < 1 {
 		s := fmt.Sprintf("No settings for @%s\n", p.UserName)
 		r.handler.Send(p, s)
-		return
+		return nil
 	}
 
 	res := "You have the following settings configured:\n"
@@ -92,6 +91,7 @@ func (r bot) list(p *robots.Payload, cmd utils.Command) {
 	}
 
 	r.handler.Send(p, res)
+	return nil
 }
 
 func (r bot) Description() (description string) {
