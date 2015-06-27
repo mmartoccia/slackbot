@@ -100,6 +100,17 @@ func (r bot) stories(p *robots.Payload, cmd utils.Command) error {
 		r.handler.SendWithAttachments(p, "", []robots.Attachment{a})
 	}
 
+	var totalEstimated int64
+	var totalLogged int64
+	for _, s := range stories {
+		totalEstimated += s.TimeEstimateInMinutes
+		totalLogged += s.LoggedBillableTimeInMinutes
+	}
+
+	msg := fmt.Sprintf("Total estimated: %s - Total logged: %s",
+		utils.FormatHour(totalEstimated), utils.FormatHour(totalLogged))
+	r.handler.Send(p, msg)
+
 	return nil
 }
 
