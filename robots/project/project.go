@@ -94,18 +94,33 @@ func (r bot) list(p *robots.Payload, cmd utils.Command) error {
 	s := "Linked Projects:\n"
 
 	for _, pr := range ps {
-		pvt, err := r.getPvtProject(p, strconv.FormatInt(pr.PivotalId, 10))
+		pvtPr, err := r.getPvtProject(p, strconv.FormatInt(pr.PivotalId, 10))
 		if err != nil {
 			return err
 		}
-		mvn, err := r.getMvnProject(p, strconv.FormatInt(pr.MavenlinkId, 10))
+		mvnPr, err := r.getMvnProject(p, strconv.FormatInt(pr.MavenlinkId, 10))
 		if err != nil {
 			return err
 		}
 
+		sprintInfo := ""
+		if pr.MvnSprintStoryId != "" {
+			mvn, err := mavenlink.NewFor(p.UserName)
+			if err != nil {
+				return err
+			}
+
+			sprintStory, err := mvn.GetStory(pr.MvnSprintStoryId)
+			if err != nil {
+				return err
+			}
+
+			sprintInfo = "Current sprint: " + sprintStory.Title + "\n"
+		}
+
 		s += fmt.Sprintf(
-			"*%s* From Pivotal %d - %s to Mavenlink %s - %s\n",
-			pr.Name, pvt.Id, pvt.Name, mvn.Id, mvn.Title)
+			"*%s*\nPivotal %d - %s to Mavenlink %s - %s\n%s",
+			pr.Name, pvtPr.Id, pvtPr.Name, mvnPr.Id, mvnPr.Title, sprintInfo)
 	}
 
 	r.handler.Send(p, s)
