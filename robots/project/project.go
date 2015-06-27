@@ -64,8 +64,9 @@ func (r bot) stories(p *robots.Payload, cmd utils.Command) error {
 	name := cmd.Arg(0)
 
 	var ps *db.Project
+	var err error
 	if name != "" {
-		ps, err := db.GetProjectByName(name)
+		ps, err = db.GetProjectByName(name)
 		if err != nil {
 			return err
 		}
@@ -75,13 +76,15 @@ func (r bot) stories(p *robots.Payload, cmd utils.Command) error {
 		}
 	}
 
-	ps, err := db.GetProjectByChannel(p.ChannelName)
-	if err != nil {
-		return err
-	}
 	if ps == nil {
-		r.handler.Send(p, "Missing project name")
-		return nil
+		ps, err = db.GetProjectByChannel(p.ChannelName)
+		if err != nil {
+			return err
+		}
+		if ps == nil {
+			r.handler.Send(p, "Missing project name")
+			return nil
+		}
 	}
 
 	mvn, err := mavenlink.NewFor(p.UserName)
