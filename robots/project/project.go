@@ -110,9 +110,19 @@ func (r bot) stories(p *robots.Payload, cmd utils.Command) error {
 		totalLogged += s.LoggedBillableTimeInMinutes
 	}
 
-	msg := fmt.Sprintf("Total estimated: %s - Total logged: %s",
-		utils.FormatHour(totalEstimated), utils.FormatHour(totalLogged))
-	r.handler.Send(p, msg)
+	s := ""
+	if totalEstimated > 0 {
+		s += fmt.Sprintf("Total estimated: %s", utils.FormatHour(totalEstimated))
+	}
+	if totalLogged > 0 {
+		if totalEstimated > 0 {
+			s += " - "
+		}
+		s += fmt.Sprintf("Total logged: %s", utils.FormatHour(totalLogged))
+	}
+	if s != "" {
+		r.handler.Send(p, s)
+	}
 
 	return nil
 }
