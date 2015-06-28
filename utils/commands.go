@@ -151,3 +151,13 @@ func (c *Command) Is(cmds ...string) bool {
 
 	return false
 }
+
+func (c *Command) ArgsFrom(from int) []string {
+	args := []string{}
+	for idx, a := range c.Arguments {
+		if idx+1 > from {
+			args = append(args, a)
+		}
+	}
+	return args
+}

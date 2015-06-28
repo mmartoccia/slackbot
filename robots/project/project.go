@@ -38,8 +38,70 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("setsprint", r.setSprint)
 	ch.Handle("addsprint", r.addSprint)
 	ch.Handle("setchannel", r.setChannel)
+	ch.Handle("addtask", r.addTask)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) addTask(p *robots.Payload, cmd utils.Command) error {
+	name := cmd.Arg(0)
+	if name == "" {
+		r.handler.Send(p, "Missing project name. Use `!project addtask <project> <task-name>`")
+		return nil
+	}
+
+	storyName := strings.Join(cmd.ArgsFrom(1), " ")
+	if storyName == "" {
+		r.handler.Send(p, "Missing story name. Use `!project addtask <project> <task-name>`")
+		return nil
+	}
+
+	pr, err := db.GetProjectByName(name)
+	if err != nil {
+		return err
+	}
+
+	if pr == nil {
+		r.handler.Send(p, "Project *"+name+"* not found.")
+		return nil
+	}
+
+	mvn, err := mavenlink.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	pvtStory := pivotal.Story{
+		Name:      storyName,
+		ProjectId: pr.PivotalId,
+		Type:      "feature",
+	}
+	pvtNewStory, err := pvt.CreateStory(pvtStory)
+	if err != nil {
+		return err
+	}
+
+	mvnStory := mavenlink.Story{
+		Title:       storyName,
+		ParentId:    pr.MvnSprintStoryId,
+		WorkspaceId: strconv.FormatInt(pr.MavenlinkId, 10),
+		StoryType:   "task",
+	}
+	mvnNewStory, err := mvn.CreateStory(mvnStory)
+	if err != nil {
+		return err
+	}
+
+	s := "Created story *" + storyName + "*:\n"
+	s += fmt.Sprintf("- %d - %s\n", pvtNewStory.Id, pvtNewStory.Name)
+	s += fmt.Sprintf("- %s - %s\n", mvnNewStory.Id, mvnNewStory.Title)
+	r.handler.Send(p, s)
+	return nil
 }
 
 func (r bot) addSprint(p *robots.Payload, cmd utils.Command) error {

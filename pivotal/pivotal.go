@@ -237,7 +237,26 @@ func (pvt *Pivotal) UpdateStory(story Story) (*Story, error) {
 	}
 
 	r, err := req.Send()
-	return &r.Story, err
+	if err != nil {
+		return nil, err
+	}
+	return &r.Story, nil
+}
+
+func (pvt *Pivotal) CreateStory(story Story) (*Story, error) {
+	req := Request{
+		Token:  pvt.Token,
+		Type:   "story",
+		Method: "POST",
+		Uri:    fmt.Sprintf("projects/%d/stories", story.ProjectId),
+		Story:  &story,
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+	return &r.Story, nil
 }
 
 func (pvt *Pivotal) GetProjectMemberships(projectId string) ([]ProjectMembership, error) {
