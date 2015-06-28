@@ -3,7 +3,9 @@ package robots
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/mavenlink"
@@ -34,9 +36,75 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("link", r.link)
 	ch.Handle("stories", r.stories)
 	ch.Handle("setsprint", r.setSprint)
+	ch.Handle("addsprint", r.addSprint)
 	ch.Handle("setchannel", r.setChannel)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) addSprint(p *robots.Payload, cmd utils.Command) error {
+	name := cmd.Arg(0)
+	if name == "" {
+		r.handler.Send(p, "Missing project name")
+		return nil
+	}
+
+	ps, err := db.GetProjectByName(name)
+	if err != nil {
+		return err
+	}
+
+	mvn, err := mavenlink.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	sprintName := cmd.Arg(1)
+	if sprintName == "" {
+		sprintName = "Sprint 1"
+
+		if ps.MvnSprintStoryId != "" {
+			s, err := mvn.GetStory(ps.MvnSprintStoryId)
+			if err != nil {
+				return err
+			}
+
+			matched, err := regexp.MatchString(`Sprint [\d]+`, s.Title)
+			if err != nil {
+				return err
+			}
+			if matched {
+				num, err := strconv.ParseInt(strings.Split(s.Title, " ")[1], 10, 64)
+				if err != nil {
+					return err
+				}
+				sprintName = fmt.Sprintf("Sprint %d", (num + 1))
+			}
+		}
+	}
+
+	s := mavenlink.Story{
+		Title:       sprintName,
+		WorkspaceId: strconv.FormatInt(ps.MavenlinkId, 10),
+		StoryType:   "milestone",
+	}
+
+	ns, err := mvn.CreateStory(s)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%+v\n", ns)
+
+	ps.MvnSprintStoryId = ns.Id
+	err = db.UpdateProject(*ps)
+	if err != nil {
+		return err
+	}
+
+	s = *ns
+	r.handler.Send(p, "Added new sprint to *"+ps.Name+"*: "+s.Id+" - "+s.Title)
+	return nil
 }
 
 func (r bot) setChannel(p *robots.Payload, cmd utils.Command) error {
