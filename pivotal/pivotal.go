@@ -45,14 +45,15 @@ type Project struct {
 }
 
 type Story struct {
-	Id        int64  `json:"id,omitempty"`
-	Kind      string `json:"kind,omitempty"`
-	Name      string `json:"name,omitempty"`
-	Estimate  int    `json:"estimate,omitempty"`
-	State     string `json:"current_state,omitempty"`
-	Url       string `json:"url,omitempty"`
-	Type      string `json:"story_type,omitempty"`
-	ProjectId int64  `json:"project_id,omitempty"`
+	Id          int64  `json:"id,omitempty"`
+	Kind        string `json:"kind,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+	Estimate    int    `json:"estimate,omitempty"`
+	State       string `json:"current_state,omitempty"`
+	Url         string `json:"url,omitempty"`
+	Type        string `json:"story_type,omitempty"`
+	ProjectId   int64  `json:"project_id,omitempty"`
 }
 
 type ProjectMembership struct {
@@ -235,6 +236,8 @@ func (pvt *Pivotal) UpdateStory(story Story) (*Story, error) {
 		Uri:    fmt.Sprintf("stories/%d", story.Id),
 		Story:  &story,
 	}
+
+	story.Url = ""
 
 	r, err := req.Send()
 	if err != nil {

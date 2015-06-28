@@ -3,6 +3,7 @@ package mavenlink
 type Story struct {
 	Id                          string `json:"id,omitempty"`
 	Title                       string `json:"title,omitempty"`
+	Description                 string `json:"description,omitempty"`
 	ParentId                    string `json:"parent_id,omitempty"`
 	WorkspaceId                 string `json:"workspace_id,omitempty"`
 	StoryType                   string `json:"story_type,omitempty"`
@@ -18,6 +19,9 @@ func (s *Story) ToParams() (map[string]string, error) {
 	}
 	if s.Title != "" {
 		r["story[title]"] = s.Title
+	}
+	if s.Description != "" {
+		r["story[description]"] = s.Description
 	}
 	if s.ParentId != "" {
 		r["story[parent_id]"] = s.ParentId

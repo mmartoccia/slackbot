@@ -38,12 +38,12 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("setsprint", r.setSprint)
 	ch.Handle("addsprint", r.addSprint)
 	ch.Handle("setchannel", r.setChannel)
-	ch.Handle("addtask", r.addTask)
+	ch.Handle("addstory", r.addStory)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
 }
 
-func (r bot) addTask(p *robots.Payload, cmd utils.Command) error {
+func (r bot) addStory(p *robots.Payload, cmd utils.Command) error {
 	name := cmd.Arg(0)
 	if name == "" {
 		r.handler.Send(p, "Missing project name. Use `!project addtask <project> <task-name>`")
@@ -86,13 +86,24 @@ func (r bot) addTask(p *robots.Payload, cmd utils.Command) error {
 		return err
 	}
 
+	desc := fmt.Sprintf("[pvt:%d]", pvtNewStory.Id)
 	mvnStory := mavenlink.Story{
 		Title:       storyName,
+		Description: desc,
 		ParentId:    pr.MvnSprintStoryId,
 		WorkspaceId: strconv.FormatInt(pr.MavenlinkId, 10),
 		StoryType:   "task",
 	}
 	mvnNewStory, err := mvn.CreateStory(mvnStory)
+	if err != nil {
+		return err
+	}
+
+	tmpStory := pivotal.Story{
+		Id:          pvtNewStory.Id,
+		Description: "[mvn:" + mvnNewStory.Id + "]",
+	}
+	pvtNewStory, err = pvt.UpdateStory(tmpStory)
 	if err != nil {
 		return err
 	}
