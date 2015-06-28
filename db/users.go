@@ -8,9 +8,37 @@ import (
 type User struct {
 	Id          *int
 	Name        string
-	Channel     string
 	PivotalId   *int64
 	MavenlinkId *int64
+}
+
+func GetUsers() ([]User, error) {
+	con, err := connect()
+	if err != nil {
+		return nil, err
+	}
+	defer con.Close()
+
+	rows, err := con.Query(`
+    SELECT
+      "id", "name", "pivotal_id", "mavenlink_id"
+    FROM users`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	users := []User{}
+	for rows.Next() {
+		u, err := setUser(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, *u)
+	}
+
+	return users, nil
 }
 
 func GetUserByName(name string) (*User, error) {

@@ -1,6 +1,7 @@
 package robots
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/gistia/slackbot/db"
@@ -26,7 +27,24 @@ func (r bot) Run(p *robots.Payload) string {
 func (r bot) DeferredAction(p *robots.Payload) {
 	ch := utils.NewCmdHandler(p, r.handler, "project")
 	ch.Handle("set", r.set)
+	ch.Handle("list", r.list)
+	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) list(p *robots.Payload, cmd utils.Command) error {
+	users, err := db.GetUsers()
+	if err != nil {
+		return err
+	}
+
+	s := "Current registered users:\n"
+	for _, u := range users {
+		s += fmt.Sprintf("%s\n", u.Name)
+	}
+
+	r.handler.Send(p, s)
+	return nil
 }
 
 func (r bot) set(p *robots.Payload, cmd utils.Command) error {
