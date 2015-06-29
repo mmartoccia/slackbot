@@ -224,7 +224,7 @@ func (r bot) addSprint(p *robots.Payload, cmd utils.Command) error {
 		return err
 	}
 
-	sprintName := cmd.Arg(1)
+	sprintName := cmd.StrFrom(1)
 	if sprintName == "" {
 		sprintName = "Sprint 1"
 
