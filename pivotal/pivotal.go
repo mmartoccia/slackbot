@@ -19,12 +19,13 @@ type Pivotal struct {
 }
 
 type Request struct {
-	Type   string
-	Method string
-	Uri    string
-	Data   map[string]string
-	Token  string
-	Story  *Story
+	Type    string
+	Method  string
+	Uri     string
+	Data    map[string]string
+	Token   string
+	Story   *Story
+	Project *Project
 }
 
 type Response struct {
@@ -37,11 +38,12 @@ type Response struct {
 }
 
 type Project struct {
-	Id              int64  `json:"id"`
-	Kind            string `json:"kind"`
-	Name            string `json:"name"`
-	Version         int64  `json:"version"`
-	IterationLength int    `json:"iteration_length"`
+	Id              int64  `json:"id,omitempty"`
+	Kind            string `json:"kind,omitempty"`
+	Name            string `json:"name,omitempty"`
+	Description     string `json:"description,omitempty"`
+	Version         int64  `json:"version,omitempty"`
+	IterationLength int    `json:"iteration_length,omitempty"`
 }
 
 type Story struct {
@@ -76,10 +78,11 @@ type Person struct {
 }
 
 type Error struct {
-	Code        string `json:"code"`
-	Kind        string `json:"kind"`
-	Error       string `json:"error"`
-	PossibleFix string `json:"possible_fix"`
+	Code           string `json:"code"`
+	Kind           string `json:"kind"`
+	Error          string `json:"error"`
+	PossibleFix    string `json:"possible_fix"`
+	GeneralProject string `json:"general_problem"`
 }
 
 func NewPivotal(token string, verbose bool) *Pivotal {
@@ -127,6 +130,20 @@ func (r *Request) Send() (*Response, error) {
 		fmt.Println("Request payload:", string(data))
 		payload, err = utils.RequestRaw(
 			r.Method, url, bytes.NewBuffer(data), headers)
+	} else if r.Project != nil {
+		data, err := json.Marshal(r.Project)
+		if err != nil {
+			return nil, err
+		}
+		url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/%s", uri)
+		headers := map[string]string{
+			"X-TrackerToken": r.Token,
+			"Content-Type":   "application/json",
+		}
+		fmt.Println("Request:", url)
+		fmt.Println("Request payload:", string(data))
+		payload, err = utils.RequestRaw(
+			r.Method, url, bytes.NewBuffer(data), headers)
 	} else {
 		values := url.Values{}
 		for k, v := range r.Data {
@@ -149,8 +166,13 @@ func (r *Request) Send() (*Response, error) {
 			return nil, err
 		}
 		pvtError := resp.Error
-		msg := fmt.Sprintf("%s - %s\nPossible fix: %s\n",
-			pvtError.Code, pvtError.Error, pvtError.PossibleFix)
+		msg := fmt.Sprintf("%s - %s\n", pvtError.Code, pvtError.Error)
+		if pvtError.GeneralProject != "" {
+			msg += fmt.Sprintf("Details: %s\n", pvtError.GeneralProject)
+		}
+		if pvtError.PossibleFix != "" {
+			msg += fmt.Sprintf("Possible fix: %s\n", pvtError.PossibleFix)
+		}
 		return nil, errors.New(msg)
 	}
 
@@ -244,6 +266,40 @@ func (pvt *Pivotal) UpdateStory(story Story) (*Story, error) {
 		return nil, err
 	}
 	return &r.Story, nil
+}
+
+func (pvt *Pivotal) CreateProject(project Project) (*Project, error) {
+	fmt.Println("Project", project)
+	req := Request{
+		Token:   pvt.Token,
+		Type:    "project",
+		Method:  "POST",
+		Uri:     "projects",
+		Project: &project,
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Project:", r.Project)
+	return &r.Project, nil
+}
+
+func (pvt *Pivotal) UpdateProject(project Project) (*Project, error) {
+	req := Request{
+		Token:   pvt.Token,
+		Type:    "project",
+		Method:  "PUT",
+		Uri:     fmt.Sprintf("projects/%d", project.Id),
+		Project: &project,
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+	return &r.Project, nil
 }
 
 func (pvt *Pivotal) CreateStory(story Story) (*Story, error) {

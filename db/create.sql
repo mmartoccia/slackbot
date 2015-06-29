@@ -39,3 +39,13 @@ ALTER TABLE ONLY "settings" ALTER COLUMN "created_at"
 ALTER TABLE ONLY "projects" ALTER COLUMN "created_at"
   SET DEFAULT CURRENT_TIMESTAMP;
 
+DROP TABLE IF EXISTS "activities";
+CREATE TABLE "activities" (
+  "id" bigserial NOT NULL,
+  "user" varchar(255) NOT NULL,
+  "channel" varchar(255) NOT NULL,
+  "task" varchar(255) NOT NULL,
+  "token" varchar(255) NOT NULL,
+  "created_at" timestamp default NULL,
+  CONSTRAINT activities_pkey PRIMARY KEY (id)
+) WITH (OIDS=FALSE);

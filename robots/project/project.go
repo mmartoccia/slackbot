@@ -39,38 +39,130 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("addsprint", r.addSprint)
 	ch.Handle("setchannel", r.setChannel)
 	ch.Handle("addstory", r.addStory)
+	ch.Handle("starttask", r.startTask)
+	ch.Handle("create", r.create)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) create(p *robots.Payload, cmd utils.Command) error {
+	alias := cmd.Arg(0)
+	if alias == "" {
+		r.handler.Send(p, "Missing project alias. Usage: `!project createproject <alias> <long-name>`")
+		return nil
+	}
+	name := cmd.StrFrom(1)
+	if name == "" {
+		r.handler.Send(p, "Missing project name. Usage: `!project createproject <alias> <long-name>`")
+		return nil
+	}
+	mvn, err := mavenlink.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+	pvtProject := pivotal.Project{
+		Name: name,
+		// PointScale: "1,2,3,4,5,6,7,8,9,10,16,20",
+	}
+	pvtNewProject, err := pvt.CreateProject(pvtProject)
+	if err != nil {
+		return err
+	}
+	mvnProject := mavenlink.Project{
+		Title:       name,
+		Description: fmt.Sprintf("[pvt:%s]", pvtNewProject.Id),
+		CreatorRole: "maven",
+	}
+	mvnNewProject, err := mvn.CreateProject(mvnProject)
+	if err != nil {
+		return err
+	}
+	if mvnNewProject == nil {
+		return errors.New("Mavenlink returned a nil project")
+	}
+	pvtNewProject.Description = "[mvn:" + mvnNewProject.Id + "]"
+	pvtNewProject, err = pvt.UpdateProject(*pvtNewProject)
+	if err != nil {
+		return err
+	}
+
+	err = r.makeLink(p, alias, mvnNewProject.Id, strconv.FormatInt(pvtNewProject.Id, 10))
+	if err != nil {
+		return err
+	}
+
+	r.handler.Send(p, "Project *"+name+"* created on Pivotal and Mavenlink.")
+	return nil
+}
+
+func (r bot) startTask(p *robots.Payload, cmd utils.Command) error {
+	// pr, err := getProject(cmd)
+	// if err != nil {
+	// 	return err
+	// }
+	// mvn, err := mavenlink.NewFor(p.UserName)
+	// if err != nil {
+	// 	return err
+	// }
+	// pvt, err := pivotal.NewFor(p.UserName)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// stories, err := mvn.ChildStories(pr.MvnSprintStoryId)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// r.handler.Send(p, "Click the story you want to start on *"+pr.Name+"*:")
+	// url := os.Getenv("APP_URL")
+	// atts := mavenlink.CustomFormatStories(stories, url+"selection/startTask/")
+	// for _, a := range atts {
+	// 	r.handler.SendWithAttachments(p, "", []robots.Attachment{a})
+	// }
+	return nil
+}
+
+func getProject(name string) (*db.Project, error) {
+	pr, err := db.GetProjectByName(name)
+	if err != nil {
+		return nil, err
+	}
+	if pr == nil {
+		err := errors.New("Project *" + name + "* not found.")
+		return nil, err
+	}
+
+	return pr, nil
 }
 
 func (r bot) addStory(p *robots.Payload, cmd utils.Command) error {
 	name := cmd.Arg(0)
 	if name == "" {
-		r.handler.Send(p, "Missing project name. Use `!project addtask <project> <task-name>`")
-		return nil
+		err := errors.New(
+			"Missing project name. Use `!project addtask <project> <task-name>`")
+		return err
 	}
 
 	storyName := strings.Join(cmd.ArgsFrom(1), " ")
 	if storyName == "" {
-		r.handler.Send(p, "Missing story name. Use `!project addtask <project> <task-name>`")
-		return nil
-	}
-
-	pr, err := db.GetProjectByName(name)
-	if err != nil {
+		err := errors.New(
+			"Missing story name. Use `!project addtask <project> <task-name>`")
 		return err
 	}
 
-	if pr == nil {
-		r.handler.Send(p, "Project *"+name+"* not found.")
-		return nil
+	pr, err := getProject(name)
+	if err != nil {
+		return err
 	}
-
 	mvn, err := mavenlink.NewFor(p.UserName)
 	if err != nil {
 		return err
 	}
-
 	pvt, err := pivotal.NewFor(p.UserName)
 	if err != nil {
 		return err

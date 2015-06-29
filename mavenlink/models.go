@@ -7,8 +7,10 @@ import (
 )
 
 type Project struct {
-	Id    string `json:"id"`
-	Title string `json:"title"`
+	Id          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	CreatorRole string `json:"creator_role"`
 }
 
 type ErrorItem struct {

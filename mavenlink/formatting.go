@@ -37,3 +37,42 @@ func FormatStories(stories []Story) []robots.Attachment {
 
 	return atts
 }
+
+// func CustomFormatStories(stories []Story, url string) ([]robots.Attachment, error) {
+// 	atts := []robots.Attachment{}
+
+// 	urlTemplate, err := template.New("url_template").Parse(url)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	for _, s := range stories {
+// 		a := robots.Attachment{}
+// 		a.Color = "#7CD197"
+// 		a.Fallback = fmt.Sprintf("%s - *%s* %s (%s)\n",
+// 			strings.Title(s.StoryType), s.Id, s.Title, s.State)
+// 		a.Title = fmt.Sprintf("%s #%s - %s\n", s.StoryType, s.Id, s.Title)
+// 		url := ""
+// 		data := map[string]interface{}{
+// 			"id":           s.Id,
+// 			"workspace_id": s.WorkspaceId,
+// 		}
+// 		// urlTemplate.Execute(url, data)
+// 		a.TitleLink = url
+// 		a.Text = strings.Title(s.State)
+
+// 		if s.TimeEstimateInMinutes > 0 {
+// 			a.Text += fmt.Sprintf(" - Estimated hours: %s",
+// 				utils.FormatHour(s.TimeEstimateInMinutes))
+// 		}
+
+// 		if s.LoggedBillableTimeInMinutes > 0 {
+// 			a.Text += fmt.Sprintf(" - Logged hours: %s",
+// 				utils.FormatHour(s.LoggedBillableTimeInMinutes))
+// 		}
+
+// 		atts = append(atts, a)
+// 	}
+
+// 	return atts, nil
+// }

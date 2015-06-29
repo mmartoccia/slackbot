@@ -152,6 +152,10 @@ func (c *Command) Is(cmds ...string) bool {
 	return false
 }
 
+func (c *Command) StrFrom(from int) string {
+	return strings.Join(c.ArgsFrom(from), " ")
+}
+
 func (c *Command) ArgsFrom(from int) []string {
 	args := []string{}
 	for idx, a := range c.Arguments {

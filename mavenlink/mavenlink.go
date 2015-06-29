@@ -164,12 +164,20 @@ func (mvn *Mavenlink) GetChildStories(parentId string) ([]Story, error) {
 }
 
 func (mvn *Mavenlink) CreateProject(p Project) (*Project, error) {
-	params := map[string]string{"workspace[title]": p.Title}
-	_, err := mvn.post("workspaces", params)
+	params := map[string]string{
+		"workspace[title]":        p.Title,
+		"workspace[description]":  p.Description,
+		"workspace[creator_role]": p.CreatorRole,
+	}
+	resp, err := mvn.post("workspaces", params)
 	if err != nil {
 		return nil, err
 	}
-	return nil, err
+	projects := resp.ProjectList()
+	if len(projects) > 0 {
+		return &projects[0], nil
+	}
+	return nil, nil
 }
 
 func (mvn *Mavenlink) CreateStory(s Story) (*Story, error) {
