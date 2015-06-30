@@ -43,7 +43,10 @@ func (c *CmdHandler) Process(s string) {
 
 	if cmd.IsDefault() {
 		if h := c.handlers["_default"]; h != nil {
-			h(c.payload, cmd)
+			err := h(c.payload, cmd)
+			if err != nil {
+				c.msgr.SendError(c.payload, err)
+			}
 			return
 		}
 
