@@ -49,9 +49,7 @@ func (mvn *Mavenlink) getBody(uri string, filters []string) ([]byte, error) {
 		}
 	}
 
-	if mvn.Verbose {
-		fmt.Printf("Requesting: %s...\n", url)
-	}
+	fmt.Printf("Requesting: %s...\n", url)
 
 	return mvn.request("GET", url, nil)
 }
@@ -67,6 +65,8 @@ func (mvn *Mavenlink) get(uri string, filters []string) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("Got:", string(json))
 
 	resp, err := NewFromJson(json)
 	return resp, err

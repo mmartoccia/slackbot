@@ -417,10 +417,13 @@ func (r bot) list(p *robots.Payload, cmd utils.Command) error {
 	s := ""
 
 	for _, pr := range ps {
+		fmt.Println(" *** Project", pr)
+		fmt.Println("     Starting PVT", strconv.FormatInt(pr.PivotalId, 10))
 		pvtPr, err := r.getPvtProject(p, strconv.FormatInt(pr.PivotalId, 10))
 		if err != nil {
 			return err
 		}
+		fmt.Println("     Starting MVN", strconv.FormatInt(pr.MavenlinkId, 10))
 		mvnPr, err := r.getMvnProject(p, strconv.FormatInt(pr.MavenlinkId, 10))
 		if err != nil {
 			return err
@@ -433,19 +436,25 @@ func (r bot) list(p *robots.Payload, cmd utils.Command) error {
 				return err
 			}
 
+			fmt.Println("     Starting Story", pr.MvnSprintStoryId)
 			sprintStory, err := mvn.GetStory(pr.MvnSprintStoryId)
+			fmt.Println("     Sotry result", err)
 			if err != nil {
+				fmt.Println("     Returning error:", err)
 				return err
 			}
 
 			sprintInfo = "Current sprint: " + sprintStory.Title + "\n"
+			fmt.Println("     Finished Story")
 		}
 
 		s += fmt.Sprintf(
 			"*%s*\nPivotal %d - %s to Mavenlink %s - %s\n%s",
 			pr.Name, pvtPr.Id, pvtPr.Name, mvnPr.Id, mvnPr.Title, sprintInfo)
+		fmt.Println("     Finished Project")
 	}
 
+	fmt.Println("     Sending response:", s)
 	r.handler.Send(p, s)
 	return nil
 }

@@ -31,12 +31,19 @@ func NewFromJson(jsonData []byte) (*Response, error) {
 	var b *Response
 
 	err := json.Unmarshal(jsonData, &b)
+	fmt.Println("Error", err)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("Response", b)
 
 	if len(b.Errors) > 0 {
 		msg := ""
 		for _, e := range b.Errors {
 			msg += fmt.Sprintf("%s (%s)\n", e.Message, e.Type)
 		}
+		fmt.Println("Response error", msg)
 		return nil, errors.New(msg)
 	}
 
