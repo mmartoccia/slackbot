@@ -230,8 +230,8 @@ func (r bot) addStory(p *robots.Payload, cmd utils.Command) error {
 	}
 
 	s := "Created story *" + storyName + "*:\n"
-	s += fmt.Sprintf("- %d - %s\n", pvtNewStory.Id, pvtNewStory.Name)
-	s += fmt.Sprintf("- %s - %s\n", mvnNewStory.Id, mvnNewStory.Title)
+	s += fmt.Sprintf("- Pivotal %d - %s\n", pvtNewStory.Id, pvtNewStory.Name)
+	s += fmt.Sprintf("- Mavenlink %s - %s\n", mvnNewStory.Id, mvnNewStory.Title)
 	r.handler.Send(p, s)
 	return nil
 }
