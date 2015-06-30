@@ -41,8 +41,37 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("addstory", r.addStory)
 	ch.Handle("starttask", r.startTask)
 	ch.Handle("create", r.create)
+	ch.Handle("rename", r.rename)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) rename(p *robots.Payload, cmd utils.Command) error {
+	old := cmd.Arg(0)
+	new := cmd.Arg(1)
+	if new == "" || old == "" {
+		r.handler.Send(p, "You need to provide the old and new name. Usage: `!project rename <old-name> <new-name>`")
+		return nil
+	}
+
+	pr, err := db.GetProjectByName(old)
+	if err != nil {
+		return err
+	}
+
+	if pr == nil {
+		r.handler.Send(p, "Project *"+old+"* not found.")
+		return nil
+	}
+
+	pr.Name = new
+	err = db.UpdateProject(*pr)
+	if err != nil {
+		return err
+	}
+
+	r.handler.Send(p, "Project *"+old+"* renamed to *"+new+"*")
+	return nil
 }
 
 func (r bot) create(p *robots.Payload, cmd utils.Command) error {
