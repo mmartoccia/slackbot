@@ -42,8 +42,94 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("starttask", r.startTask)
 	ch.Handle("create", r.create)
 	ch.Handle("rename", r.rename)
+	ch.Handle("members", r.members)
+	ch.Handle("addmember", r.addmember)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) addmember(p *robots.Payload, cmd utils.Command) error {
+	name := cmd.Arg(0)
+	if name == "" {
+		err := errors.New(
+			"Missing project name. Use `!project addmember <project> <username>`")
+		return err
+	}
+	username := cmd.Arg(1)
+	if name == "" {
+		err := errors.New(
+			"Missing user name. Use `!project addmember <project> <username>`")
+		return err
+	}
+
+	pr, err := getProject(name)
+	if err != nil {
+		return err
+	}
+
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	if pr == nil {
+		r.handler.Send(p, "Project *"+name+"* not found")
+		return nil
+	}
+
+	user, err := db.GetUserByName(username)
+	if pr == nil {
+		r.handler.Send(p, "Project *"+name+"* not found")
+		return nil
+	}
+	if user == nil {
+		r.handler.Send(p, "User *"+username+"* not found")
+		return nil
+	}
+
+	_, err = pvt.CreateProjectMembership(pr.StrPivotalId(), *user.PivotalId, "member")
+	if err != nil {
+		return err
+	}
+
+	r.handler.Send(p, "New member *"+username+"* added to *"+name+"*")
+	return nil
+}
+
+func (r bot) members(p *robots.Payload, cmd utils.Command) error {
+	name := cmd.Arg(0)
+	if name == "" {
+		err := errors.New(
+			"Missing project name. Use `!project addtask <project> <task-name>`")
+		return err
+	}
+	pr, err := getProject(name)
+	if err != nil {
+		return err
+	}
+
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	if pr == nil {
+		r.handler.Send(p, "Project *"+name+"* not found")
+		return nil
+	}
+
+	members, err := pvt.GetProjectMemberships(pr.StrPivotalId())
+	if err != nil {
+		return err
+	}
+
+	s := "Pivotal members for project *" + pr.Name + "*:\n"
+	for _, m := range members {
+		s += fmt.Sprintf("%d - %s\n", m.Person.Id, m.Person.Name)
+	}
+
+	r.handler.Send(p, s)
+	return nil
 }
 
 func (r bot) rename(p *robots.Payload, cmd utils.Command) error {

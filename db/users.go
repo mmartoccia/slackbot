@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"strconv"
 )
 
 type User struct {
@@ -10,6 +11,10 @@ type User struct {
 	Name        string
 	PivotalId   *int64
 	MavenlinkId *int64
+}
+
+func (u User) StrPivotalId() string {
+	return strconv.FormatInt(*u.PivotalId, 10)
 }
 
 func GetUsers() ([]User, error) {

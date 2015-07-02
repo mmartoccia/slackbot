@@ -19,13 +19,15 @@ type Pivotal struct {
 }
 
 type Request struct {
-	Type    string
-	Method  string
-	Uri     string
-	Data    map[string]string
-	Token   string
-	Story   *Story
-	Project *Project
+	Type                 string
+	Method               string
+	Uri                  string
+	Data                 map[string]string
+	Token                string
+	Story                *Story
+	Project              *Project
+	ProjectMembership    *ProjectMembership
+	NewProjectMembership *NewProjectMembership
 }
 
 type Response struct {
@@ -33,6 +35,7 @@ type Response struct {
 	Stories            []Story             `json:"stories"`
 	ProjectMemberships []ProjectMembership `json:"project_memberships"`
 	Project            Project             `json:"project"`
+	ProjectMembership  ProjectMembership   `json:"project_membership"`
 	Story              Story               `json:"story"`
 	Error              Error               `json:"error"`
 }
@@ -77,6 +80,12 @@ type Person struct {
 	Username string `json:"username"`
 }
 
+type NewProjectMembership struct {
+	PersonId     int64  `json:"person_id"`
+	ProjectColor string `json:"project_color,omitempty"`
+	Role         string `json:"role"`
+}
+
 type Error struct {
 	Code           string `json:"code"`
 	Kind           string `json:"kind"`
@@ -118,6 +127,20 @@ func (r *Request) Send() (*Response, error) {
 
 	if r.Story != nil {
 		data, err := json.Marshal(r.Story)
+		if err != nil {
+			return nil, err
+		}
+		url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/%s", uri)
+		headers := map[string]string{
+			"X-TrackerToken": r.Token,
+			"Content-Type":   "application/json",
+		}
+		fmt.Println("Request:", url)
+		fmt.Println("Request payload:", string(data))
+		payload, err = utils.RequestRaw(
+			r.Method, url, bytes.NewBuffer(data), headers)
+	} else if r.NewProjectMembership != nil {
+		data, err := json.Marshal(r.NewProjectMembership)
 		if err != nil {
 			return nil, err
 		}
@@ -316,6 +339,22 @@ func (pvt *Pivotal) CreateStory(story Story) (*Story, error) {
 		return nil, err
 	}
 	return &r.Story, nil
+}
+
+func (pvt *Pivotal) CreateProjectMembership(projectId string, personId int64, role string) (*ProjectMembership, error) {
+	req := Request{
+		Token:                pvt.Token,
+		Type:                 "project_membership",
+		Method:               "POST",
+		Uri:                  fmt.Sprintf("projects/%s/memberships", projectId),
+		NewProjectMembership: &NewProjectMembership{PersonId: personId, Role: role},
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+	return &r.ProjectMembership, nil
 }
 
 func (pvt *Pivotal) GetProjectMemberships(projectId string) ([]ProjectMembership, error) {

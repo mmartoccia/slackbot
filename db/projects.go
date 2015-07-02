@@ -1,6 +1,9 @@
 package db
 
-import "database/sql"
+import (
+	"database/sql"
+	"strconv"
+)
 
 type Project struct {
 	Id               int
@@ -10,6 +13,10 @@ type Project struct {
 	MavenlinkId      int64
 	MvnSprintStoryId string
 	CreatedBy        string
+}
+
+func (p Project) StrPivotalId() string {
+	return strconv.FormatInt(p.PivotalId, 10)
 }
 
 func CreateProject(p Project) error {
