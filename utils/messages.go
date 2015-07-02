@@ -44,3 +44,15 @@ func (sh SlackHandler) SendWithAttachments(p *robots.Payload, s string, atts []r
 
 	response.Send()
 }
+
+func FmtAttachment(fallback, title, url, text string) robots.Attachment {
+	a := robots.Attachment{}
+	a.Color = "#7CD197"
+	a.Fallback = fallback
+	a.Title = title
+	a.TitleLink = url
+	if text != "" {
+		a.Text = text
+	}
+	return a
+}
