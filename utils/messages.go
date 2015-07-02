@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gistia/slackbot/robots"
 )
@@ -9,9 +10,13 @@ import (
 type SlackHandler struct {
 	BotName string
 	Icon    string
+	IconUrl string
 }
 
 func NewSlackHandler(name string, icon string) SlackHandler {
+	if strings.HasPrefix(icon, "http://") || strings.HasPrefix(icon, "https://") {
+		return SlackHandler{BotName: name, IconUrl: icon}
+	}
 	return SlackHandler{BotName: name, Icon: icon}
 }
 
@@ -36,10 +41,15 @@ func (sh SlackHandler) SendWithAttachments(p *robots.Payload, s string, atts []r
 		Domain:      p.TeamDomain,
 		Channel:     p.ChannelID,
 		Username:    sh.BotName,
-		IconEmoji:   sh.Icon,
 		UnfurlLinks: true,
 		Attachments: atts,
 		Text:        s,
+	}
+
+	if sh.Icon != "" {
+		response.IconEmoji = sh.Icon
+	} else {
+		response.IconURL = sh.IconUrl
 	}
 
 	response.Send()
