@@ -44,9 +44,44 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("rename", r.rename)
 	ch.Handle("members", r.members)
 	ch.Handle("addmember", r.addmember)
+	ch.Handle("unassigned", r.unassigned)
 	ch.Handle("assign", r.assign)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) unassigned(p *robots.Payload, cmd utils.Command) error {
+	res, err := cmd.ParseArgs("project")
+	if err != nil {
+		return err
+	}
+
+	name := res[0]
+	pr, err := getProject(name)
+	if err != nil {
+		return err
+	}
+
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	msg := "Unassigned stories for *" + name + "*:\n"
+
+	stories, err := pvt.GetUnassignedStories(pr.StrPivotalId())
+
+	if len(stories) < 1 {
+		r.handler.Send(p, "No unassigned stories for *"+name+"*")
+		return nil
+	}
+
+	for _, s := range stories {
+		msg += fmt.Sprintf("%d - %s\n", s.Id, s.Name)
+	}
+
+	r.handler.Send(p, msg)
+	return nil
 }
 
 func (r bot) assign(p *robots.Payload, cmd utils.Command) error {

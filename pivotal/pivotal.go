@@ -23,6 +23,7 @@ type Request struct {
 	Method               string
 	Uri                  string
 	Data                 map[string]string
+	Filters              map[string]string
 	Token                string
 	Story                *Story
 	Project              *Project
@@ -116,6 +117,21 @@ func (r *Request) request(method string, uri string, data url.Values) ([]byte, e
 		map[string]string{"X-TrackerToken": r.Token})
 }
 
+func (r *Request) appendFilters(uri string) string {
+	if r.Filters != nil {
+		uri += "?filter="
+		filters := ""
+		for k := range r.Filters {
+			v := r.Filters[k]
+			filters += k + ":" + v + " "
+		}
+
+		uri += url.QueryEscape(filters)
+	}
+
+	return uri
+}
+
 func (r *Request) Send() (*Response, error) {
 	uri := r.Uri
 	// fmt.Printf("Type: %s Uri: %s\n", r.Type, r.Uri)
@@ -142,20 +158,22 @@ func (r *Request) Send() (*Response, error) {
 		if err != nil {
 			return nil, err
 		}
-		url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/%s", uri)
+		reqUrl := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/%s", uri)
+		reqUrl = r.appendFilters(reqUrl)
 		headers := map[string]string{
 			"X-TrackerToken": r.Token,
 			"Content-Type":   "application/json",
 		}
-		fmt.Println("Request:", url)
+		fmt.Println("Request:", reqUrl)
 		fmt.Println("Request payload:", string(data))
 		payload, err = utils.RequestRaw(
-			r.Method, url, bytes.NewBuffer(data), headers)
+			r.Method, reqUrl, bytes.NewBuffer(data), headers)
 	} else {
 		values := url.Values{}
 		for k, v := range r.Data {
 			values.Add(k, v)
 		}
+		uri = r.appendFilters(uri)
 		payload, err = r.request(r.Method, uri, values)
 	}
 
@@ -238,6 +256,27 @@ func (pvt *Pivotal) GetProject(id string) (*Project, error) {
 func (pvt *Pivotal) Stories(p string) ([]Story, error) {
 	uri := fmt.Sprintf("projects/%s/stories", p)
 	req := Request{Token: pvt.Token, Type: "stories", Method: "GET", Uri: uri}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+
+	return r.Stories, nil
+}
+
+func (pvt *Pivotal) GetUnassignedStories(pid string) ([]Story, error) {
+	uri := fmt.Sprintf("projects/%s/stories", pid)
+	req := Request{
+		Token:  pvt.Token,
+		Type:   "stories",
+		Method: "GET",
+		Uri:    uri,
+		Filters: map[string]string{
+			"owned_by": `""`,
+			"type":     "feature,bug,chore",
+		},
+	}
 
 	r, err := req.Send()
 	if err != nil {
