@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/gistia/slackbot/robots"
@@ -167,4 +168,27 @@ func (c *Command) ArgsFrom(from int) []string {
 		}
 	}
 	return args
+}
+
+func (c *Command) ParseArgs(args ...string) ([]string, error) {
+	errMsg := ""
+	res := []string{}
+	for i, s := range args {
+		if c.Arg(i) == "" {
+			errMsg = "Missing *" + s + "*."
+			break
+		}
+		res = append(res, c.Arg(i))
+	}
+
+	if errMsg != "" {
+		errMsg += " Use `!" + c.Command + " "
+		for _, s := range args {
+			errMsg += "<" + s + "> "
+		}
+		errMsg += "`"
+		return nil, errors.New(errMsg)
+	}
+
+	return res, nil
 }

@@ -44,8 +44,43 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("rename", r.rename)
 	ch.Handle("members", r.members)
 	ch.Handle("addmember", r.addmember)
+	ch.Handle("assign", r.assign)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) assign(p *robots.Payload, cmd utils.Command) error {
+	res, err := cmd.ParseArgs("pivotal-story-id", "username")
+	if err != nil {
+		return err
+	}
+
+	storyId, username := res[0], res[1]
+
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	user, err := db.GetUserByName(username)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return errors.New("User *" + username + "* not found")
+	}
+
+	story, err := pvt.AssignStory(storyId, *user.PivotalId)
+	if err != nil {
+		return err
+	}
+
+	s := "Story successfully updated:\n"
+	r.handler.SendWithAttachments(p, s, []robots.Attachment{
+		utils.FmtAttachment("", story.Name, story.Url, ""),
+	})
+
+	return nil
 }
 
 func (r bot) addmember(p *robots.Payload, cmd utils.Command) error {

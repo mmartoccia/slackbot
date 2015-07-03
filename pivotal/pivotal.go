@@ -50,15 +50,16 @@ type Project struct {
 }
 
 type Story struct {
-	Id          int64  `json:"id,omitempty"`
-	Kind        string `json:"kind,omitempty"`
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
-	Estimate    int    `json:"estimate,omitempty"`
-	State       string `json:"current_state,omitempty"`
-	Url         string `json:"url,omitempty"`
-	Type        string `json:"story_type,omitempty"`
-	ProjectId   int64  `json:"project_id,omitempty"`
+	Id          int64   `json:"id,omitempty"`
+	Kind        string  `json:"kind,omitempty"`
+	Name        string  `json:"name,omitempty"`
+	Description string  `json:"description,omitempty"`
+	Estimate    int     `json:"estimate,omitempty"`
+	State       string  `json:"current_state,omitempty"`
+	Url         string  `json:"url,omitempty"`
+	Type        string  `json:"story_type,omitempty"`
+	ProjectId   int64   `json:"project_id,omitempty"`
+	OwnerIds    []int64 `json:"owner_ids,omitempty"`
 }
 
 type ProjectMembership struct {
@@ -270,6 +271,17 @@ func (pvt *Pivotal) SetStoryState(id string, state string) (*Story, error) {
 	}
 
 	story := Story{Id: nid, State: state}
+	return pvt.UpdateStory(story)
+}
+
+func (pvt *Pivotal) AssignStory(id string, ownerId int64) (*Story, error) {
+	nid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	story := Story{Id: nid, OwnerIds: []int64{ownerId}}
+	fmt.Println("story", story)
 	return pvt.UpdateStory(story)
 }
 
