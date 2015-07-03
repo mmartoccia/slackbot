@@ -190,6 +190,38 @@ func (s *PokerSession) GetStories() ([]PokerStory, error) {
 	return stories, nil
 }
 
+func (s *PokerSession) GetEstimatedStories() ([]PokerStory, error) {
+	con, err := connect()
+	if err != nil {
+		return nil, err
+	}
+	defer con.Close()
+
+	rows, err := con.Query(`
+    SELECT
+      "id", "poker_session_id", "title", "estimation"
+    FROM "poker_stories"
+    WHERE "poker_session_id" = $1
+          AND "estimation" IS NOT NULL
+    ORDER BY created_at`, s.Id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	stories := []PokerStory{}
+	for rows.Next() {
+		ps, err := setPokerStory(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		stories = append(stories, *ps)
+	}
+
+	return stories, nil
+}
+
 func (s *PokerSession) Finish() error {
 	con, err := connect()
 	if err != nil {
