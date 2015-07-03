@@ -125,37 +125,20 @@ func (r *Request) Send() (*Response, error) {
 
 	var payload []byte
 	var err error
+	var src interface{}
 
 	if r.Story != nil {
-		data, err := json.Marshal(r.Story)
-		if err != nil {
-			return nil, err
-		}
-		url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/%s", uri)
-		headers := map[string]string{
-			"X-TrackerToken": r.Token,
-			"Content-Type":   "application/json",
-		}
-		fmt.Println("Request:", url)
-		fmt.Println("Request payload:", string(data))
-		payload, err = utils.RequestRaw(
-			r.Method, url, bytes.NewBuffer(data), headers)
-	} else if r.NewProjectMembership != nil {
-		data, err := json.Marshal(r.NewProjectMembership)
-		if err != nil {
-			return nil, err
-		}
-		url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/%s", uri)
-		headers := map[string]string{
-			"X-TrackerToken": r.Token,
-			"Content-Type":   "application/json",
-		}
-		fmt.Println("Request:", url)
-		fmt.Println("Request payload:", string(data))
-		payload, err = utils.RequestRaw(
-			r.Method, url, bytes.NewBuffer(data), headers)
-	} else if r.Project != nil {
-		data, err := json.Marshal(r.Project)
+		src = r.Story
+	}
+	if r.NewProjectMembership != nil {
+		src = r.NewProjectMembership
+	}
+	if r.Project != nil {
+		src = r.Project
+	}
+
+	if src != nil {
+		data, err := json.Marshal(src)
 		if err != nil {
 			return nil, err
 		}
