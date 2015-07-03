@@ -170,7 +170,8 @@ func GetCurrentSession(channel string) (*PokerSession, error) {
     SELECT
       "id", "channel", "title", "users", "finished_at"
     FROM "poker_sessions"
-    WHERE "finished_at" IS NULL`)
+    WHERE "finished_at" IS NULL
+          AND "channel" = $1`, channel)
 	if err != nil {
 		return nil, err
 	}

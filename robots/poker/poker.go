@@ -35,11 +35,7 @@ func (r bot) DeferredAction(p *robots.Payload) {
 }
 
 func (r bot) startSession(p *robots.Payload, cmd utils.Command) error {
-	args, err := cmd.ParseArgs("title")
-	if err != nil {
-		return err
-	}
-	title := args[0]
+	title := cmd.StrFrom(0)
 
 	users := cmd.Param("users")
 	if users == "" {
@@ -47,7 +43,7 @@ func (r bot) startSession(p *robots.Payload, cmd utils.Command) error {
 		return nil
 	}
 
-	err = db.StartPokerSession(p.ChannelName, title, users)
+	err := db.StartPokerSession(p.ChannelName, title, users)
 	if err != nil {
 		return err
 	}
@@ -57,11 +53,7 @@ func (r bot) startSession(p *robots.Payload, cmd utils.Command) error {
 }
 
 func (r bot) startStory(p *robots.Payload, cmd utils.Command) error {
-	args, err := cmd.ParseArgs("title")
-	if err != nil {
-		return err
-	}
-	title := args[0]
+	title := cmd.StrFrom(0)
 
 	session, err := db.GetCurrentSession(p.ChannelName)
 	if err != nil {
