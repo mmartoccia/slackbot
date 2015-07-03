@@ -13,7 +13,7 @@ type bot struct {
 }
 
 func init() {
-	handler := utils.NewSlackHandler("Project", ":game_die:")
+	handler := utils.NewSlackHandler("Poker", ":game_die:")
 	s := &bot{handler: handler}
 	robots.RegisterRobot("poker", s)
 }
@@ -25,25 +25,25 @@ func (r bot) Run(p *robots.Payload) string {
 
 func (r bot) DeferredAction(p *robots.Payload) {
 	ch := utils.NewCmdHandler(p, r.handler, "project")
-	ch.Handle("startsession", r.startSession)
-	ch.Handle("startstory", r.startStory)
+	ch.Handle("session", r.startSession)
+	ch.Handle("story", r.startStory)
 	ch.Handle("vote", r.vote)
 	ch.Handle("reveal", r.revealVotes)
-	// ch.Handle("setestimation", r.setEstimation)
-	// ch.Handle("endsession", r.endSession)
+	ch.Handle("estimate", r.setEstimation)
+	ch.Handle("finish", r.endSession)
 	ch.Process(p.Text)
 }
 
 func (r bot) startSession(p *robots.Payload, cmd utils.Command) error {
 	title := cmd.StrFrom(0)
 
-	users := cmd.Param("users")
-	if users == "" {
-		r.handler.Send(p, "Missing *users* param. Usage: `!poker startsettion users:<user1,...,userN> <session-title>`")
-		return nil
-	}
+	// users := cmd.Param("users")
+	// if users == "" {
+	// 	r.handler.Send(p, "Missing *users* param. Usage: `!poker session <session-title>`")
+	// 	return nil
+	// }
 
-	err := db.StartPokerSession(p.ChannelName, title, users)
+	err := db.StartPokerSession(p.ChannelName, title, "")
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,17 @@ func (r bot) startStory(p *robots.Payload, cmd utils.Command) error {
 		return err
 	}
 	if session == nil {
-		r.handler.Send(p, "No active poker session on *"+p.ChannelName+"*. Use `/poker startsession` to start a new session.")
+		r.handler.Send(p, "No active poker session on *"+p.ChannelName+"*. Use `/poker session` to start a new session.")
+		return nil
+	}
+
+	story, err := session.GetCurrentStory()
+	if err != nil {
+		return err
+	}
+
+	if story != nil {
+		r.handler.Send(p, "Cannot start a new story until you estimate *"+story.Title+"*")
 		return nil
 	}
 
@@ -85,7 +95,7 @@ func (r bot) vote(p *robots.Payload, cmd utils.Command) error {
 		return err
 	}
 	if session == nil {
-		r.handler.Send(p, "No active poker session on *"+p.ChannelName+"*. Use `/poker startsession` to start a new session.")
+		r.handler.Send(p, "No active poker session on *"+p.ChannelName+"*. Use `/poker session` to start a new session.")
 		return nil
 	}
 
@@ -94,7 +104,7 @@ func (r bot) vote(p *robots.Payload, cmd utils.Command) error {
 		return err
 	}
 	if story == nil {
-		r.handler.Send(p, "No current story on *"+p.ChannelName+"*. Use `/poker startstory` to start a new session.")
+		r.handler.Send(p, "No current story on *"+p.ChannelName+"*. Use `/poker story` to start a new session.")
 		return nil
 	}
 
@@ -113,7 +123,7 @@ func (r bot) revealVotes(p *robots.Payload, cmd utils.Command) error {
 		return err
 	}
 	if session == nil {
-		r.handler.Send(p, "No active poker session on *"+p.ChannelName+"*. Use `/poker startsession` to start a new session.")
+		r.handler.Send(p, "No active poker session on *"+p.ChannelName+"*. Use `/poker session` to start a new session.")
 		return nil
 	}
 
@@ -122,7 +132,7 @@ func (r bot) revealVotes(p *robots.Payload, cmd utils.Command) error {
 		return err
 	}
 	if story == nil {
-		r.handler.Send(p, "No current story on *"+p.ChannelName+"*. Use `/poker startstory` to start a new session.")
+		r.handler.Send(p, "No current story on *"+p.ChannelName+"*. Use `/poker story` to start a new session.")
 		return nil
 	}
 
@@ -140,48 +150,70 @@ func (r bot) revealVotes(p *robots.Payload, cmd utils.Command) error {
 	return nil
 }
 
-// func (r bot) setEstimation(p *robots.Payload, cmd utils.Command) error {
-// 	estimation, err := cmd.ParseArgs("estimation")
-// 	if err != nil {
-// 		return err
-// 	}
+func (r bot) setEstimation(p *robots.Payload, cmd utils.Command) error {
+	args, err := cmd.ParseArgs("estimation")
+	if err != nil {
+		return err
+	}
+	estimation := args[0]
 
-// 	story, err := db.GetCurrentStory(p.Channel)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if story == nil {
-// 		r.handler.Send(p, "No current story on *"+p.ChannelName+"*. Use `/poker startstory` to start a new session.")
-// 		return nil
-// 	}
+	session, err := db.GetCurrentSession(p.ChannelName)
+	if err != nil {
+		return err
+	}
+	if session == nil {
+		r.handler.Send(p, "No active poker session on *"+p.ChannelName+"*. Use `/poker session` to start a new session.")
+		return nil
+	}
 
-// 	err = story.UpdateEstimation(estimation)
-// 	if err != nil {
-// 		return err
-// 	}
+	story, err := session.GetCurrentStory()
+	if err != nil {
+		return err
+	}
+	if story == nil {
+		r.handler.Send(p, "No current story on *"+p.ChannelName+"*. Use `/poker story` to start a new session.")
+		return nil
+	}
 
-// 	r.handler.Send(p, "Tracked estimation of *"+estimation+"* hours for *"+story.Title+"*")
-// 	return nil
-// }
+	err = story.UpdateEstimation(estimation)
+	if err != nil {
+		return err
+	}
 
-// func (r bot) endSession(p *robots.Payload, cmd utils.Command) error {
-// 	session, err := db.GetCurrentSession(p.ChannelTitle)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if session == nil {
-// 		r.handler.Send(p, "No active poker session on *"+p.ChannelName+"*. Use `/poker startsession` to start a new session.")
-// 		return nil
-// 	}
+	r.handler.Send(p, "Tracked estimation of *"+estimation+"* hours for *"+story.Title+"*")
+	return nil
+}
 
-// 	err = session.Finish()
-// 	if err != nil {
-// 		return err
-// 	}
+func (r bot) endSession(p *robots.Payload, cmd utils.Command) error {
+	session, err := db.GetCurrentSession(p.ChannelName)
+	if err != nil {
+		return err
+	}
+	if session == nil {
+		r.handler.Send(p, "No active poker session on *"+p.ChannelName+"*. Use `/poker session` to start a new session.")
+		return nil
+	}
 
-// 	r.handler.Send(p, "Finished poker session for *"+session.Title+"*")
-// 	return nil
-// }
+	err = session.Finish()
+	if err != nil {
+		return err
+	}
+
+	msg := "Finished poker session for *" + session.Title + "*.\n\n"
+	msg += "The following stories were estimated:\n"
+
+	stories, err := session.GetStories()
+	if err != nil {
+		return err
+	}
+
+	for _, s := range stories {
+		msg += fmt.Sprintf("*%s* - Hours: %.2f\n", s.Title, *s.Estimation)
+	}
+
+	r.handler.Send(p, msg)
+	return nil
+}
 
 func (r bot) Description() (description string) {
 	return "Project bot\n\tUsage: !project <command>\n"

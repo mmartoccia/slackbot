@@ -90,6 +90,20 @@ func setPokerVote(rows *sql.Rows) (*PokerVote, error) {
 
 // ------------------- Story
 
+func (s *PokerStory) UpdateEstimation(estimation string) error {
+	con, err := connect()
+	if err != nil {
+		return err
+	}
+	defer con.Close()
+
+	_, err = con.Query(`
+    UPDATE poker_stories
+    SET "estimation" = $1
+    WHERE "id" = $2`, estimation, s.Id)
+	return err
+}
+
 func (s *PokerSession) GetCurrentStory() (*PokerStory, error) {
 	con, err := connect()
 	if err != nil {
@@ -144,6 +158,51 @@ func setPokerStory(rows *sql.Rows) (*PokerStory, error) {
 }
 
 // ------------------- Session
+
+func (s *PokerSession) GetStories() ([]PokerStory, error) {
+	con, err := connect()
+	if err != nil {
+		return nil, err
+	}
+	defer con.Close()
+
+	rows, err := con.Query(`
+    SELECT
+      "id", "poker_session_id", "title", "estimation"
+    FROM "poker_stories"
+    WHERE "poker_session_id" = $1
+    ORDER BY created_at`, s.Id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	stories := []PokerStory{}
+	for rows.Next() {
+		ps, err := setPokerStory(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		stories = append(stories, *ps)
+	}
+
+	return stories, nil
+}
+
+func (s *PokerSession) Finish() error {
+	con, err := connect()
+	if err != nil {
+		return err
+	}
+	defer con.Close()
+
+	_, err = con.Query(`
+    UPDATE poker_sessions
+    SET "finished_at" = CURRENT_TIMESTAMP
+    WHERE "id" = $1`, s.Id)
+	return err
+}
 
 func StartPokerSession(channel, title, users string) error {
 	con, err := connect()
