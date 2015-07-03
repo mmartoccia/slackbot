@@ -259,8 +259,13 @@ func (r bot) addStory(p *robots.Payload, cmd utils.Command) error {
 	name := cmd.Arg(0)
 	if name == "" {
 		err := errors.New(
-			"Missing project name. Use `!project addtask <project> <task-name>`")
+			"Missing project name. Use `!project addtask <project> [type:<story-type>] <task-name>`")
 		return err
+	}
+
+	storyType := cmd.Param("type")
+	if storyType == "" {
+		storyType = "feature"
 	}
 
 	storyName := strings.Join(cmd.ArgsFrom(1), " ")
@@ -286,7 +291,7 @@ func (r bot) addStory(p *robots.Payload, cmd utils.Command) error {
 	pvtStory := pivotal.Story{
 		Name:      storyName,
 		ProjectId: pr.PivotalId,
-		Type:      "feature",
+		Type:      storyType,
 	}
 	pvtNewStory, err := pvt.CreateStory(pvtStory)
 	if err != nil {
@@ -315,10 +320,17 @@ func (r bot) addStory(p *robots.Payload, cmd utils.Command) error {
 		return err
 	}
 
-	s := "Created story *" + storyName + "*:\n"
-	s += fmt.Sprintf("- Pivotal %d - %s\n", pvtNewStory.Id, pvtNewStory.Name)
-	s += fmt.Sprintf("- Mavenlink %s - %s\n", mvnNewStory.Id, mvnNewStory.Title)
-	r.handler.Send(p, s)
+	pvtAtt := utils.FmtAttachment(
+		fmt.Sprintf("- Pivotal %d - %s\n", pvtNewStory.Id, pvtNewStory.Name),
+		fmt.Sprintf("Pivotal %d - %s\n", pvtNewStory.Id, pvtNewStory.Name),
+		pvtNewStory.Url, "")
+	mvnAtt := utils.FmtAttachment(
+		fmt.Sprintf("- Mavenlink %s - %s\n", mvnNewStory.Id, mvnNewStory.Title),
+		fmt.Sprintf("Mavenlink %s - %s\n", mvnNewStory.Id, mvnNewStory.Title),
+		mvnNewStory.URL(), "")
+
+	s := "Stories successfully added:\n"
+	r.handler.SendWithAttachments(p, s, []robots.Attachment{pvtAtt, mvnAtt})
 	return nil
 }
 

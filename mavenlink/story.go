@@ -1,5 +1,7 @@
 package mavenlink
 
+import "fmt"
+
 type Story struct {
 	Id                          string `json:"id,omitempty"`
 	Title                       string `json:"title,omitempty"`
@@ -10,6 +12,12 @@ type Story struct {
 	State                       string `json:"state,omitempty"`
 	TimeEstimateInMinutes       int64  `json:"time_estimate_in_minutes,omitempty"`
 	LoggedBillableTimeInMinutes int64  `json:"logged_billable_time_in_minutes,omitempty"`
+}
+
+func (s *Story) URL() string {
+	return fmt.Sprintf(
+		"https://app.mavenlink.com/workspaces/%s/#tracker/%s",
+		s.WorkspaceId, s.Id)
 }
 
 func (s *Story) ToParams() (map[string]string, error) {
