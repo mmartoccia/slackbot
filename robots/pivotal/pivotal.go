@@ -147,7 +147,7 @@ func (r bot) sendMyStories(p *robots.Payload, cmd utils.Command) error {
 
 	filter := map[string]string{
 		"owned_by": user.StrPivotalId(),
-		"state":    "started,delivered",
+		"state":    "started,finished,delivered",
 	}
 	stories, err := pvt.FilteredStories(project, filter)
 	if err != nil {
