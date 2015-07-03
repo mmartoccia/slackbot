@@ -29,6 +29,7 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch := utils.NewCmdHandler(p, r.handler, "pvt")
 	ch.Handle("projects", r.sendProjects)
 	ch.Handle("stories", r.sendStories)
+	ch.Handle("mystories", r.sendMyStories)
 	ch.Handle("auth", r.sendAuth)
 	ch.Handle("users", r.users)
 
@@ -119,6 +120,38 @@ func (r bot) sendStories(p *robots.Payload, cmd utils.Command) error {
 	}
 
 	str := ""
+	for _, s := range stories {
+		str += fmt.Sprintf("%d - %s\n", s.Id, s.Name)
+	}
+
+	r.handler.Send(p, str)
+	return nil
+}
+
+func (r bot) sendMyStories(p *robots.Payload, cmd utils.Command) error {
+	args, err := cmd.ParseArgs("pvt-project-id")
+	if err != nil {
+		return err
+	}
+
+	project := args[0]
+	pvt, err := conn(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	user, err := db.GetUserByName(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	filter := map[string]string{"owned_by": user.StrPivotalId()}
+	stories, err := pvt.FilteredStories(project, filter)
+	if err != nil {
+		return err
+	}
+
+	str := "Current stories for *" + p.UserName + "*:\n"
 	for _, s := range stories {
 		str += fmt.Sprintf("%d - %s\n", s.Id, s.Name)
 	}

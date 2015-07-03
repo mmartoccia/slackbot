@@ -265,6 +265,24 @@ func (pvt *Pivotal) Stories(p string) ([]Story, error) {
 	return r.Stories, nil
 }
 
+func (pvt *Pivotal) FilteredStories(p string, filters map[string]string) ([]Story, error) {
+	uri := fmt.Sprintf("projects/%s/stories", p)
+	req := Request{
+		Token:   pvt.Token,
+		Type:    "stories",
+		Method:  "GET",
+		Uri:     uri,
+		Filters: filters,
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+
+	return r.Stories, nil
+}
+
 func (pvt *Pivotal) GetUnassignedStories(pid string) ([]Story, error) {
 	uri := fmt.Sprintf("projects/%s/stories", pid)
 	req := Request{
