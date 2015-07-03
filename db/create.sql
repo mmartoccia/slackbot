@@ -49,3 +49,35 @@ CREATE TABLE "activities" (
   "created_at" timestamp default NULL,
   CONSTRAINT activities_pkey PRIMARY KEY (id)
 ) WITH (OIDS=FALSE);
+
+DROP TABLE IF EXISTS "poker_sessions";
+CREATE TABLE "poker_sessions" (
+  "id" bigserial NOT NULL,
+  "channel" varchar(255) NOT NULL,
+  "title" varchar(255) NOT NULL,
+  "users" varchar(255) NOT NULL,
+  "finished_at" timestamp default NULL,
+  "created_at" timestamp default CURRENT_TIMESTAMP,
+  CONSTRAINT poker_sessions_pkey PRIMARY KEY (id)
+) WITH (OIDS=FALSE);
+
+DROP TABLE IF EXISTS "poker_stories";
+CREATE TABLE "poker_stories" (
+  "id" bigserial NOT NULL,
+  "poker_session_id" varchar(255) NOT NULL,
+  "title" varchar(255) NOT NULL,
+  "estimation" numeric NULL,
+  "created_at" timestamp default CURRENT_TIMESTAMP,
+  CONSTRAINT poker_stories_pkey PRIMARY KEY (id)
+) WITH (OIDS=FALSE);
+
+DROP TABLE IF EXISTS "poker_votes";
+CREATE TABLE "poker_votes" (
+  "id" bigserial NOT NULL,
+  "poker_story_id" varchar(255) NOT NULL,
+  "user" varchar(255) NOT NULL,
+  "vote" numeric NOT NULL,
+  "created_at" timestamp default CURRENT_TIMESTAMP,
+  CONSTRAINT poker_votes_pkey PRIMARY KEY (id),
+  CONSTRAINT poker_votes_story_user UNIQUE ("poker_story_id", "user")
+) WITH (OIDS=FALSE);
