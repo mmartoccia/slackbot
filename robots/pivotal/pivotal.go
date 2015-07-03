@@ -160,11 +160,15 @@ func (r bot) sendMyStories(p *robots.Payload, cmd utils.Command) error {
 	}
 
 	str := "Current stories for *" + p.UserName + "*:\n"
+	atts := []robots.Attachment{}
 	for _, s := range stories {
-		str += fmt.Sprintf("%d - %s\n", s.Id, s.Name)
+		fallback := fmt.Sprintf("%d - %s - %s\n", s.Id, s.Name, s.State)
+		title := fmt.Sprintf("%d - %s\n", s.Id, s.Name)
+		a := utils.FmtAttachment(fallback, title, s.Url, s.State)
+		atts = append(atts, a)
 	}
 
-	r.handler.Send(p, str)
+	r.handler.SendWithAttachments(p, str, atts)
 	return nil
 }
 
