@@ -145,10 +145,18 @@ func (r bot) sendMyStories(p *robots.Payload, cmd utils.Command) error {
 		return err
 	}
 
-	filter := map[string]string{"owned_by": user.StrPivotalId()}
+	filter := map[string]string{
+		"owned_by": user.StrPivotalId(),
+		"state":    "started,delivered",
+	}
 	stories, err := pvt.FilteredStories(project, filter)
 	if err != nil {
 		return err
+	}
+
+	if len(stories) < 1 {
+		r.handler.Send(p, "No open stories for *"+p.UserName+"*")
+		return nil
 	}
 
 	str := "Current stories for *" + p.UserName + "*:\n"
