@@ -35,6 +35,7 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("list", r.list)
 	ch.Handle("link", r.link)
 	ch.Handle("stories", r.stories)
+	ch.Handle("mystories", r.myStories)
 	ch.Handle("setsprint", r.setSprint)
 	ch.Handle("addsprint", r.addSprint)
 	ch.Handle("setchannel", r.setChannel)
@@ -48,6 +49,63 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("assign", r.assign)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) myStories(p *robots.Payload, cmd utils.Command) error {
+	name := cmd.Arg(0)
+	var pr *db.Project
+	var err error
+
+	if name == "" {
+		pr, err = db.GetProjectByChannel(p.ChannelName)
+	} else {
+		pr, err = db.GetProjectByName(name)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if pr == nil {
+		r.handler.Send(p, "Missing project name.")
+		return nil
+	}
+
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	user, err := db.GetUserByName(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	filter := map[string]string{
+		"owned_by": user.StrPivotalId(),
+		"state":    "started,finished",
+	}
+	stories, err := pvt.FilteredStories(pr.StrPivotalId(), filter)
+	if err != nil {
+		return err
+	}
+
+	if len(stories) < 1 {
+		r.handler.Send(p, "No open stories in project *"+pr.Name+"* for *"+p.UserName+"*")
+		return nil
+	}
+
+	str := "Current stories in project *" + pr.Name + "* for *" + p.UserName + "*:\n"
+	atts := []robots.Attachment{}
+	for _, s := range stories {
+		fallback := fmt.Sprintf("%d - %s - %s\n", s.Id, s.Name, s.State)
+		title := fmt.Sprintf("%d - %s\n", s.Id, s.Name)
+		a := utils.FmtAttachment(fallback, title, s.Url, s.State)
+		atts = append(atts, a)
+	}
+
+	r.handler.SendWithAttachments(p, str, atts)
+	return nil
 }
 
 func (r bot) unassigned(p *robots.Payload, cmd utils.Command) error {
