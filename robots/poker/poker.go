@@ -17,6 +17,7 @@ func init() {
 	handler := utils.NewSlackHandler("Poker", ":game_die:")
 	s := &bot{handler: handler}
 	robots.RegisterRobot("poker", s)
+	robots.RegisterRobot("pk", s)
 }
 
 func (r bot) Run(p *robots.Payload) string {
