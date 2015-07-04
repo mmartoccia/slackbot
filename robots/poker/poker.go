@@ -27,11 +27,16 @@ func (r bot) Run(p *robots.Payload) string {
 func (r bot) DeferredAction(p *robots.Payload) {
 	ch := utils.NewCmdHandler(p, r.handler, "project")
 	ch.Handle("status", r.status)
+	ch.Handle("start", r.startSession)
 	ch.Handle("session", r.startSession)
 	ch.Handle("story", r.startStory)
+	ch.Handle("s", r.startStory)
 	ch.Handle("vote", r.vote)
+	ch.Handle("v", r.vote)
 	ch.Handle("reveal", r.revealVotes)
 	ch.Handle("estimate", r.setEstimation)
+	ch.Handle("set", r.setEstimation)
+	ch.Handle("track", r.setEstimation)
 	ch.Handle("finish", r.endSession)
 	ch.Process(p.Text)
 }
@@ -90,7 +95,9 @@ func (r bot) status(p *robots.Payload, cmd utils.Command) error {
 func (r bot) startSession(p *robots.Payload, cmd utils.Command) error {
 	title := cmd.StrFrom(0)
 
-	err := db.StartPokerSession(p.ChannelName, title, "")
+	users := cmd.Param("users")
+
+	err := db.StartPokerSession(p.ChannelName, title, users)
 	if err != nil {
 		return err
 	}
@@ -161,6 +168,25 @@ func (r bot) vote(p *robots.Payload, cmd utils.Command) error {
 	}
 
 	r.handler.Send(p, "Vote cast for *"+p.UserName+"*")
+
+	users := session.Users
+	if users != "" {
+		expUsers := strings.Split(users, ",")
+		votes, err := story.GetVotes()
+		if err != nil {
+			return err
+		}
+
+		for _, v := range votes {
+			expUsers = utils.RemoveFromSlice(expUsers, v.User)
+		}
+
+		if len(expUsers) < 1 {
+			r.handler.Send(p, "Everyone voted, revealing votes.")
+			r.revealVotes(p, cmd)
+		}
+	}
+
 	return nil
 }
 
