@@ -2,6 +2,7 @@ package robots
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/gistia/slackbot/db"
@@ -31,7 +32,10 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("start", r.startSession)
 	ch.Handle("session", r.startSession)
 	ch.Handle("story", r.startStory)
+	ch.Handle("stories", r.addStories)
 	ch.Handle("s", r.startStory)
+	ch.Handle("next", r.nextStory)
+	ch.Handle("n", r.nextStory)
 	ch.Handle("vote", r.vote)
 	ch.Handle("v", r.vote)
 	ch.Handle("reveal", r.revealVotes)
@@ -40,6 +44,23 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("track", r.setEstimation)
 	ch.Handle("finish", r.endSession)
 	ch.Process(p.Text)
+}
+
+func (r bot) addStories(p *robots.Payload, cmd utils.Command) error {
+	session, err := db.GetCurrentSession(p.ChannelName)
+	if err != nil {
+		return err
+	}
+	if session == nil {
+		r.handler.Send(p, "No active poker session on *"+p.ChannelName+"*.")
+		return nil
+	}
+
+	appUrl := os.Getenv("APP_URL")
+	url := appUrl + "poker?channel=" + p.ChannelName + "&channel_id=" + p.ChannelID
+	a := utils.FmtAttachment("", "Click here to add stories", url, "Add stories in back to this session by following the link")
+	r.handler.SendWithAttachments(p, "", []robots.Attachment{a})
+	return nil
 }
 
 func (r bot) status(p *robots.Payload, cmd utils.Command) error {
@@ -104,6 +125,30 @@ func (r bot) startSession(p *robots.Payload, cmd utils.Command) error {
 	}
 
 	r.handler.Send(p, "Started poker session for *"+title+"*")
+	return nil
+}
+
+func (r bot) nextStory(p *robots.Payload, cmd utils.Command) error {
+	session, err := db.GetCurrentSession(p.ChannelName)
+	if err != nil {
+		return err
+	}
+	if session == nil {
+		r.handler.Send(p, "No active poker session on *"+p.ChannelName+"*. Use `/poker session` to start a new session.")
+		return nil
+	}
+
+	story, err := session.GetCurrentStory()
+	if err != nil {
+		return err
+	}
+
+	if story == nil {
+		r.handler.Send(p, "No stories left to be estimated.")
+		return nil
+	}
+
+	r.handler.Send(p, "We can now vote for *"+story.Title+"*")
 	return nil
 }
 

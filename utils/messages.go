@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/gistia/slackbot/robots"
@@ -35,6 +36,7 @@ func (sh SlackHandler) SendError(p *robots.Payload, err error) {
 }
 
 func (sh SlackHandler) SendWithAttachments(p *robots.Payload, s string, atts []robots.Attachment) {
+	fmt.Println(p.TeamDomain)
 	fmt.Println(" ->", s)
 	for _, a := range atts {
 		fmt.Println("    A:", a.Title)
@@ -46,6 +48,26 @@ func (sh SlackHandler) SendWithAttachments(p *robots.Payload, s string, atts []r
 		Username:    sh.BotName,
 		UnfurlLinks: true,
 		Attachments: atts,
+		Text:        s,
+	}
+
+	if sh.Icon != "" {
+		response.IconEmoji = sh.Icon
+	} else {
+		response.IconURL = sh.IconUrl
+	}
+
+	response.Send()
+}
+
+func (sh SlackHandler) SendMsg(channel, s string) {
+	domain := os.Getenv("SLACK_TEAM_DOMAIN")
+	response := &robots.IncomingWebhook{
+		Parse:       robots.ParseStyleFull,
+		Domain:      domain,
+		Channel:     channel,
+		Username:    sh.BotName,
+		UnfurlLinks: true,
 		Text:        s,
 	}
 
