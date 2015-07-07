@@ -300,6 +300,15 @@ func (r bot) setEstimation(p *robots.Payload, cmd utils.Command) error {
 	}
 
 	r.handler.Send(p, "Tracked estimation of *"+estimation+"* hours for *"+story.Title+"*")
+
+	story, err = session.GetCurrentStory()
+	if err != nil {
+		return err
+	}
+	if story != nil {
+		r.nextStory(p, cmd)
+	}
+
 	return nil
 }
 

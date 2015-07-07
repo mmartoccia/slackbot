@@ -13,14 +13,23 @@ import (
 	_ "github.com/gistia/slackbot/importer"
 	"github.com/gistia/slackbot/robots"
 	"github.com/gistia/slackbot/utils"
+	"github.com/gistia/slackbot/web"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
 )
 
 func main() {
-	http.HandleFunc("/slack", slashCommandHandler)
-	http.HandleFunc("/slack_hook", hookHandler)
-	http.HandleFunc("/callback", callbackHandler)
-	http.HandleFunc("/poker", pokerHandler)
+	r := mux.NewRouter()
+	r.HandleFunc("/slack", slashCommandHandler)
+	r.HandleFunc("/slack_hook", hookHandler)
+	r.HandleFunc("/callback", callbackHandler)
+	http.Handle("/", r)
+
+	pokerRouter := mux.NewRouter()
+	pokerRouter.Methods("GET").Path("/poker").HandlerFunc(web.NewPokerStories)
+	pokerRouter.Methods("POST").Path("/poker").HandlerFunc(web.CreatePokerStories)
+	http.Handle("/poker", pokerRouter)
+
 	startServer()
 }
 
@@ -178,59 +187,6 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	msg := fmt.Sprintf("Saved Mavenlink authentication token for @%s", user)
 	MvnSend(domain, chanId, msg)
 
-	w.WriteHeader(http.StatusOK)
-}
-
-func pokerHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		url := r.URL
-		query := url.Query()
-		channel_id := query["channel_id"][0]
-		channel := query["channel"][0]
-		session, err := db.GetCurrentSession(channel)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if session == nil {
-			fmt.Fprintf(w, "No current session for channel %s", channel)
-			return
-		}
-		fmt.Fprintf(w, `
-			<h1>Enter stories for %s</h1>
-			<form method="POST">
-			<textarea name="stories" style="width: 700px; height: 300px;"></textarea>
-			<input type="hidden" name="channel" value="%s">
-			<input type="hidden" name="channel_id" value="%s">
-			<br><input type="submit" value="Set Stories">
-			</form>
-			`, session.Title, channel, channel_id)
-		return
-	}
-
-	r.ParseForm()
-
-	channel := r.PostForm["channel"][0]
-	channel_id := r.PostForm["channel_id"][0]
-	session, err := db.GetCurrentSession(channel)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if session == nil {
-		fmt.Fprintf(w, "No current session for channel %s", channel)
-		return
-	}
-	lines := strings.Split(r.PostForm["stories"][0], "\n")
-	for _, s := range lines {
-		s = strings.Trim(s, "\r")
-		session.StartPokerStory(s)
-	}
-
-	fmt.Fprintf(w, "Added %d stories to this session", len(lines))
-	h := utils.NewSlackHandler("poker", ":game_die:")
-	h.SendMsg(channel_id,
-		fmt.Sprintf("%d stories were added to be estimated", len(lines)))
 	w.WriteHeader(http.StatusOK)
 }
 

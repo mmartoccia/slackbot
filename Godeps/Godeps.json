@@ -11,8 +11,24 @@
 			"Rev": "547ef5ac979778feb2f760cdb5f4eae1a2207b86"
 		},
 		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "215affda49addc4c8ef7e2534915df2c8c35c6cd"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "9cb89f07ca03c6a28d1e237ba033bc6a29422fd6"
+		},
+		{
 			"ImportPath": "github.com/gorilla/schema",
 			"Rev": "7109aabdadf822989b99f1e560b7ea619c20cbb0"
+		},
+		{
+			"ImportPath": "github.com/gorilla/securecookie",
+			"Rev": "e8ab2fa5d114bbc278da9bd20dc67553bed7a3c4"
+		},
+		{
+			"ImportPath": "github.com/gorilla/sessions",
+			"Rev": "f61c3ec2cf65d69e7efedfd4d060fe128882c951"
 		},
 		{
 			"ImportPath": "github.com/lib/pq",
