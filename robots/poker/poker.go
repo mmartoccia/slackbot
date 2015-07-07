@@ -230,6 +230,7 @@ func (r bot) vote(p *robots.Payload, cmd utils.Command) error {
 		if len(expUsers) < 1 {
 			r.handler.Send(p, "Everyone voted, revealing votes.")
 			r.revealVotes(p, cmd)
+			r.handler.Send(p, "Now set the estimate for this story with `!poker set <estimate>`")
 		}
 	}
 
