@@ -7,8 +7,9 @@ import (
 	"github.com/lib/pq"
 )
 
+// PokerSession is session of poker planning
 type PokerSession struct {
-	Id         int
+	ID         int
 	Channel    string
 	Title      string
 	Users      string
@@ -16,24 +17,27 @@ type PokerSession struct {
 	Stories    []PokerStory
 }
 
+// PokerStory is a story within a PokerSession
 type PokerStory struct {
-	Id         int
+	ID         int
 	Session    PokerSession
-	SessionId  int
+	SessionID  int
 	Title      string
 	Estimation *float32
 }
 
+// PokerVote is a user's vote for a story
 type PokerVote struct {
-	Id      int
+	ID      int
 	Story   PokerStory
-	StoryId int
+	StoryID int
 	User    string
 	Vote    float32
 }
 
 // ------------------- Vote
 
+// CastVote tracks a vote for a given user
 func (s *PokerStory) CastVote(user, vote string) error {
 	con, err := connect()
 	if err != nil {
@@ -44,10 +48,11 @@ func (s *PokerStory) CastVote(user, vote string) error {
 	_, err = con.Query(`
     INSERT INTO poker_votes
     ("poker_story_id", "user", "vote")
-    VALUES ($1, $2, $3)`, s.Id, user, vote)
+    VALUES ($1, $2, $3)`, s.ID, user, vote)
 	return err
 }
 
+// GetVotes returns all votes for a given PokerStory
 func (s *PokerStory) GetVotes() ([]PokerVote, error) {
 	con, err := connect()
 	if err != nil {
@@ -59,7 +64,7 @@ func (s *PokerStory) GetVotes() ([]PokerVote, error) {
     SELECT
       "id", "poker_story_id", "user", "vote"
     FROM poker_votes
-    WHERE poker_story_id = $1`, s.Id)
+    WHERE poker_story_id = $1`, s.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +85,7 @@ func (s *PokerStory) GetVotes() ([]PokerVote, error) {
 
 func setPokerVote(rows *sql.Rows) (*PokerVote, error) {
 	vote := PokerVote{}
-	err := rows.Scan(&vote.Id, &vote.StoryId, &vote.User, &vote.Vote)
+	err := rows.Scan(&vote.ID, &vote.StoryID, &vote.User, &vote.Vote)
 	if err != nil {
 		return nil, err
 	}
@@ -90,6 +95,7 @@ func setPokerVote(rows *sql.Rows) (*PokerVote, error) {
 
 // ------------------- Story
 
+// UpdateEstimation sets the estimation of a given PokerStory
 func (s *PokerStory) UpdateEstimation(estimation string) error {
 	con, err := connect()
 	if err != nil {
@@ -100,10 +106,12 @@ func (s *PokerStory) UpdateEstimation(estimation string) error {
 	_, err = con.Query(`
     UPDATE poker_stories
     SET "estimation" = $1
-    WHERE "id" = $2`, estimation, s.Id)
+    WHERE "id" = $2`, estimation, s.ID)
 	return err
 }
 
+// GetCurrentStory returns the most recent story with no estimation
+// (or assumed to be in the process of estimation)
 func (s *PokerSession) GetCurrentStory() (*PokerStory, error) {
 	con, err := connect()
 	if err != nil {
@@ -116,7 +124,7 @@ func (s *PokerSession) GetCurrentStory() (*PokerStory, error) {
       "id", "poker_session_id", "title", "estimation"
     FROM "poker_stories"
     WHERE "poker_session_id" = $1
-          AND "estimation" IS NULL`, s.Id)
+          AND "estimation" IS NULL`, s.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -134,6 +142,9 @@ func (s *PokerSession) GetCurrentStory() (*PokerStory, error) {
 	return ps, nil
 }
 
+// StartPokerStory creates a new PokerStory. This story will
+// then be considered the "current" story of a poker planning
+// session
 func (s *PokerSession) StartPokerStory(title string) error {
 	con, err := connect()
 	if err != nil {
@@ -143,13 +154,13 @@ func (s *PokerSession) StartPokerStory(title string) error {
 
 	_, err = con.Query(`
     INSERT INTO poker_stories (poker_session_id, title)
-    VALUES ($1, $2)`, s.Id, title)
+    VALUES ($1, $2)`, s.ID, title)
 	return err
 }
 
 func setPokerStory(rows *sql.Rows) (*PokerStory, error) {
 	ps := PokerStory{}
-	err := rows.Scan(&ps.Id, &ps.SessionId, &ps.Title, &ps.Estimation)
+	err := rows.Scan(&ps.ID, &ps.SessionID, &ps.Title, &ps.Estimation)
 	if err != nil {
 		return nil, err
 	}
@@ -159,6 +170,8 @@ func setPokerStory(rows *sql.Rows) (*PokerStory, error) {
 
 // ------------------- Session
 
+// GetStories returns all stories for a given PokerSession
+// in order of creation date
 func (s *PokerSession) GetStories() ([]PokerStory, error) {
 	con, err := connect()
 	if err != nil {
@@ -171,7 +184,7 @@ func (s *PokerSession) GetStories() ([]PokerStory, error) {
       "id", "poker_session_id", "title", "estimation"
     FROM "poker_stories"
     WHERE "poker_session_id" = $1
-    ORDER BY created_at`, s.Id)
+    ORDER BY created_at`, s.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -190,6 +203,8 @@ func (s *PokerSession) GetStories() ([]PokerStory, error) {
 	return stories, nil
 }
 
+// GetEstimatedStories returns all the stories for a given PokerSession
+// that has not been estimated yet
 func (s *PokerSession) GetEstimatedStories() ([]PokerStory, error) {
 	con, err := connect()
 	if err != nil {
@@ -203,7 +218,7 @@ func (s *PokerSession) GetEstimatedStories() ([]PokerStory, error) {
     FROM "poker_stories"
     WHERE "poker_session_id" = $1
           AND "estimation" IS NOT NULL
-    ORDER BY created_at`, s.Id)
+    ORDER BY created_at`, s.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -222,6 +237,7 @@ func (s *PokerSession) GetEstimatedStories() ([]PokerStory, error) {
 	return stories, nil
 }
 
+// Finish ends a PokerSession
 func (s *PokerSession) Finish() error {
 	con, err := connect()
 	if err != nil {
@@ -232,10 +248,11 @@ func (s *PokerSession) Finish() error {
 	_, err = con.Query(`
     UPDATE poker_sessions
     SET "finished_at" = CURRENT_TIMESTAMP
-    WHERE "id" = $1`, s.Id)
+    WHERE "id" = $1`, s.ID)
 	return err
 }
 
+// StartPokerSession starts a poker session for a given channel
 func StartPokerSession(channel, title, users string) error {
 	con, err := connect()
 	if err != nil {
@@ -250,6 +267,8 @@ func StartPokerSession(channel, title, users string) error {
 	return err
 }
 
+// GetCurrentSession returns the current session for the given channel
+// or nil if no current session for the channel
 func GetCurrentSession(channel string) (*PokerSession, error) {
 	con, err := connect()
 	if err != nil {
@@ -283,7 +302,7 @@ func GetCurrentSession(channel string) (*PokerSession, error) {
 func setPokerSession(rows *sql.Rows) (*PokerSession, error) {
 	ps := PokerSession{}
 	var finishedAt pq.NullTime
-	err := rows.Scan(&ps.Id, &ps.Channel, &ps.Title, &ps.Users, &finishedAt)
+	err := rows.Scan(&ps.ID, &ps.Channel, &ps.Title, &ps.Users, &finishedAt)
 	if err != nil {
 		return nil, err
 	}
