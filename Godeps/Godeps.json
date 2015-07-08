@@ -36,7 +36,15 @@
 			"Rev": "a8d8d01c4f91602f876bf5aa210274e8203a6b45"
 		},
 		{
+			"ImportPath": "github.com/nlopes/slack",
+			"Rev": "1da32686c2e7143de764729a1d52732047f7aa84"
+		},
+		{
 			"ImportPath": "golang.org/x/net/context",
+			"Rev": "d9558e5c97f85372afee28cf2b6059d7d3818919"
+		},
+		{
+			"ImportPath": "golang.org/x/net/websocket",
 			"Rev": "d9558e5c97f85372afee28cf2b6059d7d3818919"
 		},
 		{

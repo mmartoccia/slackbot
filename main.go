@@ -12,6 +12,7 @@ import (
 	"github.com/gistia/slackbot/db"
 	_ "github.com/gistia/slackbot/importer"
 	"github.com/gistia/slackbot/robots"
+	"github.com/gistia/slackbot/userbot"
 	"github.com/gistia/slackbot/utils"
 	"github.com/gistia/slackbot/web"
 	"github.com/gorilla/mux"
@@ -30,7 +31,12 @@ func main() {
 	pokerRouter.Methods("POST").Path("/poker").HandlerFunc(web.CreatePokerStories)
 	http.Handle("/poker", pokerRouter)
 
+	go startBot()
 	startServer()
+}
+
+func startBot() {
+	userbot.Start()
 }
 
 func hookHandler(w http.ResponseWriter, r *http.Request) {

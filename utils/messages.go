@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/gistia/slackbot/robots"
@@ -90,4 +91,9 @@ func FmtAttachment(fallback, title, url, text string) robots.Attachment {
 		a.Text = text
 	}
 	return a
+}
+
+func StripUser(msg string) string {
+	reg := regexp.MustCompile("(.*)<@.*?>:? ?(.*)")
+	return reg.ReplaceAllString(msg, "${1}${2}")
 }
