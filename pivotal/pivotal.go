@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -107,6 +108,241 @@ func NewFor(user string) (*Pivotal, error) {
 	}
 	return NewPivotal(token.Value, false), nil
 }
+
+//---------- Projects
+
+func (pvt *Pivotal) Projects() ([]Project, error) {
+	req := Request{Token: pvt.Token, Type: "projects", Method: "GET"}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+
+	return r.Projects, nil
+}
+
+func (pvt *Pivotal) GetProject(id string) (*Project, error) {
+	uri := fmt.Sprintf("projects/%s", id)
+	req := Request{
+		Token:  pvt.Token,
+		Type:   "project",
+		Method: "GET",
+		Uri:    uri,
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+
+	return &r.Project, nil
+}
+
+func (pvt *Pivotal) CreateProject(project Project) (*Project, error) {
+	fmt.Println("Project", project)
+	req := Request{
+		Token:   pvt.Token,
+		Type:    "project",
+		Method:  "POST",
+		Uri:     "projects",
+		Project: &project,
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Project:", r.Project)
+	return &r.Project, nil
+}
+
+func (pvt *Pivotal) UpdateProject(project Project) (*Project, error) {
+	req := Request{
+		Token:   pvt.Token,
+		Type:    "project",
+		Method:  "PUT",
+		Uri:     fmt.Sprintf("projects/%d", project.Id),
+		Project: &project,
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+	return &r.Project, nil
+}
+
+//---------- Stories
+
+func (pvt *Pivotal) GetStory(id string) (*Story, error) {
+	uri := fmt.Sprintf("stories/%s", id)
+	req := Request{
+		Token:  pvt.Token,
+		Type:   "story",
+		Method: "GET",
+		Uri:    uri,
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+
+	return &r.Story, nil
+}
+
+func (pvt *Pivotal) Stories(p string) ([]Story, error) {
+	uri := fmt.Sprintf("projects/%s/stories", p)
+	req := Request{Token: pvt.Token, Type: "stories", Method: "GET", Uri: uri}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+
+	return r.Stories, nil
+}
+
+func (pvt *Pivotal) FilteredStories(p string, filters map[string]string) ([]Story, error) {
+	uri := fmt.Sprintf("projects/%s/stories", p)
+	req := Request{
+		Token:   pvt.Token,
+		Type:    "stories",
+		Method:  "GET",
+		Uri:     uri,
+		Filters: filters,
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+
+	return r.Stories, nil
+}
+
+func (pvt *Pivotal) GetUnassignedStories(pid string) ([]Story, error) {
+	uri := fmt.Sprintf("projects/%s/stories", pid)
+	req := Request{
+		Token:  pvt.Token,
+		Type:   "stories",
+		Method: "GET",
+		Uri:    uri,
+		Filters: map[string]string{
+			"owned_by": `""`,
+			"type":     "feature,bug,chore",
+		},
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+
+	return r.Stories, nil
+}
+
+func (pvt *Pivotal) SetStoryState(id string, state string) (*Story, error) {
+	nid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	story := Story{Id: nid, State: state}
+	return pvt.UpdateStory(story)
+}
+
+func (pvt *Pivotal) AssignStory(id string, ownerId int64) (*Story, error) {
+	nid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	story := Story{Id: nid, OwnerIds: []int64{ownerId}}
+	fmt.Println("story", story)
+	return pvt.UpdateStory(story)
+}
+
+func (pvt *Pivotal) UpdateStory(story Story) (*Story, error) {
+	req := Request{
+		Token:  pvt.Token,
+		Type:   "story",
+		Method: "PUT",
+		Uri:    fmt.Sprintf("stories/%d", story.Id),
+		Story:  &story,
+	}
+
+	story.Url = ""
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+	return &r.Story, nil
+}
+
+func (pvt *Pivotal) CreateStory(story Story) (*Story, error) {
+	req := Request{
+		Token:  pvt.Token,
+		Type:   "story",
+		Method: "POST",
+		Uri:    fmt.Sprintf("projects/%d/stories", story.ProjectId),
+		Story:  &story,
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+	return &r.Story, nil
+}
+
+func (s *Story) GetMavenlinkId() string {
+	reg := regexp.MustCompile(`\[mvn:(\d+)\]`)
+	return reg.ReplaceAllString(s.Description, "${1}")
+}
+
+func (s *Story) GetStringId() string {
+	return strconv.FormatInt(s.Id, 10)
+}
+
+//---------- Project Memberships
+
+func (pvt *Pivotal) CreateProjectMembership(projectId string, personId int64, role string) (*ProjectMembership, error) {
+	req := Request{
+		Token:                pvt.Token,
+		Type:                 "project_membership",
+		Method:               "POST",
+		Uri:                  fmt.Sprintf("projects/%s/memberships", projectId),
+		NewProjectMembership: &NewProjectMembership{PersonId: personId, Role: role},
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+	return &r.ProjectMembership, nil
+}
+
+func (pvt *Pivotal) GetProjectMemberships(projectId string) ([]ProjectMembership, error) {
+	uri := fmt.Sprintf("projects/%s/memberships", projectId)
+	req := Request{
+		Token:  pvt.Token,
+		Type:   "project_memberships",
+		Method: "GET",
+		Uri:    uri,
+	}
+
+	r, err := req.Send()
+	if err != nil {
+		return nil, err
+	}
+
+	return r.ProjectMemberships, nil
+}
+
+//---------- Internals
 
 func (r *Request) request(method string, uri string, data url.Values) ([]byte, error) {
 	url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/%s", uri)
@@ -223,205 +459,4 @@ func NewFromJson(jsonData []byte) (*Response, error) {
 	// }
 
 	return b, err
-}
-
-func (pvt *Pivotal) Projects() ([]Project, error) {
-	req := Request{Token: pvt.Token, Type: "projects", Method: "GET"}
-
-	r, err := req.Send()
-	if err != nil {
-		return nil, err
-	}
-
-	return r.Projects, nil
-}
-
-func (pvt *Pivotal) GetProject(id string) (*Project, error) {
-	uri := fmt.Sprintf("projects/%s", id)
-	req := Request{
-		Token:  pvt.Token,
-		Type:   "project",
-		Method: "GET",
-		Uri:    uri,
-	}
-
-	r, err := req.Send()
-	if err != nil {
-		return nil, err
-	}
-
-	return &r.Project, nil
-}
-
-func (pvt *Pivotal) Stories(p string) ([]Story, error) {
-	uri := fmt.Sprintf("projects/%s/stories", p)
-	req := Request{Token: pvt.Token, Type: "stories", Method: "GET", Uri: uri}
-
-	r, err := req.Send()
-	if err != nil {
-		return nil, err
-	}
-
-	return r.Stories, nil
-}
-
-func (pvt *Pivotal) FilteredStories(p string, filters map[string]string) ([]Story, error) {
-	uri := fmt.Sprintf("projects/%s/stories", p)
-	req := Request{
-		Token:   pvt.Token,
-		Type:    "stories",
-		Method:  "GET",
-		Uri:     uri,
-		Filters: filters,
-	}
-
-	r, err := req.Send()
-	if err != nil {
-		return nil, err
-	}
-
-	return r.Stories, nil
-}
-
-func (pvt *Pivotal) GetUnassignedStories(pid string) ([]Story, error) {
-	uri := fmt.Sprintf("projects/%s/stories", pid)
-	req := Request{
-		Token:  pvt.Token,
-		Type:   "stories",
-		Method: "GET",
-		Uri:    uri,
-		Filters: map[string]string{
-			"owned_by": `""`,
-			"type":     "feature,bug,chore",
-		},
-	}
-
-	r, err := req.Send()
-	if err != nil {
-		return nil, err
-	}
-
-	return r.Stories, nil
-}
-
-func (pvt *Pivotal) SetStoryState(id string, state string) (*Story, error) {
-	nid, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-
-	story := Story{Id: nid, State: state}
-	return pvt.UpdateStory(story)
-}
-
-func (pvt *Pivotal) AssignStory(id string, ownerId int64) (*Story, error) {
-	nid, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-
-	story := Story{Id: nid, OwnerIds: []int64{ownerId}}
-	fmt.Println("story", story)
-	return pvt.UpdateStory(story)
-}
-
-func (pvt *Pivotal) UpdateStory(story Story) (*Story, error) {
-	req := Request{
-		Token:  pvt.Token,
-		Type:   "story",
-		Method: "PUT",
-		Uri:    fmt.Sprintf("stories/%d", story.Id),
-		Story:  &story,
-	}
-
-	story.Url = ""
-
-	r, err := req.Send()
-	if err != nil {
-		return nil, err
-	}
-	return &r.Story, nil
-}
-
-func (pvt *Pivotal) CreateProject(project Project) (*Project, error) {
-	fmt.Println("Project", project)
-	req := Request{
-		Token:   pvt.Token,
-		Type:    "project",
-		Method:  "POST",
-		Uri:     "projects",
-		Project: &project,
-	}
-
-	r, err := req.Send()
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("Project:", r.Project)
-	return &r.Project, nil
-}
-
-func (pvt *Pivotal) UpdateProject(project Project) (*Project, error) {
-	req := Request{
-		Token:   pvt.Token,
-		Type:    "project",
-		Method:  "PUT",
-		Uri:     fmt.Sprintf("projects/%d", project.Id),
-		Project: &project,
-	}
-
-	r, err := req.Send()
-	if err != nil {
-		return nil, err
-	}
-	return &r.Project, nil
-}
-
-func (pvt *Pivotal) CreateStory(story Story) (*Story, error) {
-	req := Request{
-		Token:  pvt.Token,
-		Type:   "story",
-		Method: "POST",
-		Uri:    fmt.Sprintf("projects/%d/stories", story.ProjectId),
-		Story:  &story,
-	}
-
-	r, err := req.Send()
-	if err != nil {
-		return nil, err
-	}
-	return &r.Story, nil
-}
-
-func (pvt *Pivotal) CreateProjectMembership(projectId string, personId int64, role string) (*ProjectMembership, error) {
-	req := Request{
-		Token:                pvt.Token,
-		Type:                 "project_membership",
-		Method:               "POST",
-		Uri:                  fmt.Sprintf("projects/%s/memberships", projectId),
-		NewProjectMembership: &NewProjectMembership{PersonId: personId, Role: role},
-	}
-
-	r, err := req.Send()
-	if err != nil {
-		return nil, err
-	}
-	return &r.ProjectMembership, nil
-}
-
-func (pvt *Pivotal) GetProjectMemberships(projectId string) ([]ProjectMembership, error) {
-	uri := fmt.Sprintf("projects/%s/memberships", projectId)
-	req := Request{
-		Token:  pvt.Token,
-		Type:   "project_memberships",
-		Method: "GET",
-		Uri:    uri,
-	}
-
-	r, err := req.Send()
-	if err != nil {
-		return nil, err
-	}
-
-	return r.ProjectMemberships, nil
 }

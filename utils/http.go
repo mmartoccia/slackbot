@@ -8,16 +8,21 @@ import (
 	"net/url"
 )
 
-func Request(method string, url string, data url.Values, headers map[string]string) ([]byte, error) {
+func Request(method string, reqUrl string, data url.Values, headers map[string]string) ([]byte, error) {
 	var dataIn io.Reader
 
 	if data == nil {
 		dataIn = nil
 	} else {
+		// s, err := url.QueryUnescape(data.Encode())
+		// if err != nil {
+		// 	return nil, err
+		// }
+		// dataIn = bytes.NewBufferString(s)
 		dataIn = bytes.NewBufferString(data.Encode())
 	}
 
-	return RequestRaw(method, url, dataIn, headers)
+	return RequestRaw(method, reqUrl, dataIn, headers)
 }
 
 func RequestRaw(method string, url string, dataIn io.Reader, headers map[string]string) ([]byte, error) {

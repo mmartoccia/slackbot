@@ -40,7 +40,7 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("addsprint", r.addSprint)
 	ch.Handle("setchannel", r.setChannel)
 	ch.Handle("addstory", r.addStory)
-	ch.Handle("starttask", r.startTask)
+	ch.Handle("start", r.startTask)
 	ch.Handle("create", r.create)
 	ch.Handle("rename", r.rename)
 	ch.Handle("members", r.members)
@@ -343,18 +343,48 @@ func (r bot) create(p *robots.Payload, cmd utils.Command) error {
 }
 
 func (r bot) startTask(p *robots.Payload, cmd utils.Command) error {
-	// pr, err := getProject(cmd)
+	// pr, err := getProject(cmd.Arg(0))
 	// if err != nil {
 	// 	return err
 	// }
-	// mvn, err := mavenlink.NewFor(p.UserName)
-	// if err != nil {
-	// 	return err
-	// }
-	// pvt, err := pivotal.NewFor(p.UserName)
-	// if err != nil {
-	// 	return err
-	// }
+	mvn, err := mavenlink.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	if storyId := cmd.Arg(0); storyId != "" {
+		pvtStory, err := pvt.GetStory(storyId)
+		if err != nil {
+			return err
+		}
+
+		pvtStory, err = pvt.SetStoryState(pvtStory.GetStringId(), "started")
+		if err != nil {
+			return err
+		}
+
+		if mvnId := pvtStory.GetMavenlinkId(); mvnId != "" {
+			mvnStory, err := mvn.GetStory(mvnId)
+			if err != nil {
+				return err
+			}
+
+			fmt.Printf(" ** Got story: %+v\n", mvnStory)
+
+			mvnStory.State = "started"
+			mvnStory, err = mvn.SetStoryState(mvnStory.Id, "started")
+			if err != nil {
+				return err
+			}
+		}
+
+		r.handler.Send(p, "Story *"+pvtStory.Name+"* started")
+		return nil
+	}
 
 	// stories, err := mvn.ChildStories(pr.MvnSprintStoryId)
 	// if err != nil {
