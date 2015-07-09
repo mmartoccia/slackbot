@@ -17,6 +17,7 @@ import (
 	"github.com/gistia/slackbot/web"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
+	"github.com/yvasiyarov/gorelic"
 )
 
 func main() {
@@ -32,7 +33,18 @@ func main() {
 	http.Handle("/poker", pokerRouter)
 
 	go startBot()
+	go startNewRelic()
 	startServer()
+}
+
+func startNewRelic() {
+	key := os.Getenv("NEW_RELIC_LICENSE_KEY")
+	agent := gorelic.NewAgent()
+	agent.Verbose = true
+	agent.NewrelicLicense = key
+
+	fmt.Println("Starting NewRelic for " + key)
+	agent.Run()
 }
 
 func startBot() {
