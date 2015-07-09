@@ -81,3 +81,13 @@ CREATE TABLE "poker_votes" (
   CONSTRAINT poker_votes_pkey PRIMARY KEY (id),
   CONSTRAINT poker_votes_story_user UNIQUE ("poker_story_id", "user")
 ) WITH (OIDS=FALSE);
+
+DROP TABLE IF EXISTS "timers";
+CREATE TABLE "timers" (
+  "id" bigserial NOT NULL,
+  "user" varchar(255) NOT NULL,
+  "name" varchar(255) NOT NULL,
+  "finished_at" timestamp default NULL,
+  "created_at" timestamp default CURRENT_TIMESTAMP,
+  CONSTRAINT timers_pkey PRIMARY KEY (id)
+) WITH (OIDS=FALSE);

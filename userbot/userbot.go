@@ -11,8 +11,10 @@ import (
 )
 
 type UserBot struct {
-	api   *slack.Slack
-	wsAPI *slack.SlackWS
+	api         *slack.Slack
+	wsAPI       *slack.SlackWS
+	handler     CmdHandler
+	lastMessage *IncomingMsg
 }
 
 type IncomingMsg struct {
@@ -23,13 +25,21 @@ type IncomingMsg struct {
 	Private   bool
 	Highlight bool
 	Direct    bool
+	User      *slack.User
 }
 
-func NewIncomingMsg(user *slack.UserDetails, msg slack.Msg) IncomingMsg {
+func NewIncomingMsg(bot *UserBot, evt *slack.MessageEvent) (*IncomingMsg, error) {
+	msg := evt.Msg
+	botUser := bot.api.GetInfo().User
+	user, err := bot.api.GetUserInfo(msg.UserId)
+	if err != nil {
+		return nil, err
+	}
+
 	private := strings.HasPrefix(msg.ChannelId, "D")
-	highlight := strings.Contains(msg.Text, "<@"+user.Id+">")
+	highlight := strings.Contains(msg.Text, "<@"+botUser.Id+">")
 	direct := private || highlight
-	return IncomingMsg{
+	return &IncomingMsg{
 		UserId:    msg.UserId,
 		RawText:   msg.Text,
 		Text:      utils.StripUser(msg.Text),
@@ -37,52 +47,75 @@ func NewIncomingMsg(user *slack.UserDetails, msg slack.Msg) IncomingMsg {
 		Private:   private,
 		Highlight: highlight,
 		Direct:    direct,
-	}
+		User:      user,
+	}, nil
 }
 
-func (bot *UserBot) messageReceived(evt *slack.MessageEvent) error {
-	info := bot.api.GetInfo()
-	msg := NewIncomingMsg(info.User, evt.Msg)
-
-	fmt.Printf("Msg=%+v\n", msg)
-	fmt.Printf("User=%+v\n", info.User)
-
+func (bot *UserBot) messageReceived(evt *slack.MessageEvent) {
 	// doesn't act on messages sent by the bot itself
-	if msg.UserId == info.User.Id {
-		return nil
+	if evt.Msg.UserId == bot.api.GetInfo().User.Id {
+		return
+	}
+
+	msg, err := NewIncomingMsg(bot, evt)
+	if err != nil {
+		bot.replyError(err)
+		return
 	}
 
 	fmt.Println("UserId", msg.UserId)
 	fmt.Println("Text", msg.Text)
 
 	if !msg.Direct {
-		return nil
+		return
 	}
 
-	if msg.Text == "timezones" {
-		return bot.sendTimezones(evt)
+	bot.lastMessage = msg
+	bot.Handle(msg)
+
+	// if msg.Text == "timezones" {
+	// 	return bot.sendTimezones(evt)
+	// }
+	//
+	// author, err := bot.api.GetUserInfo(msg.UserId)
+	// if err != nil {
+	// 	fmt.Errorf("%s\n", err)
+	// 	return err
+	// }
+	//
+	// fmt.Printf("Author=%+v\n", author)
+	//
+	// text := msg.Text
+	// if msg.Highlight {
+	// 	text = "<@" + msg.UserId + ">: " + text
+	// }
+	//
+	// err = bot.send(msg.ChannelId, text)
+	// if err != nil {
+	// 	fmt.Errorf("%s\n", err)
+	// 	return err
+	// }
+	//
+	// return nil
+}
+
+func (bot *UserBot) replyError(err error) error {
+	msg := "Error: " + err.Error()
+	return bot.reply(msg)
+}
+
+func (bot *UserBot) reply(msg string) error {
+	lastMsg := bot.lastMessage
+	chanId := lastMsg.ChannelId
+	if lastMsg.Highlight {
+		msg = fmt.Sprintf("@%s: %s", lastMsg.User.Name, msg)
 	}
+	return bot.send(chanId, msg)
+}
 
-	author, err := bot.api.GetUserInfo(msg.UserId)
-	if err != nil {
-		fmt.Errorf("%s\n", err)
-		return err
-	}
-
-	fmt.Printf("Author=%+v\n", author)
-
-	text := msg.Text
-	if msg.Highlight {
-		text = "<@" + msg.UserId + ">: " + text
-	}
-
-	err = bot.send(msg.ChannelId, text)
-	if err != nil {
-		fmt.Errorf("%s\n", err)
-		return err
-	}
-
-	return nil
+func (bot *UserBot) send(channelId, text string) error {
+	reply := &slack.OutgoingMessage{ChannelId: channelId, Text: text, Type: "message"}
+	return bot.wsAPI.SendMessage(reply)
 }
 
 func (bot *UserBot) sendTimezones(evt *slack.MessageEvent) error {
@@ -108,11 +141,6 @@ func (bot *UserBot) sendTimezones(evt *slack.MessageEvent) error {
 	return nil
 }
 
-func (bot *UserBot) send(channelId, text string) error {
-	reply := &slack.OutgoingMessage{ChannelId: channelId, Text: text, Type: "message"}
-	return bot.wsAPI.SendMessage(reply)
-}
-
 func (bot *UserBot) presenceChanged(evt *slack.PresenceChangeEvent) {
 }
 
@@ -129,6 +157,7 @@ func Start() {
 	}
 
 	bot := UserBot{api: api, wsAPI: wsAPI}
+	bot.SetupCommands()
 
 	go wsAPI.HandleIncomingEvents(chReceiver)
 	go wsAPI.Keepalive(20 * time.Second)
