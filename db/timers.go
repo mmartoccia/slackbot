@@ -193,7 +193,7 @@ func GetRunningTimers(user string) ([]Timer, error) {
 	return timers, nil
 }
 
-// StopTimer finishes a running timer
+// Stop finishes a running timer
 func (timer *Timer) Stop() error {
 	con, err := connect()
 	if err != nil {
@@ -211,7 +211,7 @@ func (timer *Timer) Stop() error {
 	return err
 }
 
-// StopTimer finishes a running timer
+// Reload reloads the timer, returning a new instance
 func (timer *Timer) Reload() (*Timer, error) {
 	return GetTimer(timer.ID)
 }
