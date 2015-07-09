@@ -105,6 +105,35 @@ func GetTimer(id int) (*Timer, error) {
 	return timer, nil
 }
 
+func GetStartedTimerByName(user, name string) (*Timer, error) {
+	con, err := connect()
+	if err != nil {
+		return nil, err
+	}
+	defer con.Close()
+
+	rows, err := con.Query(`
+    SELECT
+      "id", "user", "name", "created_at", "finished_at"
+    FROM "timers"
+    WHERE "finished_at" IS NULL AND "user" = $1 AND "name" = $2`, user, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		return nil, nil
+	}
+
+	timer, err := setTimer(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return timer, nil
+}
+
 func GetTimerByName(user, name string) (*Timer, error) {
 	con, err := connect()
 	if err != nil {
@@ -132,6 +161,36 @@ func GetTimerByName(user, name string) (*Timer, error) {
 	}
 
 	return timer, nil
+}
+
+func GetRunningTimers(user string) ([]Timer, error) {
+	con, err := connect()
+	if err != nil {
+		return nil, err
+	}
+	defer con.Close()
+
+	rows, err := con.Query(`
+    SELECT
+      "id", "user", "name", "created_at", "finished_at"
+    FROM "timers"
+    WHERE "user" = $1 AND "finished_at" IS NULL`, user)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	timers := []Timer{}
+	for rows.Next() {
+		timer, err := setTimer(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		timers = append(timers, *timer)
+	}
+
+	return timers, nil
 }
 
 // StopTimer finishes a running timer

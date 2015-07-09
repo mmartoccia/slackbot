@@ -2,6 +2,7 @@ package userbot
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/utils"
@@ -9,13 +10,33 @@ import (
 
 func (bot *UserBot) SetupCommands() {
 	bot.handler = NewCmdHandler(bot)
-	bot.handler.Handle("start-timer", StartTimer)
-	bot.handler.Handle("stop-timer", StopTimer)
-	bot.handler.Handle("timer-status", TimerStatus)
+	bot.handler.Handle("start", StartTimer)
+	bot.handler.Handle("stop", StopTimer)
+	bot.handler.Handle("status", TimerStatus)
+	bot.handler.Handle("timers", RunningTimers)
 }
 
 func (bot *UserBot) Handle(msg *IncomingMsg) {
 	bot.handler.Process(msg.Text)
+}
+
+func RunningTimers(bot *UserBot, cmd utils.Command) error {
+	timers, err := db.GetRunningTimers(bot.lastMessage.User.Name)
+	if err != nil {
+		return err
+	}
+
+	if len(timers) < 1 {
+		bot.reply("You have no running timers")
+		return nil
+	}
+
+	s := "You have the following running timers:\n"
+	for _, t := range timers {
+		s += fmt.Sprintf("- *%s* running for *%s*\n", t.Name, t.Duration())
+	}
+	bot.reply(s)
+	return nil
 }
 
 func StartTimer(bot *UserBot, cmd utils.Command) error {
@@ -36,11 +57,11 @@ func StopTimer(bot *UserBot, cmd utils.Command) error {
 	if name == "" {
 		return errors.New("Missing timer name")
 	}
-	timer, err := db.GetTimerByName(bot.lastMessage.User.Name, name)
+	timer, err := db.GetStartedTimerByName(bot.lastMessage.User.Name, name)
 	if err != nil {
 		return err
 	}
-	if timer == nil || timer.IsFinished() {
+	if timer == nil {
 		return errors.New("You have no started timer with name *" + name + "*")
 	}
 
