@@ -3,9 +3,10 @@ package github
 import (
 	"errors"
 	"fmt"
-	"os"
+	"strconv"
 	"strings"
 
+	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/robots"
 	"github.com/gistia/slackbot/utils"
 	"github.com/google/go-github/github"
@@ -32,7 +33,60 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch := utils.NewCmdHandler(p, r.handler, "gh")
 	ch.Handle("pullrequests", r.pullRequests)
 	ch.Handle("prs", r.pullRequests)
+	ch.Handle("teams", r.teams)
+	ch.Handle("addtoteam", r.addToTeam)
 	ch.Process(p.Text)
+}
+
+func (r bot) teams(p *robots.Payload, cmd utils.Command) error {
+	org := cmd.Arg(0)
+	opt := &github.ListOptions{}
+
+	client, err := r.getClient(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	teams, _, err := client.Organizations.ListTeams(org, opt)
+	if err != nil {
+		return err
+	}
+
+	s := "Current teams:"
+	for _, t := range teams {
+		s += fmt.Sprintf("%d - %s\n", *t.ID, *t.Name)
+	}
+
+	r.handler.Send(p, s)
+	return nil
+}
+
+func (r bot) addToTeam(p *robots.Payload, cmd utils.Command) error {
+	user := cmd.Arg(0)
+	if user == "" {
+		return errors.New("Missing user name. Use `!github addtoteam <user> <team>`")
+	}
+	team := cmd.Arg(1)
+	if team == "" {
+		return errors.New("Missing team name. Use `!github addtoteam <user> <team>`")
+	}
+	// role := "member"
+	client, err := r.getClient(p.UserName)
+	if err != nil {
+		return err
+	}
+	id, err := strconv.Atoi(team)
+	if err != nil {
+		return err
+	}
+
+	_, _, err = client.Organizations.AddTeamMembership(id, user)
+	if err != nil {
+		return err
+	}
+
+	r.handler.Send(p, "User *"+user+"* added to team.")
+	return nil
 }
 
 func (r bot) pullRequests(p *robots.Payload, cmd utils.Command) error {
@@ -41,16 +95,14 @@ func (r bot) pullRequests(p *robots.Payload, cmd utils.Command) error {
 		return errors.New("Missing repo name. Use `!github prs <repo-name>`")
 	}
 
-	token := os.Getenv("GITHUB_TOKEN")
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-
-	client := github.NewClient(tc)
 	parts := strings.Split(repo, "/")
 	owner := parts[0]
 	name := parts[1]
+	client, err := r.getClient(p.UserName)
+	if err != nil {
+		return err
+	}
+
 	prs, _, err := client.PullRequests.List(owner, name, nil)
 	if err != nil {
 		return err
@@ -76,6 +128,19 @@ func (r bot) pullRequests(p *robots.Payload, cmd utils.Command) error {
 
 	r.handler.SendWithAttachments(p, s, atts)
 	return nil
+}
+
+func (r bot) getClient(user string) (*github.Client, error) {
+	token, err := db.GetSetting(user, "GITHUB_TOKEN")
+	if err != nil {
+		return nil, err
+	}
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token.Value},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+
+	return github.NewClient(tc), nil
 }
 
 func (r bot) Description() (description string) {
