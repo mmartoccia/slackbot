@@ -105,6 +105,9 @@ func (bot *UserBot) replyError(err error) error {
 }
 
 func (bot *UserBot) reply(msg string) error {
+	if bot.lastMessage == nil {
+		return nil
+	}
 	lastMsg := bot.lastMessage
 	chanId := lastMsg.ChannelId
 	if lastMsg.Highlight {
