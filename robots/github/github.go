@@ -34,8 +34,45 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("pullrequests", r.pullRequests)
 	ch.Handle("prs", r.pullRequests)
 	ch.Handle("teams", r.teams)
+	ch.Handle("teaminfo", r.teamInfo)
 	ch.Handle("addtoteam", r.addToTeam)
 	ch.Process(p.Text)
+}
+
+func (r bot) teamInfo(p *robots.Payload, cmd utils.Command) error {
+	teamID := cmd.Arg(0)
+	if teamID == "" {
+		return errors.New("Missing team name. Use `!github teaminfo <team>`")
+	}
+
+	client, err := r.getClient(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	id, err := strconv.Atoi(teamID)
+	if err != nil {
+		return err
+	}
+
+	team, _, err := client.Organizations.GetTeam(id)
+	if err != nil {
+		return err
+	}
+
+	s := "Members for *" + *team.Name + "*:\n"
+	// opts := &OrganizationListTeamMembersOptions{}
+	users, _, err := client.Organizations.ListTeamMembers(id, nil)
+	if err != nil {
+		return err
+	}
+
+	for _, u := range users {
+		s += fmt.Sprintf("- %s\n", *u.Login)
+	}
+
+	r.handler.Send(p, s)
+	return nil
 }
 
 func (r bot) teams(p *robots.Payload, cmd utils.Command) error {
@@ -52,7 +89,7 @@ func (r bot) teams(p *robots.Payload, cmd utils.Command) error {
 		return err
 	}
 
-	s := "Current teams:"
+	s := "Current teams:\n"
 	for _, t := range teams {
 		s += fmt.Sprintf("%d - %s\n", *t.ID, *t.Name)
 	}
