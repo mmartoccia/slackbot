@@ -198,6 +198,9 @@ func (r bot) getClient(user string) (*github.Client, error) {
 	if err != nil {
 		return nil, err
 	}
+	if token == nil {
+		return nil, errors.New("Missing `GITHUB_TOKEN`. Run `!gh auth` for more info.")
+	}
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token.Value},
 	)
