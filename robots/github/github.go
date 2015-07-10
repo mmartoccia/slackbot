@@ -31,12 +31,32 @@ func (r bot) Run(p *robots.Payload) string {
 
 func (r bot) DeferredAction(p *robots.Payload) {
 	ch := utils.NewCmdHandler(p, r.handler, "gh")
+	ch.Handle("auth", r.auth)
 	ch.Handle("pullrequests", r.pullRequests)
 	ch.Handle("prs", r.pullRequests)
 	ch.Handle("teams", r.teams)
 	ch.Handle("teaminfo", r.teamInfo)
 	ch.Handle("addtoteam", r.addToTeam)
 	ch.Process(p.Text)
+}
+
+func (r bot) auth(p *robots.Payload, cmd utils.Command) error {
+	s, err := db.GetSetting(p.UserName, "GITHUB_TOKEN")
+	if err != nil {
+		return err
+	}
+
+	if s != nil {
+		r.handler.Send(p, "You are already connected with GitHub.")
+		return nil
+	}
+
+	r.handler.Send(p, `*Authenticating with GitHub*
+1. Follow the instructions here https://github.com/blog/1509-personal-api-tokens
+2. Copy your API token
+3. Run the command:
+   `+"`/store set GITHUB_TOKEN=<token>`")
+	return nil
 }
 
 func (r bot) teamInfo(p *robots.Payload, cmd utils.Command) error {
