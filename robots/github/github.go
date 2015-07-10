@@ -52,9 +52,15 @@ func (r bot) auth(p *robots.Payload, cmd utils.Command) error {
 	}
 
 	r.handler.Send(p, `*Authenticating with GitHub*
-1. Follow the instructions here https://github.com/blog/1509-personal-api-tokens
-2. Copy your API token
-3. Run the command:
+1. Head over to your personal access tokens URL
+	 https://github.com/settings/tokens
+
+2. Click *Generate new token* button
+3. Give your new token a name (_GistiaBot_ for instance)
+4. Select the scopes you want to allow access
+5. Click *Generate token*
+6. Copy your token to the clipboard
+7. Run the command:
    `+"`/store set GITHUB_TOKEN=<token>`")
 	return nil
 }
