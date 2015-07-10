@@ -27,6 +27,17 @@ type User struct {
 	AccountId int    `json:"account_id"`
 }
 
+type TimeEntry struct {
+	ID            string `json:"id"`
+	DatePerformed string `json:"date_performed"`
+	TimeInMinutes int    `json:"time_in_minutes"`
+	Notes         string `json:"id"`
+	Billable      bool   `json:"billable"`
+	StoryID       string `json:"story_id"`
+	WorkspaceID   string `json:"workspace_id"`
+	UserID        string `json:"user_id"`
+}
+
 func NewFromJson(jsonData []byte) (*Response, error) {
 	var b *Response
 

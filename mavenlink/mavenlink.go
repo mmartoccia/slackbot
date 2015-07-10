@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/url"
 	"sort"
+	"strconv"
+	"time"
 
 	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/utils"
@@ -171,6 +173,28 @@ func (mvn *Mavenlink) SetStoryState(id, state string) (*Story, error) {
 	stories := resp.StoryList()
 	if len(stories) > 0 {
 		return &stories[0], nil
+	}
+
+	return nil, nil
+}
+
+func (mvn *Mavenlink) AddTimeEntry(s *Story, minutes int) (*TimeEntry, error) {
+	date := time.Now().Format("2006-01-02")
+	minStr := strconv.Itoa(minutes)
+	params := map[string]string{
+		"time_entry[date_performed]":  date,
+		"time_entry[time_in_minutes]": minStr,
+		"time_entry[story_id]":        s.Id,
+		"time_entry[workspace_id]":    s.WorkspaceId,
+	}
+	resp, err := mvn.post("time_entries", params)
+	if err != nil {
+		return nil, err
+	}
+
+	entries := resp.TimeEntryList()
+	if len(entries) > 0 {
+		return &entries[0], nil
 	}
 
 	return nil, nil

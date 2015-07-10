@@ -60,6 +60,18 @@ func (timer *Timer) Duration() string {
 	return s
 }
 
+func (timer *Timer) Minutes() int {
+	var endTime time.Time
+	if timer.FinishedAt == nil {
+		endTime = time.Now()
+	} else {
+		endTime = *timer.FinishedAt
+	}
+
+	duration := endTime.Sub(*timer.CreatedAt)
+	return int(duration.Minutes())
+}
+
 // CreateTimer creates a new running timer
 func CreateTimer(user, name string) error {
 	con, err := connect()
@@ -87,7 +99,8 @@ func GetTimer(id int) (*Timer, error) {
     SELECT
       "id", "user", "name", "created_at", "finished_at"
     FROM "timers"
-    WHERE "id" = $1`, id)
+    WHERE "id" = $1
+		ORDER BY id DESC`, id)
 	if err != nil {
 		return nil, err
 	}
