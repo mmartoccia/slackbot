@@ -33,7 +33,6 @@ func main() {
 	http.Handle("/poker", pokerRouter)
 
 	go startBot()
-	go startNewRelic()
 	startServer()
 }
 
