@@ -290,9 +290,6 @@ func (mvn *Mavenlink) performRequest(method string, uri string, params map[strin
 	}
 
 	mvnUrl := mvn.makeUrl(uri)
-	// if method == "PUT" {
-	// 	mvnUrl = fmt.Sprintf("http://requestb.in/tpabaatp")
-	// }
 	fmt.Printf("[mvn] Performing request %s to %s with %+v\n", method, mvnUrl, postParams)
 	json, err := mvn.request(method, mvnUrl, postParams)
 	if err != nil {
