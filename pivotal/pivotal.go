@@ -264,6 +264,16 @@ func (pvt *Pivotal) AssignStory(id string, ownerId int64) (*Story, error) {
 	return pvt.UpdateStory(story)
 }
 
+func (pvt *Pivotal) EstimateStory(id string, estimate int) (*Story, error) {
+	nid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	story := Story{Id: nid, Estimate: estimate}
+	return pvt.UpdateStory(story)
+}
+
 func (pvt *Pivotal) UpdateStory(story Story) (*Story, error) {
 	req := Request{
 		Token:  pvt.Token,

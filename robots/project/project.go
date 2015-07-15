@@ -47,8 +47,45 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("addmember", r.addmember)
 	ch.Handle("unassigned", r.unassigned)
 	ch.Handle("assign", r.assign)
+	ch.Handle("estimate", r.estimate)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) estimate(p *robots.Payload, cmd utils.Command) error {
+	args, err := cmd.ParseArgs("pivotal-id", "estimate")
+	if err != nil {
+		return err
+	}
+
+	pvtId, estimate := args[0], args[1]
+
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	// pvtStory, err := pvt.GetStory(pvtId)
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	numEstimate, err := strconv.Atoi(estimate)
+	if err != nil {
+		return err
+	}
+
+	story, err := pvt.EstimateStory(pvtId, numEstimate)
+	if err != nil {
+		return err
+	}
+
+	s := "Story successfully updated:\n"
+	r.handler.SendWithAttachments(p, s, []robots.Attachment{
+		utils.FmtAttachment("", story.Name, story.Url, ""),
+	})
+
+	return nil
 }
 
 func (r bot) myStories(p *robots.Payload, cmd utils.Command) error {
