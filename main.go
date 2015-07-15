@@ -32,7 +32,10 @@ func main() {
 	pokerRouter.Methods("POST").Path("/poker").HandlerFunc(web.CreatePokerStories)
 	http.Handle("/poker", pokerRouter)
 
-	go startBot()
+	go db.SetupDB()
+	if os.Getenv("RUN_BOT") != "" {
+		go startBot()
+	}
 	startServer()
 }
 
