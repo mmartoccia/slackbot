@@ -647,12 +647,17 @@ func (r bot) stories(p *robots.Payload, cmd utils.Command) error {
 		return err
 	}
 
+	sprint, err := mvn.GetStory(ps.MvnSprintStoryId)
+	if err != nil {
+		return err
+	}
+
 	stories, err := mvn.GetChildStories(ps.MvnSprintStoryId)
 	if err != nil {
 		return err
 	}
 
-	r.handler.Send(p, "Mavenlink stories for *"+ps.Name+"*:")
+	r.handler.Send(p, "Mavenlink stories for *"+ps.Name+"*, sprint *"+sprint.Title+"*:")
 	atts := mavenlink.FormatStories(stories)
 	for _, a := range atts {
 		r.handler.SendWithAttachments(p, "", []robots.Attachment{a})
