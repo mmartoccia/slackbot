@@ -115,6 +115,7 @@ func (mvn *Mavenlink) Stories(projectId string) ([]Story, error) {
 func (mvn *Mavenlink) GetChildStories(parentId string) ([]Story, error) {
 	filters := []string{
 		fmt.Sprintf("with_parent_id=%s", parentId),
+		"include=assignees",
 	}
 	resp, err := mvn.get("stories", filters)
 
@@ -212,6 +213,20 @@ func (u UsersByName) Swap(i, j int) {
 }
 func (u UsersByName) Less(i, j int) bool {
 	return u[i].Name < u[j].Name
+}
+
+func (mvn *Mavenlink) GetUsersMap() (map[string]User, error) {
+	users, err := mvn.GetUsers()
+	if err != nil {
+		return nil, err
+	}
+
+	usersMap := map[string]User{}
+	for _, u := range users {
+		usersMap[u.Id] = u
+	}
+
+	return usersMap, nil
 }
 
 func (mvn *Mavenlink) GetUsers() ([]User, error) {

@@ -22,6 +22,17 @@ func FormatStories(stories []Story) []robots.Attachment {
 			s.WorkspaceId, s.Id)
 		a.Text = strings.Title(s.State)
 
+		if s.Users != nil && len(s.Users) > 0 {
+			assignees := ""
+			for _, u := range s.Users {
+				if assignees != "" {
+					assignees += ", "
+				}
+				assignees += u.Name
+			}
+			a.Text += " - Assignees: " + assignees
+		}
+
 		if s.TimeEstimateInMinutes > 0 {
 			a.Text += fmt.Sprintf(" - Estimated hours: %s",
 				utils.FormatHour(s.TimeEstimateInMinutes))

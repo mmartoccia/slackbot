@@ -3,15 +3,31 @@ package mavenlink
 import "fmt"
 
 type Story struct {
-	Id                          string `json:"id,omitempty"`
-	Title                       string `json:"title,omitempty"`
-	Description                 string `json:"description,omitempty"`
-	ParentId                    string `json:"parent_id,omitempty"`
-	WorkspaceId                 string `json:"workspace_id,omitempty"`
-	StoryType                   string `json:"story_type,omitempty"`
-	State                       string `json:"state,omitempty"`
-	TimeEstimateInMinutes       int64  `json:"time_estimate_in_minutes,omitempty"`
-	LoggedBillableTimeInMinutes int64  `json:"logged_billable_time_in_minutes,omitempty"`
+	Id                          string   `json:"id,omitempty"`
+	Title                       string   `json:"title,omitempty"`
+	Description                 string   `json:"description,omitempty"`
+	ParentId                    string   `json:"parent_id,omitempty"`
+	WorkspaceId                 string   `json:"workspace_id,omitempty"`
+	StoryType                   string   `json:"story_type,omitempty"`
+	State                       string   `json:"state,omitempty"`
+	TimeEstimateInMinutes       int64    `json:"time_estimate_in_minutes,omitempty"`
+	LoggedBillableTimeInMinutes int64    `json:"logged_billable_time_in_minutes,omitempty"`
+	Assignees                   []string `json:"assignee_ids,omitempty"`
+	Users                       []User
+}
+
+func (mvn *Mavenlink) GetAssignees(s *Story) error {
+	users, err := mvn.GetUsersMap()
+	if err != nil {
+		return err
+	}
+
+	s.Users = []User{}
+	for _, a := range s.Assignees {
+		s.Users = append(s.Users, users[a])
+	}
+
+	return nil
 }
 
 func (s *Story) URL() string {
