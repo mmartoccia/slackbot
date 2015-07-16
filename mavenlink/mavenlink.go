@@ -112,18 +112,36 @@ func (mvn *Mavenlink) Stories(projectId string) ([]Story, error) {
 	return resp.StoryList(), nil
 }
 
+func (mvn *Mavenlink) getStoriesAssignees(stories []Story) ([]Story, error) {
+	resStories := []Story{}
+	for _, s := range stories {
+		resStory, err := mvn.GetAssignees(s)
+		if err != nil {
+			return nil, err
+		}
+
+		resStories = append(resStories, *resStory)
+	}
+
+	return resStories, nil
+}
+
 func (mvn *Mavenlink) GetChildStories(parentId string) ([]Story, error) {
 	filters := []string{
 		fmt.Sprintf("with_parent_id=%s", parentId),
 		"include=assignees",
 	}
 	resp, err := mvn.get("stories", filters)
-
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.StoryList(), nil
+	stories, err := mvn.getStoriesAssignees(resp.StoryList())
+	if err != nil {
+		return nil, err
+	}
+
+	return stories, nil
 }
 
 func (mvn *Mavenlink) CreateStory(s Story) (*Story, error) {

@@ -16,10 +16,10 @@ type Story struct {
 	Users                       []User
 }
 
-func (mvn *Mavenlink) GetAssignees(s *Story) error {
+func (mvn *Mavenlink) GetAssignees(s Story) (*Story, error) {
 	users, err := mvn.GetUsersMap()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	s.Users = []User{}
@@ -27,7 +27,7 @@ func (mvn *Mavenlink) GetAssignees(s *Story) error {
 		s.Users = append(s.Users, users[a])
 	}
 
-	return nil
+	return &s, nil
 }
 
 func (s *Story) URL() string {
