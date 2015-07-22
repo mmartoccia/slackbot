@@ -48,8 +48,42 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("unassigned", r.unassigned)
 	ch.Handle("assign", r.assign)
 	ch.Handle("estimate", r.estimate)
+	ch.Handle("addtime", r.addTime)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) addTime(p *robots.Payload, cmd utils.Command) error {
+	args, err := cmd.ParseArgs("mavenlink-id", "time-in-hours")
+	if err != nil {
+		return err
+	}
+
+	mvnID, timeStr := args[0], args[1]
+	hours, err := strconv.ParseFloat(timeStr, 64)
+	if err != nil {
+		return err
+	}
+
+	mvn, err := mavenlink.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	story, err := mvn.GetStory(mvnID)
+	if err != nil {
+		return err
+	}
+
+	minutes := int(hours * 60)
+	_, err = mvn.AddTimeEntry(story, minutes)
+	if err != nil {
+		return err
+	}
+
+	r.handler.Send(p, fmt.Sprintf("Added *%.1f* hours to story *%s - %s*",
+		hours, story.Id, story.Title))
+	return nil
 }
 
 func (r bot) estimate(p *robots.Payload, cmd utils.Command) error {
