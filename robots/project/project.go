@@ -49,8 +49,52 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("assign", r.assign)
 	ch.Handle("estimate", r.estimate)
 	ch.Handle("addtime", r.addTime)
+	ch.Handle("setbudget", r.setBudget)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
+}
+
+func (r bot) setBudget(p *robots.Payload, cmd utils.Command) error {
+	args, err := cmd.ParseArgs("project", "budget")
+	if err != nil {
+		return err
+	}
+
+	name, budgetStr := args[0], args[1]
+
+	pr, err := db.GetProjectByName(name)
+	if err != nil {
+		return err
+	}
+
+	if pr == nil {
+		r.handler.Send(p, "Project *"+name+"* not found")
+		return nil
+	}
+
+	mvn, err := mavenlink.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	mvnProj, err := mvn.GetProject(pr.StrMavenlinkId())
+	if err != nil {
+		return err
+	}
+
+	budget, err := strconv.ParseFloat(budgetStr, 64)
+	if err != nil {
+		return err
+	}
+
+	mvnProj, err = mvn.UpdateProjectBudget(mvnProj, budget)
+	if err != nil {
+		return err
+	}
+
+	r.handler.Send(p, fmt.Sprintf("Set budget of *%s - %s* to *%.2f*",
+		mvnProj.Id, mvnProj.Title, mvnProj.GetBudget()))
+	return nil
 }
 
 func (r bot) addTime(p *robots.Payload, cmd utils.Command) error {

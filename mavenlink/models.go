@@ -7,10 +7,11 @@ import (
 )
 
 type Project struct {
-	Id          string `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	CreatorRole string `json:"creator_role"`
+	Id            string `json:"id"`
+	Title         string `json:"title"`
+	Description   string `json:"description"`
+	CreatorRole   string `json:"creator_role"`
+	BudgetInCents int    `json:"price_in_cents"`
 }
 
 type ErrorItem struct {
@@ -59,4 +60,12 @@ func NewFromJson(jsonData []byte) (*Response, error) {
 	}
 
 	return b, err
+}
+
+func (p *Project) GetBudget() float64 {
+	return float64(p.BudgetInCents) / 100
+}
+
+func (p *Project) SetBudget(b float64) {
+	p.BudgetInCents = int(b * 100)
 }

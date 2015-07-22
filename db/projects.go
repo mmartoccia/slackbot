@@ -19,6 +19,10 @@ func (p Project) StrPivotalId() string {
 	return strconv.FormatInt(p.PivotalId, 10)
 }
 
+func (p Project) StrMavenlinkId() string {
+	return strconv.FormatInt(p.MavenlinkId, 10)
+}
+
 func CreateProject(p Project) error {
 	con, err := connect()
 	if err != nil {

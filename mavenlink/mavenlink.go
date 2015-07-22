@@ -47,6 +47,21 @@ func (mvn *Mavenlink) CreateProject(p Project) (*Project, error) {
 	return nil, nil
 }
 
+func (mvn *Mavenlink) UpdateProjectBudget(p *Project, budget float64) (*Project, error) {
+	params := map[string]string{
+		"workspace[price]": fmt.Sprintf("%.2f", budget),
+	}
+	resp, err := mvn.put("workspaces/"+p.Id, params)
+	if err != nil {
+		return nil, err
+	}
+	projects := resp.ProjectList()
+	if len(projects) > 0 {
+		return &projects[0], nil
+	}
+	return nil, nil
+}
+
 func (mvn *Mavenlink) Projects() ([]Project, error) {
 	var projects []Project
 	resp, err := mvn.get("workspaces", nil)
