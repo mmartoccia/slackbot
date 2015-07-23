@@ -53,6 +53,7 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("addtime", r.addTime)
 	ch.Handle("setbudget", r.setBudget)
 	ch.Handle("current", r.getCurrent)
+	ch.Handle("clearcurrent", r.clearCurrent)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
 }
@@ -515,11 +516,42 @@ func (r bot) deliverTask(p *robots.Payload, cmd utils.Command) error {
 	return nil
 }
 
+func (r bot) clearCurrent(p *robots.Payload, cmd utils.Command) error {
+	err := db.ClearAssignment(p.UserName, "CurrentStory")
+	if err != nil {
+		return nil
+	}
+
+	r.handler.DirectSend(p, "current story cleared. To start the next one use `!project start <pivotal-id>`")
+	return nil
+}
+
 func (r bot) getCurrent(p *robots.Payload, cmd utils.Command) error {
-	// storyID := cmd.Args(0)
-	// if storyID == "" {
-	// 	storyID = db.GetAssignment(p.UserName, "CurrentStory")
-	// }
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	storyID := cmd.Arg(0)
+	if storyID != "" {
+		story, err := pvt.GetStory(storyID)
+		if err != nil {
+			return err
+		}
+
+		if story == nil {
+			return errors.New("Story with id *" + storyID + "* not found.")
+		}
+
+		_, err = db.SetAssignment(p.UserName, "CurrentStory", storyID)
+		if err != nil {
+			return err
+		}
+
+		msg := fmt.Sprintf("your current story is now *%d - %s* [*%s*]", story.Id, story.Name, story.State)
+		r.handler.DirectSend(p, msg)
+	}
+
 	assignment, err := db.GetAssignment(p.UserName, "CurrentStory")
 	if err != nil {
 		return err
@@ -532,12 +564,7 @@ func (r bot) getCurrent(p *robots.Payload, cmd utils.Command) error {
 		return nil
 	}
 
-	storyID := assignment.Value
-
-	pvt, err := pivotal.NewFor(p.UserName)
-	if err != nil {
-		return err
-	}
+	storyID = assignment.Value
 
 	story, err := pvt.GetStory(storyID)
 	if err != nil {
