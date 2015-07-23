@@ -41,6 +41,8 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("setchannel", r.setChannel)
 	ch.Handle("addstory", r.addStory)
 	ch.Handle("start", r.startTask)
+	ch.Handle("finish", r.finishTask)
+	ch.Handle("deliver", r.deliverTask)
 	ch.Handle("create", r.create)
 	ch.Handle("rename", r.rename)
 	ch.Handle("members", r.members)
@@ -458,6 +460,61 @@ func (r bot) create(p *robots.Payload, cmd utils.Command) error {
 	return nil
 }
 
+func (r bot) updateCurrentTask(p *robots.Payload, storyID, status string) error {
+	if storyID == "" {
+		assignment, err := db.GetAssignment(p.UserName, "CurrentStory")
+		if err != nil {
+			return err
+		}
+
+		if assignment == nil || assignment.Value == "" {
+			r.handler.DirectSend(p, "you don't have any current stories. To start a new story use `!project start <pivotal-id>`")
+			return nil
+		}
+
+		storyID = assignment.Value
+	}
+
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	story, err := pvt.GetStory(storyID)
+	if err != nil {
+		return err
+	}
+
+	story, err = pvt.SetStoryState(story.GetStringId(), status)
+	if err != nil {
+		return err
+	}
+
+	msg := fmt.Sprintf("Task *%d - %s* is now *%s*", story.Id, story.Name, status)
+	r.handler.DirectSend(p, msg)
+
+	return nil
+}
+
+func (r bot) finishTask(p *robots.Payload, cmd utils.Command) error {
+	return r.updateCurrentTask(p, cmd.Arg(0), "finished")
+}
+
+func (r bot) deliverTask(p *robots.Payload, cmd utils.Command) error {
+	err := r.updateCurrentTask(p, cmd.Arg(0), "delivered")
+	if err != nil {
+		return err
+	}
+
+	err = db.ClearAssignment(p.UserName, "CurrentStory")
+	if err != nil {
+		return nil
+	}
+
+	r.handler.DirectSend(p, "you have no current story. To start the next one use `!project start <pivotal-id>`")
+	return nil
+}
+
 func (r bot) getCurrent(p *robots.Payload, cmd utils.Command) error {
 	// storyID := cmd.Args(0)
 	// if storyID == "" {
@@ -487,7 +544,7 @@ func (r bot) getCurrent(p *robots.Payload, cmd utils.Command) error {
 		return err
 	}
 
-	s := fmt.Sprintf("@%s current story:\n", p.UserName)
+	s := fmt.Sprintf("@%s current story [*%s*]:\n", p.UserName, story.State)
 	r.handler.SendWithAttachments(p, s, []robots.Attachment{
 		utils.FmtAttachment("", story.Name, story.Url, ""),
 	})

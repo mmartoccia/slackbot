@@ -1,6 +1,6 @@
 package db
 
-import "fmt"
+import "errors"
 
 type Assignment struct {
 	ID    int
@@ -14,8 +14,6 @@ func GetAssignment(user, name string) (*Assignment, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println("user=", user, "name=", name)
 
 	assignments := []Assignment{}
 	db.Where("\"user\" = ? AND name = ?", user, name).Find(&assignments)
@@ -48,4 +46,22 @@ func SetAssignment(user, name, value string) (*Assignment, error) {
 	db.Save(&assignment)
 
 	return assignment, nil
+}
+
+func ClearAssignment(user, name string) error {
+	db, err := GormConn()
+	if err != nil {
+		return err
+	}
+
+	assignment, err := GetAssignment(user, name)
+	if err != nil {
+		return err
+	}
+	if assignment == nil {
+		return errors.New("No current assignment")
+	}
+
+	db.Delete(&assignment)
+	return nil
 }
