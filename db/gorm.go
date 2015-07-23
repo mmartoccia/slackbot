@@ -39,4 +39,5 @@ func SetupDB() {
 	log.Println("Checking/running DB migrations...")
 	db.LogMode(true)
 	db.AutoMigrate(&Vacation{})
+	db.AutoMigrate(&Assignment{})
 }

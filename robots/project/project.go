@@ -50,6 +50,7 @@ func (r bot) DeferredAction(p *robots.Payload) {
 	ch.Handle("estimate", r.estimate)
 	ch.Handle("addtime", r.addTime)
 	ch.Handle("setbudget", r.setBudget)
+	ch.Handle("current", r.getCurrent)
 	ch.HandleDefault(r.list)
 	ch.Process(p.Text)
 }
@@ -457,61 +458,73 @@ func (r bot) create(p *robots.Payload, cmd utils.Command) error {
 	return nil
 }
 
-func (r bot) startTask(p *robots.Payload, cmd utils.Command) error {
-	// pr, err := getProject(cmd.Arg(0))
-	// if err != nil {
-	// 	return err
+func (r bot) getCurrent(p *robots.Payload, cmd utils.Command) error {
+	// storyID := cmd.Args(0)
+	// if storyID == "" {
+	// 	storyID = db.GetAssignment(p.UserName, "CurrentStory")
 	// }
-	mvn, err := mavenlink.NewFor(p.UserName)
+	assignment, err := db.GetAssignment(p.UserName, "CurrentStory")
 	if err != nil {
 		return err
 	}
+
+	fmt.Println(assignment)
+
+	if assignment == nil || assignment.Value == "" {
+		r.handler.DirectSend(p, "you don't have any current stories. To start a new story use `!project start <pivotal-id>`")
+		return nil
+	}
+
+	storyID := assignment.Value
+
 	pvt, err := pivotal.NewFor(p.UserName)
 	if err != nil {
 		return err
 	}
 
-	if storyId := cmd.Arg(0); storyId != "" {
-		pvtStory, err := pvt.GetStory(storyId)
-		if err != nil {
-			return err
-		}
-
-		pvtStory, err = pvt.SetStoryState(pvtStory.GetStringId(), "started")
-		if err != nil {
-			return err
-		}
-
-		if mvnId := pvtStory.GetMavenlinkId(); mvnId != "" {
-			mvnStory, err := mvn.GetStory(mvnId)
-			if err != nil {
-				return err
-			}
-
-			fmt.Printf(" ** Got story: %+v\n", mvnStory)
-
-			mvnStory.State = "started"
-			mvnStory, err = mvn.SetStoryState(mvnStory.Id, "started")
-			if err != nil {
-				return err
-			}
-		}
-
-		r.handler.Send(p, "Story *"+pvtStory.Name+"* started")
-		return nil
+	story, err := pvt.GetStory(storyID)
+	if err != nil {
+		return err
 	}
 
-	// stories, err := mvn.ChildStories(pr.MvnSprintStoryId)
-	// if err != nil {
-	// 	return err
-	// }
+	s := fmt.Sprintf("@%s current story:\n", p.UserName)
+	r.handler.SendWithAttachments(p, s, []robots.Attachment{
+		utils.FmtAttachment("", story.Name, story.Url, ""),
+	})
 
-	// r.handler.Send(p, "Click the story you want to start on *"+pr.Name+"*:")
-	// url := os.Getenv("APP_URL")
-	// atts := mavenlink.CustomFormatStories(stories, url+"selection/startTask/")
-	// for _, a := range atts {
-	// 	r.handler.SendWithAttachments(p, "", []robots.Attachment{a})
-	// }
+	return nil
+}
+
+func (r bot) startTask(p *robots.Payload, cmd utils.Command) error {
+	storyID := cmd.Arg(0)
+	if storyID == "" {
+		return errors.New("Missing pivotal-story-id.")
+	}
+
+	pvt, err := pivotal.NewFor(p.UserName)
+	if err != nil {
+		return err
+	}
+
+	pvtStory, err := pvt.GetStory(storyID)
+	if err != nil {
+		return err
+	}
+
+	pvtStory, err = pvt.SetStoryState(pvtStory.GetStringId(), "started")
+	if err != nil {
+		return err
+	}
+
+	_, err = db.SetAssignment(p.UserName, "CurrentStory", strconv.FormatInt(pvtStory.Id, 10))
+	if err != nil {
+		return err
+	}
+
+	msg := fmt.Sprintf("Task %d - %s started and marked is your current story",
+		pvtStory.Id, pvtStory.Name)
+	r.handler.DirectSend(p, msg)
+
 	return nil
 }
 
