@@ -22,6 +22,8 @@ func (r *Response) TimeEntryList() []TimeEntry {
 	var entries []TimeEntry
 	for k, _ := range r.TimeEntries {
 		te := r.TimeEntries[k]
+		te.User = r.Users[te.UserID]
+		te.Story = r.Stories[te.StoryID]
 		entries = append(entries, te)
 	}
 	return entries

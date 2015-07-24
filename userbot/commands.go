@@ -3,11 +3,13 @@ package userbot
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/mavenlink"
 	"github.com/gistia/slackbot/pivotal"
 	"github.com/gistia/slackbot/utils"
+	"github.com/jinzhu/now"
 )
 
 func (bot *UserBot) SetupCommands() {
@@ -18,10 +20,73 @@ func (bot *UserBot) SetupCommands() {
 	bot.handler.Handle("timers", RunningTimers)
 	bot.handler.Handle("claim", claimTimer)
 	bot.handler.Handle("tasks", StartedTasks)
+	bot.handler.Handle("taskreport", taskReport)
 }
 
 func (bot *UserBot) Handle(msg *IncomingMsg) {
 	bot.handler.Process(msg.Text)
+}
+
+func taskReport(bot *UserBot, cmd utils.Command) error {
+	name := cmd.Arg(0)
+	if name == "" {
+		return errors.New("Missing project name. Usage: `taskreport <project-name> [start:<start-date>] [end:<end-date>]`")
+	}
+
+	username := bot.lastMessage.User.Name
+	mvn, err := mavenlink.NewFor(username)
+	if err != nil {
+		return err
+	}
+
+	project, err := db.GetProjectByName(name)
+	if err != nil {
+		return err
+	}
+
+	mvnProj, err := mvn.GetProject(project.StrMavenlinkId())
+	if err != nil {
+		return err
+	}
+	if mvnProj == nil {
+		return errors.New("Mavenlink project not found: " + project.StrMavenlinkId())
+	}
+
+	start := cmd.Param("start")
+	end := cmd.Param("end")
+	if start == "" {
+		start = now.BeginningOfWeek().Format("2006-01-02")
+	}
+	if end == "" {
+		end = time.Now().Format("2006-01-02")
+	}
+
+	entries, err := mvn.GetTimeEntries(mvnProj.Id, start, end)
+	if err != nil {
+		return err
+	}
+
+	var total float64
+	var hours float64
+
+	total = 0
+	hours = 0
+
+	for _, entry := range entries {
+		total += entry.Total()
+		hours += entry.Hours()
+	}
+
+	atts := mavenlink.FormatEntries(entries)
+	for _, a := range atts {
+		// r.handler.SendWithAttachments(p, "", []robots.Attachment{a})
+		bot.reply(a.Fallback)
+	}
+
+	s := fmt.Sprintf("Total hours: %.2f - Total amount: $%.2f", hours, total)
+	bot.reply(s)
+
+	return nil
 }
 
 func claimTimer(bot *UserBot, cmd utils.Command) error {

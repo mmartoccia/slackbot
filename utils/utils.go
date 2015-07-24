@@ -62,3 +62,12 @@ func FormatHour(h int64) string {
 	v := float64(h) / 60
 	return fmt.Sprintf("%.2f", v)
 }
+
+func FormatRate(cents int) string {
+	if cents == 0 {
+		return "-"
+	}
+
+	v := float64(cents) / 100
+	return fmt.Sprintf("%.2f", v)
+}

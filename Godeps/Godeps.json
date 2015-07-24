@@ -35,6 +35,10 @@
 			"Rev": "5663048f137b961f9b1bac6a10227096aa36b0bf"
 		},
 		{
+			"ImportPath": "github.com/jinzhu/now",
+			"Rev": "812bf1cf8080fdd4e72e94708310afbe722d86b0"
+		},
+		{
 			"ImportPath": "github.com/lib/pq",
 			"Comment": "go1.0-cutoff-51-ga8d8d01",
 			"Rev": "a8d8d01c4f91602f876bf5aa210274e8203a6b45"

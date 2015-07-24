@@ -212,6 +212,8 @@ func (mvn *Mavenlink) SetStoryState(id, state string) (*Story, error) {
 	return nil, nil
 }
 
+//---------- Time Entries
+
 func (mvn *Mavenlink) AddTimeEntry(s *Story, minutes int) (*TimeEntry, error) {
 	date := time.Now().Format("2006-01-02")
 	minStr := strconv.Itoa(minutes)
@@ -232,6 +234,18 @@ func (mvn *Mavenlink) AddTimeEntry(s *Story, minutes int) (*TimeEntry, error) {
 	}
 
 	return nil, nil
+}
+
+func (mvn *Mavenlink) GetTimeEntries(workspaceID, start, end string) ([]TimeEntry, error) {
+	search := fmt.Sprintf("workspace_id=%s&created_after=%s&created_before=%s",
+		workspaceID, start, end)
+	params := []string{search}
+	resp, err := mvn.get("time_entries", params)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.TimeEntryList(), nil
 }
 
 //---------- Users

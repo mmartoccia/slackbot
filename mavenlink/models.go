@@ -37,6 +37,17 @@ type TimeEntry struct {
 	StoryID       string `json:"story_id"`
 	WorkspaceID   string `json:"workspace_id"`
 	UserID        string `json:"user_id"`
+	RateInCents   int    `json:"rate_in_cents"`
+	User
+	Story
+}
+
+func (entry *TimeEntry) Hours() float64 {
+	return float64(entry.LoggedBillableTimeInMinutes) / 60
+}
+
+func (entry *TimeEntry) Total() float64 {
+	return (float64(entry.RateInCents) / 100) * entry.Hours()
 }
 
 func NewFromJson(jsonData []byte) (*Response, error) {
