@@ -31,7 +31,7 @@ type User struct {
 type TimeEntry struct {
 	ID            string `json:"id"`
 	DatePerformed string `json:"date_performed"`
-	TimeInMinutes int    `json:"time_in_minutes"`
+	TimeInMinutes int64  `json:"time_in_minutes"`
 	Notes         string `json:"id"`
 	Billable      bool   `json:"billable"`
 	StoryID       string `json:"story_id"`
@@ -43,7 +43,7 @@ type TimeEntry struct {
 }
 
 func (entry *TimeEntry) Hours() float64 {
-	return float64(entry.LoggedBillableTimeInMinutes) / 60
+	return float64(entry.TimeInMinutes) / 60
 }
 
 func (entry *TimeEntry) Total() float64 {

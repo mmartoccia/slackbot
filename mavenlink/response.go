@@ -1,5 +1,7 @@
 package mavenlink
 
+import "fmt"
+
 type Response struct {
 	Errors      []ErrorItem          `json:"errors"`
 	Count       int64                `json:"count"`
@@ -19,11 +21,22 @@ func (r *Response) StoryList() []Story {
 }
 
 func (r *Response) TimeEntryList() []TimeEntry {
+	fmt.Println(" *** Getting time entry list")
+	fmt.Printf(" *** Stories: %+v\n", r.Stories)
+
 	var entries []TimeEntry
 	for k, _ := range r.TimeEntries {
 		te := r.TimeEntries[k]
+		fmt.Printf(" * TimeEntry: %+v\n", te)
+
+		te.ID = k
+
 		te.User = r.Users[te.UserID]
+		fmt.Printf(" * User: %+v\n", te.User)
+
 		te.Story = r.Stories[te.StoryID]
+		fmt.Printf(" * Story: %+v\n", te.Story)
+
 		entries = append(entries, te)
 	}
 	return entries

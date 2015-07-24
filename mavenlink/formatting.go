@@ -56,14 +56,17 @@ func FormatEntries(entries []TimeEntry) []robots.Attachment {
 		s := entry.Story
 		u := entry.User
 
+		fmt.Printf("Story: %+v\n", entry.Story)
+
 		a := robots.Attachment{}
 		a.Color = "#7CD197"
 		a.Title = fmt.Sprintf("Task #%s - %s\n", s.Id, s.Title)
 		a.TitleLink = fmt.Sprintf(
 			"https://app.mavenlink.com/workspaces/%s/#tracker/%s",
 			s.WorkspaceId, s.Id)
-		a.Text = fmt.Sprintf("By: %s\nTotal hours: %s - Rate: %s - Total: %.2f",
-			u.Name, utils.FormatHour(entry.LoggedBillableTimeInMinutes),
+		a.Text = fmt.Sprintf("By: %s - Date: %s\nTotal hours: %s - Rate: %s - Total: %.2f",
+			u.Name, entry.DatePerformed,
+			utils.FormatHour(entry.LoggedBillableTimeInMinutes),
 			utils.FormatRate(entry.RateInCents), entry.Total())
 		a.Fallback = fmt.Sprintf("%s - *%s* %s (%s)\n%s\n",
 			strings.Title(s.StoryType), s.Id, s.Title, s.State, a.Text)

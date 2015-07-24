@@ -3,6 +3,7 @@ package userbot
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gistia/slackbot/db"
@@ -72,15 +73,25 @@ func taskReport(bot *UserBot, cmd utils.Command) error {
 	total = 0
 	hours = 0
 
+	bot.reply(fmt.Sprintf("Listing *%d entries* for period of *%s* - *%s*:",
+		len(entries), start, end))
+
 	for _, entry := range entries {
+		fmt.Printf(" --- *** -- Entry: %+v\n", entry)
 		total += entry.Total()
 		hours += entry.Hours()
-	}
 
-	atts := mavenlink.FormatEntries(entries)
-	for _, a := range atts {
-		// r.handler.SendWithAttachments(p, "", []robots.Attachment{a})
-		bot.reply(a.Fallback)
+		story := entry.Story
+		user := entry.User
+
+		details := fmt.Sprintf("By: %s - Date: %s\nTotal hours: %s - Rate: %s - Total: %.2f",
+			user.Name, entry.DatePerformed,
+			utils.FormatHour(entry.TimeInMinutes),
+			utils.FormatRate(entry.RateInCents), entry.Total())
+
+		msg := fmt.Sprintf("*%s - %s* (%s)\n%s\n",
+			story.Id, story.Title, strings.Title(story.State), details)
+		bot.reply(msg)
 	}
 
 	s := fmt.Sprintf("Total hours: %.2f - Total amount: $%.2f", hours, total)

@@ -237,7 +237,7 @@ func (mvn *Mavenlink) AddTimeEntry(s *Story, minutes int) (*TimeEntry, error) {
 }
 
 func (mvn *Mavenlink) GetTimeEntries(workspaceID, start, end string) ([]TimeEntry, error) {
-	search := fmt.Sprintf("workspace_id=%s&created_after=%s&created_before=%s",
+	search := fmt.Sprintf("include=user,story&workspace_id=%s&created_after=%s&created_before=%s",
 		workspaceID, start, end)
 	params := []string{search}
 	resp, err := mvn.get("time_entries", params)
