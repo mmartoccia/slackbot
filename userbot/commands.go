@@ -73,6 +73,8 @@ func taskReport(bot *UserBot, cmd utils.Command) error {
 	total = 0
 	hours = 0
 
+	msgs := ""
+
 	bot.reply(fmt.Sprintf("Listing *%d entries* for period of *%s* - *%s*:",
 		len(entries), start, end))
 
@@ -91,9 +93,10 @@ func taskReport(bot *UserBot, cmd utils.Command) error {
 
 		msg := fmt.Sprintf("*%s - %s* (%s)\n%s\n",
 			story.Id, story.Title, strings.Title(story.State), details)
-		bot.reply(msg)
+		msgs += msg
 	}
 
+	bot.reply(msgs)
 	s := fmt.Sprintf("Total hours: %.2f - Total amount: $%.2f", hours, total)
 	bot.reply(s)
 
