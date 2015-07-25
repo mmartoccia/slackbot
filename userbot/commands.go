@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/mavenlink"
@@ -55,11 +54,12 @@ func taskReport(bot *UserBot, cmd utils.Command) error {
 
 	start := cmd.Param("start")
 	end := cmd.Param("end")
+	now.FirstDayMonday = true
 	if start == "" {
 		start = now.BeginningOfWeek().Format("2006-01-02")
 	}
 	if end == "" {
-		end = time.Now().Format("2006-01-02")
+		end = now.EndOfWeek().Format("2006-01-02")
 	}
 
 	entries, err := mvn.GetTimeEntries(mvnProj.Id, start, end)
