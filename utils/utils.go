@@ -69,5 +69,9 @@ func FormatRate(cents int) string {
 	}
 
 	v := float64(cents) / 100
-	return fmt.Sprintf("%.2f", v)
+	return FormatMoney(v)
+}
+
+func FormatMoney(v float64) string {
+	return "$" + RenderFloat("#,###.##", v)
 }

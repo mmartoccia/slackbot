@@ -3,6 +3,7 @@ package userbot
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/gistia/slackbot/db"
@@ -25,6 +26,22 @@ func (bot *UserBot) SetupCommands() {
 
 func (bot *UserBot) Handle(msg *IncomingMsg) {
 	bot.handler.Process(msg.Text)
+}
+
+type mvnEntries []mavenlink.TimeEntry
+
+func (e mvnEntries) Len() int {
+	return len(e)
+}
+
+func (e mvnEntries) Less(i, j int) bool {
+	t1 := *e[i].DatePerformedAsTime()
+	t2 := *e[j].DatePerformedAsTime()
+	return t1.Before(t2)
+}
+
+func (e mvnEntries) Swap(i, j int) {
+	e[i], e[j] = e[j], e[i]
 }
 
 func taskReport(bot *UserBot, cmd utils.Command) error {
@@ -62,10 +79,13 @@ func taskReport(bot *UserBot, cmd utils.Command) error {
 		end = now.EndOfWeek().Format("2006-01-02")
 	}
 
-	entries, err := mvn.GetTimeEntries(mvnProj.Id, start, end)
+	var entries mvnEntries
+	entries, err = mvn.GetTimeEntries(mvnProj.Id, start, end)
 	if err != nil {
 		return err
 	}
+
+	sort.Sort(entries)
 
 	var total float64
 	var hours float64
@@ -86,18 +106,21 @@ func taskReport(bot *UserBot, cmd utils.Command) error {
 		story := entry.Story
 		user := entry.User
 
-		details := fmt.Sprintf("By: %s - Date: %s\nTotal hours: %s - Rate: %s - Total: %.2f",
-			user.Name, entry.DatePerformed,
+		details := fmt.Sprintf("%s - %s\n"+
+			"Hours: %s - Rate: %s - Total: %s",
+			entry.DatePerformed, user.Name,
 			utils.FormatHour(entry.TimeInMinutes),
-			utils.FormatRate(entry.RateInCents), entry.Total())
+			utils.FormatRate(entry.RateInCents),
+			utils.FormatMoney(entry.Total()))
 
-		msg := fmt.Sprintf("*%s - %s* (%s)\n%s\n",
+		msg := fmt.Sprintf("*%s - %s* (%s)\n%s\n\n",
 			story.Id, story.Title, strings.Title(story.State), details)
 		msgs += msg
 	}
 
 	bot.reply(msgs)
-	s := fmt.Sprintf("Total hours: %.2f - Total amount: $%.2f", hours, total)
+	s := fmt.Sprintf("Total hours: %.2f - Total amount: %s", hours,
+		utils.FormatMoney(total))
 	bot.reply(s)
 
 	return nil

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 )
 
 type Project struct {
@@ -40,6 +41,15 @@ type TimeEntry struct {
 	RateInCents   int    `json:"rate_in_cents"`
 	User
 	Story
+}
+
+func (entry *TimeEntry) DatePerformedAsTime() *time.Time {
+	t, err := time.Parse("2006-01-02", entry.DatePerformed)
+	if err != nil {
+		fmt.Println("Error: " + err.Error())
+		return nil
+	}
+	return &t
 }
 
 func (entry *TimeEntry) Hours() float64 {
