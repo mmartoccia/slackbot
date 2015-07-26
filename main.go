@@ -36,6 +36,7 @@ func main() {
 	if os.Getenv("RUN_BOT") != "" {
 		go startBot()
 	}
+	userbot.InitActions()
 	startServer()
 }
 

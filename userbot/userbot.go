@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gistia/slackbot/db"
 	"github.com/gistia/slackbot/utils"
 	"github.com/nlopes/slack"
 )
@@ -51,6 +52,24 @@ func NewIncomingMsg(bot *UserBot, evt *slack.MessageEvent) (*IncomingMsg, error)
 	}, nil
 }
 
+func (bot *UserBot) handleCurrentAction(msg *IncomingMsg) bool {
+	username := msg.User.Name
+	action, err := db.GetCurrentAction(username)
+	if err != nil {
+		bot.replyError(err)
+		return true
+	}
+
+	if action == nil {
+		return false
+	}
+
+	fmt.Println(" *** Will handle:", action.CurrentAction)
+	StartAction(action.CurrentAction, bot)
+
+	return true
+}
+
 func (bot *UserBot) messageReceived(evt *slack.MessageEvent) {
 	// doesn't act on messages sent by the bot itself
 	if evt.Msg.UserId == bot.api.GetInfo().User.Id {
@@ -71,6 +90,9 @@ func (bot *UserBot) messageReceived(evt *slack.MessageEvent) {
 	}
 
 	bot.lastMessage = msg
+	if bot.handleCurrentAction(msg) {
+		return
+	}
 	bot.Handle(msg)
 
 	// if msg.Text == "timezones" {

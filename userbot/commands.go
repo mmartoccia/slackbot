@@ -22,6 +22,7 @@ func (bot *UserBot) SetupCommands() {
 	bot.handler.Handle("claim", claimTimer)
 	bot.handler.Handle("tasks", StartedTasks)
 	bot.handler.Handle("taskreport", taskReport)
+	bot.handler.Handle("startpoker", startPoker)
 }
 
 func (bot *UserBot) Handle(msg *IncomingMsg) {
@@ -42,6 +43,11 @@ func (e mvnEntries) Less(i, j int) bool {
 
 func (e mvnEntries) Swap(i, j int) {
 	e[i], e[j] = e[j], e[i]
+}
+
+func startPoker(bot *UserBot, cmd utils.Command) error {
+	StartAction("PokerStart", bot)
+	return nil
 }
 
 func taskReport(bot *UserBot, cmd utils.Command) error {

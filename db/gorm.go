@@ -40,4 +40,5 @@ func SetupDB() {
 	db.LogMode(true)
 	db.AutoMigrate(&Vacation{})
 	db.AutoMigrate(&Assignment{})
+	db.AutoMigrate(&Action{})
 }
