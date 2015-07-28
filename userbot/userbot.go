@@ -122,6 +122,9 @@ func (bot *UserBot) messageReceived(evt *slack.MessageEvent) {
 }
 
 func (bot *UserBot) replyError(err error) error {
+	if err.Error() == "user_not_found" {
+		return nil
+	}
 	msg := "Error: " + err.Error()
 	return bot.reply(msg)
 }
