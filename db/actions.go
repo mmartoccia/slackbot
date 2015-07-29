@@ -4,6 +4,14 @@ type Action struct {
 	ID            int
 	User          string
 	CurrentAction string
+	State         State
+}
+
+type State struct {
+	ID       int
+	ActionID int
+	Name     string
+	Values   string
 }
 
 func GetCurrentAction(user string) (*Action, error) {

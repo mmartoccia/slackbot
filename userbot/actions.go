@@ -1,34 +1,80 @@
 package userbot
 
-import "github.com/gistia/slackbot/db"
+import (
+	"fmt"
 
-type Action interface {
-	Process(*UserBot, *IncomingMsg) (string, error)
-}
+	"github.com/gistia/slackbot/utils"
+)
 
-var actionRegistry = make(map[string]Action)
+var actions map[string]Executable
+var userActions map[string]Executable
 
-func registerAction(name string, action Action) {
-	actionRegistry[name] = action
+type Executable interface {
+	Execute(*UserBot, *IncomingMsg) Executable
 }
 
 func InitActions() {
-	registerAction("PokerStart", PokerStart{})
-	registerAction("PokerSessionName", PokerSessionName{})
+	userActions = map[string]Executable{}
+	actions = map[string]Executable{}
+	actions["menu"] = &InitialMenu{}
+	actions["task"] = &TaskAction{}
+	// actions["quiz"] = &Quiz{}
 }
 
-func StartAction(name string, bot *UserBot) {
-	msg := bot.lastMessage
-	action := actionRegistry[name]
-	next, err := action.Process(bot, msg)
-	if err != nil {
-		bot.reply("Error: " + err.Error())
+func (bot *UserBot) handleCurrentAction(msg *IncomingMsg) bool {
+	user := msg.User.Name
+	cmd := utils.NewCommand(msg.Text)
+
+	fmt.Println("  *** Current:", userActions[user])
+	fmt.Println("  *** Got:", msg.Text, "->", cmd.Command)
+
+	if userActions[user] == nil {
+		action := actions[cmd.Command]
+		fmt.Println("  *** Action:", action)
+		if action == nil {
+			return false
+		}
+		userActions[user] = action
 	}
 
-	if next == "" {
-		db.ClearCurrentAction(msg.User.Name)
-		return
-	}
+	userActions[user] = userActions[user].Execute(bot, msg)
+	return true
+}
 
-	db.SetCurrentAction(msg.User.Name, next)
+// ---- Sample menu
+
+type InitialMenu struct{}
+
+func (a *InitialMenu) Execute(bot *UserBot, msg *IncomingMsg) Executable {
+	menu := WaitingMenu{
+		Options: map[string]string{
+			"1": "News",
+			"2": "Sports",
+		},
+	}
+	bot.reply(menu.Prompt())
+	return &menu
+}
+
+type WaitingMenu struct {
+	Options map[string]string
+}
+
+func (a *WaitingMenu) Execute(bot *UserBot, msg *IncomingMsg) Executable {
+	opt := a.Options[msg.Text]
+	if opt == "" {
+		bot.reply("Unknown option: " + msg.Text)
+		bot.reply(a.Prompt())
+		return a
+	}
+	bot.reply("You chose: " + opt)
+	return nil
+}
+
+func (a *WaitingMenu) Prompt() string {
+	s := "Menu:\n"
+	for k := range a.Options {
+		s += fmt.Sprintf("%s - %s\n", k, a.Options[k])
+	}
+	return s
 }
