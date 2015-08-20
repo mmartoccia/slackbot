@@ -9,6 +9,7 @@ import (
 	_ "github.com/gistia/slackbot/robots/store"
 	_ "github.com/gistia/slackbot/robots/user"
 	_ "github.com/gistia/slackbot/robots/vacation"
+	_ "github.com/gistia/slackbot/robots/foodtrucks"
 )
 
 //go:generate ./importer.sh init.go

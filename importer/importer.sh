@@ -11,6 +11,7 @@ robots=(
     "github.com/gistia/slackbot/robots/store"
     "github.com/gistia/slackbot/robots/user"
     "github.com/gistia/slackbot/robots/vacation"
+    "github.com/gistia/slackbot/robots/foodtrucks"
 )
 
 echo "package importer
