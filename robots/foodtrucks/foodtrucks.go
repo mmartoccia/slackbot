@@ -24,13 +24,13 @@ func (r bot) Run(p *robots.Payload) string {
 	return ""
 }
 
-func (r bot) DeferredAction(p *robots.Payload) {
-	ch := utils.NewCmdHandler(p, r.handler, "foodtrucks")
-	ch.Handle("set", r.set)
-	ch.Handle("list", r.list)
-	ch.Handle("whoisout", r.whoIsOut)
-	ch.Process(p.Text)
-}
+// func (r bot) DeferredAction(p *robots.Payload) {
+// 	ch := utils.NewCmdHandler(p, r.handler, "foodtrucks")
+// 	ch.Handle("set", r.set)
+// 	ch.Handle("list", r.list)
+// 	ch.Handle("whoisout", r.whoIsOut)
+// 	ch.Process(p.Text)
+// }
 
 // func (r bot) whoIsOut(p *robots.Payload, cmd utils.Command) error {
 // 	vacations, err := db.GetCurrentVacations()
